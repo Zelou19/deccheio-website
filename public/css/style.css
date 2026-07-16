@@ -112,7 +112,7 @@ a { color: inherit; }
 }
 
 .brand-word { font-weight: 500; }
-.brand-heart { width: 20px; height: 18px; color: var(--gold); }
+.brand-heart { width: 20px; height: 18px; object-fit: contain; }
 .brand-small { font-size: 1.05rem; }
 
 .site-nav {
