@@ -1,0 +1,129 @@
+.admin-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 0;
+  border-bottom: 1px solid rgba(50,45,40,0.1);
+  margin-bottom: 32px;
+}
+
+.admin-header h1 {
+  font-size: 1.4rem;
+  margin: 0;
+}
+
+.admin-sair {
+  font-size: 0.85rem;
+  color: var(--taupe);
+  text-decoration: none;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: var(--font-body);
+}
+.admin-sair:hover { color: var(--wine); }
+
+.stats-bar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.stat-card {
+  background: var(--bg-alt);
+  border-radius: 6px;
+  padding: 18px 20px;
+  text-align: left;
+}
+
+.stat-card .stat-num {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 2rem;
+  color: var(--ink);
+  line-height: 1;
+}
+
+.stat-card .stat-label {
+  font-size: 0.78rem;
+  color: var(--taupe);
+  letter-spacing: 0.02em;
+}
+
+.stat-card.total { border-top: 3px solid var(--ink); }
+.stat-card.nao_respondido { border-top: 3px solid var(--wine); }
+.stat-card.em_andamento { border-top: 3px solid var(--gold); }
+.stat-card.concluido { border-top: 3px solid #2E6B4F; }
+
+.filtros-bar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.filtros-bar select,
+.filtros-bar input {
+  width: auto;
+  min-width: 160px;
+  font-size: 0.88rem;
+}
+
+.filtros-bar input[type="search"] { flex: 1; min-width: 200px; }
+
+.pedido-card {
+  background: var(--bg-alt);
+  border-radius: 6px;
+  padding: 18px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  text-decoration: none;
+  color: var(--ink);
+}
+
+.pedido-card-info { flex: 1; min-width: 0; }
+
+.pedido-card-nome {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.pedido-card-meta {
+  font-size: 0.82rem;
+  color: var(--taupe);
+  margin-top: 2px;
+}
+
+.pedido-card-tag {
+  display: inline-block;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--taupe);
+  background: var(--bg);
+  padding: 0.2em 0.7em;
+  border-radius: 999px;
+  margin-right: 8px;
+}
+
+.pedido-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.sem-resultados {
+  text-align: center;
+  color: var(--taupe);
+  padding: 40px 0;
+}
+
+@media (max-width: 700px) {
+  .stats-bar { grid-template-columns: repeat(2, 1fr); }
+  .pedido-card { flex-direction: column; align-items: flex-start; }
+  .pedido-card-actions { width: 100%; justify-content: space-between; }
+}

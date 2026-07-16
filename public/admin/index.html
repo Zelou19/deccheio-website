@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel — De Cheio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/chat.css">
+<link rel="stylesheet" href="../css/admin.css">
+</head>
+<body>
+
+<main class="wrap">
+
+  <div id="admin-gate" class="admin-gate">
+    <h1>Painel De Cheio</h1>
+    <p>Introduz a tua chave de acesso.</p>
+    <input type="password" id="admin-key-input" placeholder="Chave de admin">
+    <button id="admin-key-btn" class="btn btn-primary">Entrar</button>
+    <p id="gate-erro" class="form-feedback erro"></p>
+  </div>
+
+  <div id="admin-conteudo" hidden style="padding-bottom: 60px;">
+
+    <div class="admin-header">
+      <h1>Pedidos de orçamento</h1>
+      <button class="admin-sair" id="btn-sair">Sair</button>
+    </div>
+
+    <div class="stats-bar">
+      <div class="stat-card total">
+        <span class="stat-num" id="stat-total">0</span>
+        <span class="stat-label">Total</span>
+      </div>
+      <div class="stat-card nao_respondido">
+        <span class="stat-num" id="stat-nao_respondido">0</span>
+        <span class="stat-label">Não respondidos</span>
+      </div>
+      <div class="stat-card em_andamento">
+        <span class="stat-num" id="stat-em_andamento">0</span>
+        <span class="stat-label">Em andamento</span>
+      </div>
+      <div class="stat-card concluido">
+        <span class="stat-num" id="stat-concluido">0</span>
+        <span class="stat-label">Concluídos</span>
+      </div>
+    </div>
+
+    <div class="filtros-bar">
+      <select id="filtro-status">
+        <option value="">Todos os estados</option>
+        <option value="nao_respondido">Não respondido</option>
+        <option value="em_andamento">Em andamento</option>
+        <option value="concluido">Concluído</option>
+      </select>
+      <select id="filtro-tipo">
+        <option value="">Todos os tipos de evento</option>
+        <option value="Casamento">Casamento</option>
+        <option value="Aniversário">Aniversário</option>
+        <option value="Batizado">Batizado</option>
+        <option value="Evento corporativo">Evento corporativo</option>
+        <option value="Baby shower">Baby shower</option>
+        <option value="Outro">Outro</option>
+      </select>
+      <input type="search" id="filtro-busca" placeholder="Procurar por nome ou email...">
+    </div>
+
+    <div id="lista-pedidos"></div>
+  </div>
+
+</main>
+
+<script src="../js/admin.js"></script>
+</body>
+</html>
