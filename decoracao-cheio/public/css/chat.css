@@ -1,0 +1,137 @@
+.chat-page {
+  padding: 60px 0 100px;
+  max-width: 680px;
+}
+
+.pedido-resumo {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 10px;
+  color: var(--taupe);
+  font-size: 0.9rem;
+}
+
+.status-pill {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.3em 0.9em;
+  border-radius: 999px;
+  color: var(--bg);
+}
+
+.status-pill[data-status="nao_respondido"] { background: var(--wine); }
+.status-pill[data-status="em_andamento"] { background: var(--gold); }
+.status-pill[data-status="concluido"] { background: #2E6B4F; }
+
+.chat-hint {
+  color: var(--taupe);
+  font-size: 0.88rem;
+}
+
+.chat-box {
+  margin-top: 24px;
+  background: var(--bg-alt);
+  border-radius: 6px;
+  padding: 20px;
+}
+
+.chat-mensagens {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 420px;
+  overflow-y: auto;
+  padding-right: 4px;
+  margin-bottom: 16px;
+}
+
+.msg {
+  max-width: 78%;
+  padding: 0.7em 1em;
+  border-radius: 8px;
+  font-size: 0.92rem;
+  line-height: 1.4;
+}
+
+.msg-cliente {
+  align-self: flex-start;
+  background: var(--bg);
+  border: 1px solid rgba(50,45,40,0.12);
+}
+
+.msg-admin {
+  align-self: flex-end;
+  background: var(--wine);
+  color: var(--bg);
+}
+
+.msg-meta {
+  display: block;
+  font-size: 0.72rem;
+  opacity: 0.65;
+  margin-top: 4px;
+}
+
+.chat-vazio {
+  color: var(--taupe);
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+.chat-form {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+}
+
+.chat-form textarea {
+  flex: 1;
+  font-family: var(--font-body);
+}
+
+.erro-pedido { padding-top: 20px; }
+.erro-pedido p { color: var(--taupe); }
+
+/* ---------- Admin extras ---------- */
+.admin-gate {
+  max-width: 380px;
+  margin: 120px auto;
+  text-align: center;
+}
+
+.admin-gate input {
+  margin: 16px 0;
+}
+
+.admin-lista {
+  list-style: none;
+  padding: 0;
+  margin: 24px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.admin-lista li {
+  background: var(--bg-alt);
+  border-radius: 6px;
+  padding: 14px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.admin-lista a { text-decoration: none; }
+.admin-lista .pedido-nome { font-weight: 600; }
+.admin-lista .pedido-meta { color: var(--taupe); font-size: 0.85rem; }
+
+.status-select {
+  width: auto;
+  font-size: 0.85rem;
+  padding: 0.4em 0.6em;
+}

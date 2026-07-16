@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>O teu pedido — De Cheio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/chat.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a href="/" class="brand">
+      <span class="brand-word">De</span>
+      <svg class="brand-heart" viewBox="0 0 40 36" aria-hidden="true"><use href="#fingerprint-heart"></use></svg>
+      <span class="brand-word">Cheio</span>
+    </a>
+  </div>
+</header>
+
+<main class="wrap chat-page">
+
+  <div id="estado-carregamento">A carregar o teu pedido...</div>
+
+  <div id="conteudo-pedido" hidden>
+    <p class="eyebrow">O teu pedido</p>
+    <h1 id="pedido-titulo">—</h1>
+
+    <div class="pedido-resumo">
+      <span class="status-pill" id="pedido-status">—</span>
+      <span id="pedido-data"></span>
+    </div>
+
+    <p class="chat-hint">Guarda este link — é através dele que continuas a conversa connosco sobre o teu evento.</p>
+
+    <div class="chat-box">
+      <div id="chat-mensagens" class="chat-mensagens"></div>
+
+      <form id="chat-form" class="chat-form">
+        <textarea id="chat-texto" rows="2" placeholder="Escreve a tua mensagem..." required></textarea>
+        <button type="submit" class="btn btn-primary">Enviar</button>
+      </form>
+      <p id="chat-feedback" class="form-feedback" role="status" aria-live="polite"></p>
+    </div>
+  </div>
+
+  <div id="estado-erro" hidden class="erro-pedido">
+    <h1>Não encontrámos este pedido</h1>
+    <p>O link pode estar incompleto. Verifica se copiaste o endereço todo, ou <a href="/#orcamento">faz um novo pedido</a>.</p>
+  </div>
+
+</main>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="fingerprint-heart" viewBox="0 0 40 36">
+      <path d="M20 34C10 27 2 19 2 11.5 2 5.5 6.8 1 12.5 1c3.3 0 6.2 1.7 7.5 4.3C21.3 2.7 24.2 1 27.5 1 33.2 1 38 5.5 38 11.5 38 19 30 27 20 34z" fill="none" stroke="currentColor" stroke-width="1.6"/>
+    </symbol>
+  </defs>
+</svg>
+
+<script src="js/pedido.js"></script>
+</body>
+</html>
