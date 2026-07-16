@@ -2,18 +2,27 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
 const path = require('path');
 
 const quotesRouter = require('./routes/quotes');
+const { router: authRouter } = require('./routes/auth');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/decoracao-de-cheio';
 
-app.use(cors());
+app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
+app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Config pública para o frontend (nada secreto — só o ID do cliente Google, que é público por natureza)
+app.get('/api/config', (req, res) => {
+  res.json({ googleClientId: process.env.GOOGLE_CLIENT_ID || '' });
+});
+
+app.use('/api/auth', authRouter);
 app.use('/api/quotes', quotesRouter);
 
 mongoose

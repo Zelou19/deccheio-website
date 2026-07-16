@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Entrar — De Cheio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/auth.css">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/img/logo512.png">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a href="/" class="brand">
+      <span class="brand-word">De</span>
+      <img class="brand-heart" src="/img/fingerprint-heart.png" alt="" aria-hidden="true">
+      <span class="brand-word">Cheio</span>
+    </a>
+  </div>
+</header>
+
+<main class="wrap auth-page">
+
+  <div class="auth-card">
+
+    <div class="auth-tabs">
+      <button type="button" class="auth-tab ativo" id="tab-login">Entrar</button>
+      <button type="button" class="auth-tab" id="tab-registo">Criar conta</button>
+    </div>
+
+    <form id="form-login" class="auth-form">
+      <input type="email" id="login-email" placeholder="Email" required autocomplete="email">
+      <input type="password" id="login-senha" placeholder="Senha" required autocomplete="current-password">
+      <button type="submit" class="btn btn-primary">Entrar</button>
+    </form>
+
+    <form id="form-registo" class="auth-form auth-hidden">
+      <input type="text" id="registo-nome" placeholder="O teu nome" required autocomplete="name">
+      <input type="email" id="registo-email" placeholder="Email" required autocomplete="email">
+      <input type="password" id="registo-senha" placeholder="Senha (mín. 6 caracteres)" required autocomplete="new-password" minlength="6">
+      <button type="submit" class="btn btn-primary">Criar conta</button>
+    </form>
+
+    <p id="auth-feedback" class="form-feedback" role="status" aria-live="polite"></p>
+
+    <div class="auth-divider">ou</div>
+
+    <div class="auth-google-btn" id="google-btn"></div>
+
+  </div>
+
+</main>
+
+<script src="js/auth.js"></script>
+</body>
+</html>
