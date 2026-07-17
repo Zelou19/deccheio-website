@@ -25,7 +25,7 @@ function dadosPublicos(user) {
   return { id: user._id, nome: user.nome, email: user.email };
 }
 
-// Middleware: exige que a pessoa esteja autenticada (usado noutras rotas, ex. "as minhas conversas")
+// Middleware: exige que a pessoa esteja autenticada (usado noutras rotas, ex. "os meus orçamentos")
 function requireUser(req, res, next) {
   const token = req.cookies?.[NOME_COOKIE];
   if (!token) return res.status(401).json({ erro: 'É preciso ter sessão iniciada.' });
@@ -37,6 +37,20 @@ function requireUser(req, res, next) {
   } catch (erro) {
     return res.status(401).json({ erro: 'Sessão inválida ou expirada.' });
   }
+}
+
+// Middleware: se houver sessão válida põe req.user, mas nunca bloqueia (usado ao criar pedidos,
+// para ligar o pedido à conta quando a pessoa está autenticada, sem obrigar ninguém a ter conta)
+function optionalUser(req, res, next) {
+  const token = req.cookies?.[NOME_COOKIE];
+  if (!token) return next();
+
+  try {
+    req.user = jwt.verify(token, JWT_SECRET);
+  } catch (erro) {
+    // token inválido/expirado — segue em frente como visitante anónimo
+  }
+  next();
 }
 
 // POST /api/auth/registo — cria conta com nome + email + senha
@@ -141,4 +155,4 @@ router.get('/me', requireUser, (req, res) => {
   res.json({ user: req.user });
 });
 
-module.exports = { router, requireUser };
+module.exports = { router, requireUser, optionalUser };

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Os meus orçamentos — De Cheio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/chat.css">
+<link rel="stylesheet" href="css/orcamentos.css">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/img/logo512.png">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a href="/" class="brand">
+      <span class="brand-word">De</span>
+      <img class="brand-heart" src="/img/fingerprint-heart.png" alt="" aria-hidden="true">
+      <span class="brand-word">Cheio</span>
+    </a>
+    <nav class="site-nav">
+      <span id="ola-nome"></span>
+      <button type="button" class="nav-cta" id="btn-sair" style="border:none; cursor:pointer;">Sair</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap orcamentos-page">
+
+  <p class="eyebrow">A tua conta</p>
+  <h1>Os meus orçamentos</h1>
+
+  <div id="estado-carregamento">A carregar...</div>
+
+  <div id="estado-vazio" hidden>
+    <p>Ainda não fizeste nenhum pedido de orçamento.</p>
+    <a href="/#orcamento" class="btn btn-primary">Pedir orçamento</a>
+  </div>
+
+  <div id="lista-orcamentos" class="orcamentos-lista"></div>
+
+</main>
+
+<script src="js/orcamentos.js"></script>
+</body>
+</html>

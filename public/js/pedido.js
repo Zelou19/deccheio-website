@@ -95,10 +95,20 @@ form?.addEventListener('submit', async (event) => {
   }
 });
 
+async function mostrarLinkOrcamentosSeAutenticado() {
+  try {
+    const resposta = await fetch('/api/auth/me', { credentials: 'include' });
+    if (resposta.ok) document.getElementById('link-orcamentos').hidden = false;
+  } catch (erro) {
+    // sem sessão — não mostra o link
+  }
+}
+
 if (!idPedido) {
   elCarregamento.hidden = true;
   elErro.hidden = false;
 } else {
   carregarPedido();
+  mostrarLinkOrcamentosSeAutenticado();
   setInterval(carregarPedido, 5000); // faz "polling" — verifica novas mensagens a cada 5 segundos
 }

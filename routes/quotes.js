@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const QuoteRequest = require('../models/QuoteRequest');
+const { requireUser, optionalUser } = require('./auth');
 
 // Middleware simples: protege ações de admin com uma chave partilhada (definida no .env).
 // Isto é temporário — na Fase 3 (painel de gestão) isto passa a ter um login a sério.
@@ -13,7 +14,8 @@ function requireAdmin(req, res, next) {
 }
 
 // POST /api/quotes — cliente envia um novo pedido de orçamento pelo site
-router.post('/', async (req, res) => {
+// (optionalUser: se a pessoa tiver sessão iniciada, o pedido fica ligado à conta dela)
+router.post('/', optionalUser, async (req, res) => {
   try {
     const { nome, email, telefone, tipoEvento, dataEvento, numeroConvidados, orcamentoAproximado, mensagem } = req.body;
 
@@ -22,6 +24,7 @@ router.post('/', async (req, res) => {
     }
 
     const novoPedido = await QuoteRequest.create({
+      userId: req.user?.id || undefined,
       nome,
       email,
       telefone,
@@ -52,6 +55,18 @@ router.get('/', requireAdmin, async (req, res) => {
   } catch (erro) {
     console.error('Erro ao listar pedidos:', erro);
     res.status(500).json({ erro: 'Não foi possível carregar os pedidos.' });
+  }
+});
+
+// GET /api/quotes/minhas — lista os orçamentos da pessoa com sessão iniciada.
+// Tem de vir antes de "/:id" para o Express não confundir "minhas" com um ID de pedido.
+router.get('/minhas', requireUser, async (req, res) => {
+  try {
+    const pedidos = await QuoteRequest.find({ userId: req.user.id }).sort({ updatedAt: -1 });
+    res.json(pedidos);
+  } catch (erro) {
+    console.error('Erro ao listar os meus orçamentos:', erro);
+    res.status(500).json({ erro: 'Não foi possível carregar os teus orçamentos.' });
   }
 });
 

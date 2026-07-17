@@ -5,6 +5,10 @@ const mongoose = require('mongoose');
 // saberes rapidamente em que ponto está cada pedido.
 const quoteRequestSchema = new mongoose.Schema(
   {
+    // Se a pessoa tinha sessão iniciada quando fez o pedido, fica ligado à conta dela —
+    // assim aparece na aba "As minhas conversas" e não depende só do link.
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+
     nome: { type: String, required: true, trim: true },
     email: { type: String, required: true, trim: true, lowercase: true },
     telefone: { type: String, trim: true },

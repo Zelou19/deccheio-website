@@ -9,8 +9,8 @@
     if (!resposta.ok) return; // não tem sessão — mantém "Entrar"
 
     const { user } = await resposta.json();
-    link.textContent = user.nome?.split(' ')[0] || 'A minha conta';
-    link.href = '/minhas-conversas.html';
+    link.textContent = user.nome?.split(' ')[0] || 'Os meus orçamentos';
+    link.href = '/orcamentos.html';
   } catch (erro) {
     // sem sessão ou sem rede — mantém o link "Entrar" tal como está
   }

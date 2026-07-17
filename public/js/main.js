@@ -26,6 +26,7 @@ form.addEventListener('submit', async (event) => {
   try {
     const resposta = await fetch('/api/quotes', {
       method: 'POST',
+      credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(dados),
     });
