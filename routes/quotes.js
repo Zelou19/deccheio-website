@@ -141,4 +141,18 @@ router.patch('/:id/status', requireAdmin, async (req, res) => {
   }
 });
 
+// DELETE /api/quotes/:id — apaga um pedido e a conversa para sempre. Protegido pela chave de admin,
+// que o frontend pede sempre de novo neste caso específico (mesmo que já tenha sessão de admin aberta),
+// como confirmação extra para não se apagar nada sem querer.
+router.delete('/:id', requireAdmin, async (req, res) => {
+  try {
+    const pedido = await QuoteRequest.findByIdAndDelete(req.params.id);
+    if (!pedido) return res.status(404).json({ erro: 'Pedido não encontrado.' });
+    res.json({ sucesso: true });
+  } catch (erro) {
+    console.error('Erro ao apagar pedido:', erro);
+    res.status(400).json({ erro: 'Não foi possível apagar o pedido.' });
+  }
+});
+
 module.exports = router;

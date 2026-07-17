@@ -110,6 +110,72 @@ selectStatus.addEventListener('change', async () => {
   carregarPedido();
 });
 
+// ---------- Apagar conversa (zona perigosa) ----------
+const btnMostrarApagar = document.getElementById('btn-mostrar-apagar');
+const painelApagar = document.getElementById('painel-apagar');
+const btnCancelarApagar = document.getElementById('btn-cancelar-apagar');
+const btnConfirmarApagar = document.getElementById('btn-confirmar-apagar');
+const inputSenhaApagar = document.getElementById('apagar-senha');
+const feedbackApagar = document.getElementById('apagar-feedback');
+
+btnMostrarApagar?.addEventListener('click', () => {
+  painelApagar.hidden = false;
+  btnMostrarApagar.hidden = true;
+  inputSenhaApagar.focus();
+});
+
+btnCancelarApagar?.addEventListener('click', () => {
+  painelApagar.hidden = true;
+  btnMostrarApagar.hidden = false;
+  inputSenhaApagar.value = '';
+  feedbackApagar.textContent = '';
+  feedbackApagar.className = 'form-feedback';
+});
+
+btnConfirmarApagar?.addEventListener('click', async () => {
+  const senha = inputSenhaApagar.value;
+  feedbackApagar.textContent = '';
+  feedbackApagar.className = 'form-feedback';
+
+  if (!senha) {
+    feedbackApagar.textContent = 'Escreve a palavra-passe para confirmar.';
+    feedbackApagar.classList.add('erro');
+    return;
+  }
+
+  btnConfirmarApagar.disabled = true;
+  btnConfirmarApagar.textContent = 'A apagar...';
+
+  try {
+    // Nota: usa-se sempre a palavra-passe escrita agora neste campo (não a guardada em sessão),
+    // de propósito — é essa a confirmação extra pedida para uma ação irreversível.
+    const resposta = await fetch(`/api/quotes/${idPedido}`, {
+      method: 'DELETE',
+      headers: { 'x-admin-key': senha },
+    });
+
+    if (resposta.status === 401) {
+      feedbackApagar.textContent = 'Palavra-passe incorreta.';
+      feedbackApagar.classList.add('erro');
+      return;
+    }
+    if (!resposta.ok) {
+      const erro = await resposta.json().catch(() => ({}));
+      feedbackApagar.textContent = erro.erro || 'Não foi possível apagar.';
+      feedbackApagar.classList.add('erro');
+      return;
+    }
+
+    window.location.href = '/admin/';
+  } catch (erro) {
+    feedbackApagar.textContent = 'Não foi possível apagar. Tenta novamente.';
+    feedbackApagar.classList.add('erro');
+  } finally {
+    btnConfirmarApagar.disabled = false;
+    btnConfirmarApagar.textContent = 'Apagar para sempre';
+  }
+});
+
 if (!idPedido) {
   elCarregamento.hidden = true;
   elErro.hidden = false;

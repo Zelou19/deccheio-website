@@ -42,6 +42,23 @@
       </form>
       <p id="chat-feedback" class="form-feedback" role="status" aria-live="polite"></p>
     </div>
+
+    <div class="zona-perigo">
+      <button type="button" id="btn-mostrar-apagar" class="link-perigo">Apagar esta conversa para sempre</button>
+
+      <div id="painel-apagar" hidden>
+        <p>Isto apaga o pedido e toda a conversa <strong>permanentemente</strong>. Não é possível desfazer.</p>
+        <div class="form-row-split" style="display:flex; gap:10px; align-items:flex-end;">
+          <div style="flex:1;">
+            <label for="apagar-senha">Confirma com a palavra-passe de admin</label>
+            <input type="password" id="apagar-senha" placeholder="Palavra-passe">
+          </div>
+          <button type="button" id="btn-confirmar-apagar" class="btn btn-perigo">Apagar para sempre</button>
+          <button type="button" id="btn-cancelar-apagar" class="btn-cancelar">Cancelar</button>
+        </div>
+        <p id="apagar-feedback" class="form-feedback" role="status" aria-live="polite"></p>
+      </div>
+    </div>
   </div>
 
   <div id="estado-erro" hidden class="erro-pedido">
