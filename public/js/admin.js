@@ -11,6 +11,12 @@ const botoesAba = document.querySelectorAll('.aba-btn');
 let todosPedidos = [];
 let abaAtual = 'abertas';
 
+const ROTULOS_STATUS = {
+  nao_respondido: 'Não respondido',
+  em_andamento: 'Em andamento',
+  concluido: 'Concluído',
+};
+
 function getChave() {
   return sessionStorage.getItem('adminKey') || '';
 }
@@ -67,6 +73,7 @@ function renderizarLista() {
   lista.innerHTML = filtrados
     .map((p) => `
       <div class="pedido-card" style="margin-bottom: 10px;">
+        <span class="status-dot" data-status="${p.status}" title="${ROTULOS_STATUS[p.status] || p.status}"></span>
         <a href="/admin/chat.html?id=${p._id}" class="pedido-card-info" style="text-decoration:none; color: inherit;">
           <div class="pedido-card-nome">${p.nome}</div>
           <div class="pedido-card-meta">

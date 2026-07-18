@@ -13,6 +13,11 @@ const elTitulo = document.getElementById('pedido-titulo');
 const elEmail = document.getElementById('pedido-email');
 const elTelefone = document.getElementById('pedido-telefone');
 const elDetalhes = document.getElementById('pedido-detalhes');
+const elInfoVista = document.getElementById('pedido-info-vista');
+const btnEditarPedido = document.getElementById('btn-editar-pedido');
+const formEditar = document.getElementById('form-editar-pedido');
+const btnCancelarEditar = document.getElementById('btn-cancelar-editar');
+const feedbackEditar = document.getElementById('editar-feedback');
 const elStatus = document.getElementById('pedido-status');
 const selectStatus = document.getElementById('status-select');
 const btnFecharConversa = document.getElementById('btn-fechar-conversa');
@@ -30,6 +35,7 @@ const ROTULOS_STATUS = {
 };
 
 let ultimaContagemMensagens = -1;
+let pedidoAtual = null;
 
 function escaparHtml(texto) {
   const div = document.createElement('div');
@@ -38,6 +44,8 @@ function escaparHtml(texto) {
 }
 
 function renderizarPedido(pedido) {
+  pedidoAtual = pedido;
+
   elTipo.textContent = pedido.tipoEvento;
   elTitulo.textContent = pedido.nome;
   elEmail.textContent = pedido.email;
@@ -88,6 +96,87 @@ async function carregarPedido() {
   elConteudo.hidden = false;
   renderizarPedido(pedido);
 }
+
+// ---------- Editar dados do pedido ----------
+function formatarDataParaInput(iso) {
+  if (!iso) return '';
+  return new Date(iso).toISOString().slice(0, 10);
+}
+
+function abrirEdicao() {
+  if (!pedidoAtual) return;
+
+  document.getElementById('edit-nome').value = pedidoAtual.nome || '';
+  document.getElementById('edit-email').value = pedidoAtual.email || '';
+  document.getElementById('edit-telefone').value = pedidoAtual.telefone || '';
+  document.getElementById('edit-tipoEvento').value = pedidoAtual.tipoEvento || '';
+  document.getElementById('edit-dataEvento').value = formatarDataParaInput(pedidoAtual.dataEvento);
+  document.getElementById('edit-numeroConvidados').value = pedidoAtual.numeroConvidados ?? '';
+  document.getElementById('edit-orcamentoAproximado').value = pedidoAtual.orcamentoAproximado || '';
+  document.getElementById('edit-mensagem').value = pedidoAtual.mensagem || '';
+
+  feedbackEditar.textContent = '';
+  feedbackEditar.className = 'form-feedback';
+
+  elInfoVista.hidden = true;
+  elDetalhes.hidden = true;
+  formEditar.hidden = false;
+  btnEditarPedido.hidden = true;
+}
+
+function fecharEdicao() {
+  formEditar.hidden = true;
+  elInfoVista.hidden = false;
+  elDetalhes.hidden = false;
+  btnEditarPedido.hidden = false;
+}
+
+btnEditarPedido?.addEventListener('click', abrirEdicao);
+btnCancelarEditar?.addEventListener('click', fecharEdicao);
+
+formEditar?.addEventListener('submit', async (event) => {
+  event.preventDefault();
+
+  const alteracoes = {
+    nome: document.getElementById('edit-nome').value.trim(),
+    email: document.getElementById('edit-email').value.trim(),
+    telefone: document.getElementById('edit-telefone').value.trim(),
+    tipoEvento: document.getElementById('edit-tipoEvento').value,
+    dataEvento: document.getElementById('edit-dataEvento').value || '',
+    numeroConvidados: document.getElementById('edit-numeroConvidados').value || '',
+    orcamentoAproximado: document.getElementById('edit-orcamentoAproximado').value.trim(),
+    mensagem: document.getElementById('edit-mensagem').value.trim(),
+  };
+
+  feedbackEditar.textContent = '';
+  feedbackEditar.className = 'form-feedback';
+
+  const botaoGuardar = formEditar.querySelector('button[type="submit"]');
+  botaoGuardar.disabled = true;
+
+  try {
+    const resposta = await fetch(`/api/quotes/${idPedido}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', 'x-admin-key': getChave() },
+      body: JSON.stringify(alteracoes),
+    });
+    const pedido = await resposta.json();
+
+    if (!resposta.ok) {
+      feedbackEditar.textContent = pedido.erro || 'Não foi possível guardar as alterações.';
+      feedbackEditar.classList.add('erro');
+      return;
+    }
+
+    renderizarPedido(pedido);
+    fecharEdicao();
+  } catch (erro) {
+    feedbackEditar.textContent = 'Não foi possível guardar. Tenta novamente.';
+    feedbackEditar.classList.add('erro');
+  } finally {
+    botaoGuardar.disabled = false;
+  }
+});
 
 form?.addEventListener('submit', async (event) => {
   event.preventDefault();

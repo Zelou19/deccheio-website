@@ -18,12 +18,70 @@
   <div id="estado-carregamento">A carregar...</div>
 
   <div id="conteudo-pedido" hidden>
-    <p class="eyebrow" id="pedido-tipo">—</p>
-    <h1 id="pedido-titulo">—</h1>
-    <p style="color: var(--taupe); margin-top: -0.6em;">
+    <div class="pedido-cabecalho">
+      <div>
+        <p class="eyebrow" id="pedido-tipo">—</p>
+        <h1 id="pedido-titulo">—</h1>
+      </div>
+      <button type="button" id="btn-editar-pedido" class="btn-toggle-fechar">Editar dados</button>
+    </div>
+    <p style="color: var(--taupe); margin-top: -0.6em;" id="pedido-info-vista">
       <span id="pedido-email"></span> · <span id="pedido-telefone"></span>
     </p>
     <p style="color: var(--taupe);" id="pedido-detalhes"></p>
+
+    <form id="form-editar-pedido" class="painel-edicao" hidden>
+      <div class="form-row-split">
+        <div class="form-row">
+          <label for="edit-nome">Nome</label>
+          <input type="text" id="edit-nome" required>
+        </div>
+        <div class="form-row">
+          <label for="edit-email">Email</label>
+          <input type="email" id="edit-email" required>
+        </div>
+      </div>
+      <div class="form-row-split">
+        <div class="form-row">
+          <label for="edit-telefone">Telefone</label>
+          <input type="text" id="edit-telefone">
+        </div>
+        <div class="form-row">
+          <label for="edit-tipoEvento">Tipo de evento</label>
+          <select id="edit-tipoEvento">
+            <option value="Casamento">Casamento</option>
+            <option value="Aniversário">Aniversário</option>
+            <option value="Batizado">Batizado</option>
+            <option value="Evento corporativo">Evento corporativo</option>
+            <option value="Baby shower">Baby shower</option>
+            <option value="Outro">Outro</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row-split">
+        <div class="form-row">
+          <label for="edit-dataEvento">Data do evento</label>
+          <input type="date" id="edit-dataEvento">
+        </div>
+        <div class="form-row">
+          <label for="edit-numeroConvidados">Nº de convidados</label>
+          <input type="number" id="edit-numeroConvidados" min="0">
+        </div>
+      </div>
+      <div class="form-row">
+        <label for="edit-orcamentoAproximado">Orçamento aproximado</label>
+        <input type="text" id="edit-orcamentoAproximado" placeholder="ex: 500-1000€">
+      </div>
+      <div class="form-row">
+        <label for="edit-mensagem">Mensagem / notas do pedido</label>
+        <textarea id="edit-mensagem" rows="3"></textarea>
+      </div>
+      <div style="display:flex; gap:10px;">
+        <button type="submit" class="btn btn-primary">Guardar alterações</button>
+        <button type="button" id="btn-cancelar-editar" class="btn-cancelar">Cancelar</button>
+      </div>
+      <p id="editar-feedback" class="form-feedback" role="status" aria-live="polite"></p>
+    </form>
 
     <div class="pedido-resumo">
       <span class="status-pill" id="pedido-status">—</span>

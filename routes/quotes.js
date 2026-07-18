@@ -188,6 +188,50 @@ router.patch('/:id/reabrir', async (req, res) => {
   }
 });
 
+// PATCH /api/quotes/:id — o admin edita os dados do pedido (nome, contactos, data, orçamento, etc.)
+// Só os campos enviados são atualizados; o resto do pedido (mensagens, status, fechado...) não é tocado.
+router.patch('/:id', requireAdmin, async (req, res) => {
+  try {
+    const CAMPOS_EDITAVEIS = [
+      'nome',
+      'email',
+      'telefone',
+      'tipoEvento',
+      'dataEvento',
+      'numeroConvidados',
+      'orcamentoAproximado',
+      'mensagem',
+    ];
+
+    const alteracoes = {};
+    for (const campo of CAMPOS_EDITAVEIS) {
+      if (Object.prototype.hasOwnProperty.call(req.body, campo)) {
+        alteracoes[campo] = req.body[campo];
+      }
+    }
+
+    if (alteracoes.nome !== undefined && !alteracoes.nome.trim()) {
+      return res.status(400).json({ erro: 'O nome não pode ficar vazio.' });
+    }
+    if (alteracoes.email !== undefined && !alteracoes.email.trim()) {
+      return res.status(400).json({ erro: 'O email não pode ficar vazio.' });
+    }
+    if (alteracoes.dataEvento === '') alteracoes.dataEvento = null;
+    if (alteracoes.numeroConvidados === '') alteracoes.numeroConvidados = null;
+
+    const pedido = await QuoteRequest.findByIdAndUpdate(req.params.id, alteracoes, {
+      new: true,
+      runValidators: true,
+    });
+    if (!pedido) return res.status(404).json({ erro: 'Pedido não encontrado.' });
+
+    res.json(pedido);
+  } catch (erro) {
+    console.error('Erro ao editar pedido:', erro);
+    res.status(400).json({ erro: 'Não foi possível guardar as alterações.' });
+  }
+});
+
 // DELETE /api/quotes/:id — apaga um pedido e a conversa para sempre. Protegido pela chave de admin,
 // que o frontend pede sempre de novo neste caso específico (mesmo que já tenha sessão de admin aberta),
 // como confirmação extra para não se apagar nada sem querer.

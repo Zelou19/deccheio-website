@@ -73,6 +73,7 @@
 .filtros-bar input[type="search"] { flex: 1; min-width: 200px; }
 
 .pedido-card {
+  position: relative;
   background: var(--bg-alt);
   border-radius: 6px;
   padding: 18px 22px;
@@ -83,6 +84,20 @@
   text-decoration: none;
   color: var(--ink);
 }
+
+.status-dot {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.status-dot[data-status="nao_respondido"] { background: var(--wine); }
+.status-dot[data-status="em_andamento"] { background: var(--gold); }
+.status-dot[data-status="concluido"] { background: #2E6B4F; }
 
 .pedido-card-info { flex: 1; min-width: 0; }
 
