@@ -73,9 +73,11 @@ function renderizarLista() {
   lista.innerHTML = filtrados
     .map((p) => `
       <div class="pedido-card" style="margin-bottom: 10px;">
-        <span class="status-dot" data-status="${p.status}" title="${ROTULOS_STATUS[p.status] || p.status}"></span>
         <a href="/admin/chat.html?id=${p._id}" class="pedido-card-info" style="text-decoration:none; color: inherit;">
-          <div class="pedido-card-nome">${p.nome}</div>
+          <div class="pedido-card-nome">
+            <span class="status-dot" data-status="${p.status}" title="${ROTULOS_STATUS[p.status] || p.status}"></span>
+            ${p.nome}
+          </div>
           <div class="pedido-card-meta">
             <span class="pedido-card-tag">${p.tipoEvento}</span>
             ${p.email} · pedido a ${new Date(p.createdAt).toLocaleDateString('pt-PT')}
