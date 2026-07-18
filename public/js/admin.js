@@ -6,8 +6,10 @@ const inputChave = document.getElementById('admin-key-input');
 const filtroStatus = document.getElementById('filtro-status');
 const filtroTipo = document.getElementById('filtro-tipo');
 const filtroBusca = document.getElementById('filtro-busca');
+const botoesAba = document.querySelectorAll('.aba-btn');
 
 let todosPedidos = [];
+let abaAtual = 'abertas';
 
 function getChave() {
   return sessionStorage.getItem('adminKey') || '';
@@ -49,6 +51,8 @@ function renderizarLista() {
 
   const termoBusca = filtroBusca.value.trim().toLowerCase();
   const filtrados = todosPedidos.filter((p) => {
+    if (abaAtual === 'abertas' && p.fechado) return false;
+    if (abaAtual === 'fechadas' && !p.fechado) return false;
     if (filtroStatus.value && p.status !== filtroStatus.value) return false;
     if (filtroTipo.value && p.tipoEvento !== filtroTipo.value) return false;
     if (termoBusca && !`${p.nome} ${p.email}`.toLowerCase().includes(termoBusca)) return false;
@@ -56,7 +60,7 @@ function renderizarLista() {
   });
 
   if (filtrados.length === 0) {
-    lista.innerHTML = '<p class="sem-resultados">Nenhum pedido corresponde a este filtro.</p>';
+    lista.innerHTML = `<p class="sem-resultados">${abaAtual === 'fechadas' ? 'Ainda não há conversas fechadas.' : 'Nenhum pedido corresponde a este filtro.'}</p>`;
     return;
   }
 
@@ -68,6 +72,7 @@ function renderizarLista() {
           <div class="pedido-card-meta">
             <span class="pedido-card-tag">${p.tipoEvento}</span>
             ${p.email} · pedido a ${new Date(p.createdAt).toLocaleDateString('pt-PT')}
+            ${p.fechado ? ' · <span class="pedido-card-fechada">fechada</span>' : ''}
           </div>
         </a>
         <div class="pedido-card-actions">
@@ -76,6 +81,9 @@ function renderizarLista() {
             <option value="em_andamento" ${p.status === 'em_andamento' ? 'selected' : ''}>Em andamento</option>
             <option value="concluido" ${p.status === 'concluido' ? 'selected' : ''}>Concluído</option>
           </select>
+          <button type="button" class="btn-toggle-fechar" data-id="${p._id}" data-fechado="${p.fechado}">
+            ${p.fechado ? 'Reabrir' : 'Fechar'}
+          </button>
           <a href="/admin/chat.html?id=${p._id}" class="btn btn-primary" style="padding: 0.5em 1em; font-size: 0.82rem;">Abrir</a>
         </div>
       </div>
@@ -88,6 +96,18 @@ function renderizarLista() {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', 'x-admin-key': getChave() },
         body: JSON.stringify({ status: select.value }),
+      });
+      carregarPedidos();
+    });
+  });
+
+  lista.querySelectorAll('.btn-toggle-fechar').forEach((botao) => {
+    botao.addEventListener('click', async () => {
+      const fechadoAtualmente = botao.dataset.fechado === 'true';
+      const acao = fechadoAtualmente ? 'reabrir' : 'fechar';
+      await fetch(`/api/quotes/${botao.dataset.id}/${acao}`, {
+        method: 'PATCH',
+        headers: { 'x-admin-key': getChave() },
       });
       carregarPedidos();
     });
@@ -111,5 +131,13 @@ document.getElementById('btn-sair').addEventListener('click', () => {
 });
 
 [filtroStatus, filtroTipo, filtroBusca].forEach((el) => el.addEventListener('input', renderizarLista));
+
+botoesAba.forEach((botao) => {
+  botao.addEventListener('click', () => {
+    abaAtual = botao.dataset.aba;
+    botoesAba.forEach((b) => b.classList.toggle('ativa', b === botao));
+    renderizarLista();
+  });
+});
 
 if (getChave()) carregarPedidos();

@@ -32,7 +32,12 @@
         <option value="em_andamento">Em andamento</option>
         <option value="concluido">Concluído</option>
       </select>
+      <button type="button" id="btn-fechar-conversa" class="btn-toggle-fechar">Fechar conversa</button>
     </div>
+
+    <p id="aviso-fechada" class="aviso-fechada" hidden>
+      Esta conversa está fechada. <button type="button" id="btn-reabrir-conversa" class="link-perigo">Reabrir conversa</button> para poderes responder outra vez.
+    </p>
 
     <div class="chat-box">
       <div id="chat-mensagens" class="chat-mensagens"></div>

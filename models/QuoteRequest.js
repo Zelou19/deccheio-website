@@ -37,6 +37,12 @@ const quoteRequestSchema = new mongoose.Schema(
       default: 'nao_respondido',
     },
 
+    // Fechar uma conversa é diferente de mudar o `status`: serve só para a arrumar
+    // (passa a aparecer no separador "Fechadas" em vez de "Abertas"), sem apagar nada.
+    // Tanto o cliente como o admin podem fechar e reabrir sempre que precisarem.
+    fechado: { type: Boolean, default: false },
+    fechadoEm: { type: Date },
+
     // Preparado para a fase 2 (chat): cada pedido vai poder ter mensagens associadas
     mensagens: [
       {

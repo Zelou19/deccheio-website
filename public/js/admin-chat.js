@@ -15,6 +15,9 @@ const elTelefone = document.getElementById('pedido-telefone');
 const elDetalhes = document.getElementById('pedido-detalhes');
 const elStatus = document.getElementById('pedido-status');
 const selectStatus = document.getElementById('status-select');
+const btnFecharConversa = document.getElementById('btn-fechar-conversa');
+const avisoFechada = document.getElementById('aviso-fechada');
+const btnReabrirConversa = document.getElementById('btn-reabrir-conversa');
 const elMensagens = document.getElementById('chat-mensagens');
 const form = document.getElementById('chat-form');
 const textarea = document.getElementById('chat-texto');
@@ -49,6 +52,16 @@ function renderizarPedido(pedido) {
   elStatus.textContent = ROTULOS_STATUS[pedido.status];
   elStatus.dataset.status = pedido.status;
   selectStatus.value = pedido.status;
+
+  if (pedido.fechado) {
+    btnFecharConversa.hidden = true;
+    avisoFechada.hidden = false;
+    form.hidden = true;
+  } else {
+    btnFecharConversa.hidden = false;
+    avisoFechada.hidden = true;
+    form.hidden = false;
+  }
 
   if (pedido.mensagens.length === ultimaContagemMensagens) return;
   ultimaContagemMensagens = pedido.mensagens.length;
@@ -106,6 +119,22 @@ selectStatus.addEventListener('change', async () => {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json', 'x-admin-key': getChave() },
     body: JSON.stringify({ status: selectStatus.value }),
+  });
+  carregarPedido();
+});
+
+btnFecharConversa?.addEventListener('click', async () => {
+  await fetch(`/api/quotes/${idPedido}/fechar`, {
+    method: 'PATCH',
+    headers: { 'x-admin-key': getChave() },
+  });
+  carregarPedido();
+});
+
+btnReabrirConversa?.addEventListener('click', async () => {
+  await fetch(`/api/quotes/${idPedido}/reabrir`, {
+    method: 'PATCH',
+    headers: { 'x-admin-key': getChave() },
   });
   carregarPedido();
 });

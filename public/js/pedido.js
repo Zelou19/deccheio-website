@@ -7,6 +7,9 @@ const elErro = document.getElementById('estado-erro');
 const elTitulo = document.getElementById('pedido-titulo');
 const elStatus = document.getElementById('pedido-status');
 const elData = document.getElementById('pedido-data');
+const btnFecharConversa = document.getElementById('btn-fechar-conversa');
+const avisoFechada = document.getElementById('aviso-fechada');
+const btnReabrirConversa = document.getElementById('btn-reabrir-conversa');
 const elMensagens = document.getElementById('chat-mensagens');
 const form = document.getElementById('chat-form');
 const textarea = document.getElementById('chat-texto');
@@ -30,6 +33,16 @@ function renderizarPedido(pedido) {
   elStatus.textContent = ROTULOS_STATUS[pedido.status] || pedido.status;
   elStatus.dataset.status = pedido.status;
   elData.textContent = `Pedido feito a ${formatarData(pedido.createdAt)}`;
+
+  if (pedido.fechado) {
+    btnFecharConversa.hidden = true;
+    avisoFechada.hidden = false;
+    form.hidden = true;
+  } else {
+    btnFecharConversa.hidden = false;
+    avisoFechada.hidden = true;
+    form.hidden = false;
+  }
 
   // Só volta a desenhar as mensagens se o número mudou, para não interromper quem está a escrever
   if (pedido.mensagens.length === ultimaContagemMensagens) return;
@@ -92,6 +105,26 @@ form?.addEventListener('submit', async (event) => {
   } catch (erro) {
     feedback.textContent = erro.message;
     feedback.classList.add('erro');
+  }
+});
+
+btnFecharConversa?.addEventListener('click', async () => {
+  try {
+    const resposta = await fetch(`/api/quotes/${idPedido}/fechar`, { method: 'PATCH' });
+    const pedido = await resposta.json();
+    if (resposta.ok) renderizarPedido(pedido);
+  } catch (erro) {
+    // se falhar, o botão continua visível e a pessoa pode tentar de novo
+  }
+});
+
+btnReabrirConversa?.addEventListener('click', async () => {
+  try {
+    const resposta = await fetch(`/api/quotes/${idPedido}/reabrir`, { method: 'PATCH' });
+    const pedido = await resposta.json();
+    if (resposta.ok) renderizarPedido(pedido);
+  } catch (erro) {
+    // se falhar, o aviso continua visível e a pessoa pode tentar de novo
   }
 });
 

@@ -49,6 +49,8 @@ router.get('/', requireAdmin, async (req, res) => {
     const filtro = {};
     if (req.query.status) filtro.status = req.query.status;
     if (req.query.tipoEvento) filtro.tipoEvento = req.query.tipoEvento;
+    if (req.query.fechado === 'true') filtro.fechado = true;
+    if (req.query.fechado === 'false') filtro.fechado = false;
 
     const pedidos = await QuoteRequest.find(filtro).sort({ createdAt: -1 });
     res.json(pedidos);
@@ -62,7 +64,11 @@ router.get('/', requireAdmin, async (req, res) => {
 // Tem de vir antes de "/:id" para o Express não confundir "minhas" com um ID de pedido.
 router.get('/minhas', requireUser, async (req, res) => {
   try {
-    const pedidos = await QuoteRequest.find({ userId: req.user.id }).sort({ updatedAt: -1 });
+    const filtro = { userId: req.user.id };
+    if (req.query.fechado === 'true') filtro.fechado = true;
+    if (req.query.fechado === 'false') filtro.fechado = false;
+
+    const pedidos = await QuoteRequest.find(filtro).sort({ updatedAt: -1 });
     res.json(pedidos);
   } catch (erro) {
     console.error('Erro ao listar os meus orçamentos:', erro);
@@ -91,6 +97,9 @@ router.post('/:id/messages/cliente', async (req, res) => {
 
     const pedido = await QuoteRequest.findById(req.params.id);
     if (!pedido) return res.status(404).json({ erro: 'Pedido não encontrado.' });
+    if (pedido.fechado) {
+      return res.status(409).json({ erro: 'Esta conversa está fechada. Reabre-a para poderes enviar mais mensagens.' });
+    }
 
     pedido.mensagens.push({ autor: 'cliente', texto: texto.trim() });
     await pedido.save();
@@ -110,6 +119,9 @@ router.post('/:id/messages/admin', requireAdmin, async (req, res) => {
 
     const pedido = await QuoteRequest.findById(req.params.id);
     if (!pedido) return res.status(404).json({ erro: 'Pedido não encontrado.' });
+    if (pedido.fechado) {
+      return res.status(409).json({ erro: 'Esta conversa está fechada. Reabre-a para poderes responder.' });
+    }
 
     pedido.mensagens.push({ autor: 'admin', texto: texto.trim() });
 
@@ -138,6 +150,41 @@ router.patch('/:id/status', requireAdmin, async (req, res) => {
     res.json(pedido);
   } catch (erro) {
     res.status(400).json({ erro: 'Não foi possível atualizar o estado.' });
+  }
+});
+
+// PATCH /api/quotes/:id/fechar — fecha a conversa (passa para o separador "Fechadas",
+// nada é apagado). Sem chave de admin de propósito: tal como as mensagens, tanto o
+// cliente (pelo link/pedido.html) como o admin podem fechar a conversa.
+router.patch('/:id/fechar', async (req, res) => {
+  try {
+    const pedido = await QuoteRequest.findById(req.params.id);
+    if (!pedido) return res.status(404).json({ erro: 'Pedido não encontrado.' });
+
+    pedido.fechado = true;
+    pedido.fechadoEm = new Date();
+    await pedido.save();
+
+    res.json(pedido);
+  } catch (erro) {
+    res.status(400).json({ erro: 'Não foi possível fechar a conversa.' });
+  }
+});
+
+// PATCH /api/quotes/:id/reabrir — reabre uma conversa fechada, para qualquer um dos
+// dois lados poder continuar a falar se precisar de mais alguma coisa.
+router.patch('/:id/reabrir', async (req, res) => {
+  try {
+    const pedido = await QuoteRequest.findById(req.params.id);
+    if (!pedido) return res.status(404).json({ erro: 'Pedido não encontrado.' });
+
+    pedido.fechado = false;
+    pedido.fechadoEm = undefined;
+    await pedido.save();
+
+    res.json(pedido);
+  } catch (erro) {
+    res.status(400).json({ erro: 'Não foi possível reabrir a conversa.' });
   }
 });
 
