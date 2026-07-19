@@ -10,6 +10,7 @@ form.addEventListener('submit', async (event) => {
 
   const dados = {
     nome: form.nome.value.trim(),
+    nomeFestejado: form.nomeFestejado.value.trim(),
     email: form.email.value.trim(),
     telefone: form.telefone.value.trim(),
     tipoEvento: form.tipoEvento.value,

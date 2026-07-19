@@ -10,6 +10,9 @@ const quoteRequestSchema = new mongoose.Schema(
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
 
     nome: { type: String, required: true, trim: true },
+    // Nome de quem o evento é sobre (aniversariante, noivos, empresa...), quando é diferente
+    // de quem está a pedir o orçamento. Opcional, porque nem todo o tipo de evento precisa disto.
+    nomeFestejado: { type: String, trim: true },
     email: { type: String, required: true, trim: true, lowercase: true },
     telefone: { type: String, trim: true },
 
@@ -49,6 +52,8 @@ const quoteRequestSchema = new mongoose.Schema(
         autor: { type: String, enum: ['cliente', 'admin'] },
         texto: String,
         criadoEm: { type: Date, default: Date.now },
+        // Só preenchido em mensagens do admin: guarda o nome de utilizador de quem respondeu.
+        enviadoPor: { type: String },
       },
     ],
   },

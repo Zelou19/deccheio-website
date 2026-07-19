@@ -75,6 +75,7 @@ function renderizarPedido(pedido) {
   elEmail.textContent = pedido.email;
   elTelefone.textContent = pedido.telefone || '';
   elDetalhes.textContent = [
+    pedido.nomeFestejado ? `Para: ${pedido.nomeFestejado}` : null,
     pedido.dataEvento ? `Data: ${new Date(pedido.dataEvento).toLocaleDateString('pt-PT')}` : null,
     pedido.numeroConvidados ? `${pedido.numeroConvidados} convidados` : null,
     pedido.orcamentoAproximado ? `Orçamento: ${pedido.orcamentoAproximado}` : null,
@@ -110,7 +111,8 @@ function renderizarPedido(pedido) {
     : pedido.mensagens.map((msg) => {
         const classe = msg.autor === 'admin' ? 'msg-admin' : 'msg-cliente';
         const hora = new Date(msg.criadoEm).toLocaleString('pt-PT', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
-        return `<div class="msg ${classe}">${escaparHtml(msg.texto)}<span class="msg-meta">${hora}</span></div>`;
+        const autor = msg.autor === 'admin' ? (msg.enviadoPor || 'Equipa DecoraçãoCheio') : `Cliente: ${pedido.nome}`;
+        return `<div class="msg ${classe}">${escaparHtml(msg.texto)}<span class="msg-meta">${hora}</span><span class="msg-autor">${escaparHtml(autor)}</span></div>`;
       }).join('');
   elMensagens.scrollTop = elMensagens.scrollHeight;
 }
@@ -138,6 +140,7 @@ function abrirEdicao() {
   if (!pedidoAtual) return;
 
   document.getElementById('edit-nome').value = pedidoAtual.nome || '';
+  document.getElementById('edit-nomeFestejado').value = pedidoAtual.nomeFestejado || '';
   document.getElementById('edit-email').value = pedidoAtual.email || '';
   document.getElementById('edit-telefone').value = pedidoAtual.telefone || '';
   document.getElementById('edit-tipoEvento').value = pedidoAtual.tipoEvento || '';
@@ -170,6 +173,7 @@ formEditar?.addEventListener('submit', async (event) => {
 
   const alteracoes = {
     nome: document.getElementById('edit-nome').value.trim(),
+    nomeFestejado: document.getElementById('edit-nomeFestejado').value.trim(),
     email: document.getElementById('edit-email').value.trim(),
     telefone: document.getElementById('edit-telefone').value.trim(),
     tipoEvento: document.getElementById('edit-tipoEvento').value,

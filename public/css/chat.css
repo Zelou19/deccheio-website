@@ -77,6 +77,14 @@
   margin-top: 4px;
 }
 
+.msg-autor {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  opacity: 0.8;
+  margin-top: 1px;
+}
+
 .chat-vazio {
   color: var(--taupe);
   font-size: 0.9rem;

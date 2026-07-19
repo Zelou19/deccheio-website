@@ -8,7 +8,7 @@ const { requireAdmin } = require('./adminAuth');
 // (optionalUser: se a pessoa tiver sessão iniciada, o pedido fica ligado à conta dela)
 router.post('/', optionalUser, async (req, res) => {
   try {
-    const { nome, email, telefone, tipoEvento, dataEvento, numeroConvidados, orcamentoAproximado, mensagem } = req.body;
+    const { nome, nomeFestejado, email, telefone, tipoEvento, dataEvento, numeroConvidados, orcamentoAproximado, mensagem } = req.body;
 
     if (!nome || !email || !tipoEvento) {
       return res.status(400).json({ erro: 'Faltam campos obrigatórios (nome, email, tipo de evento).' });
@@ -17,6 +17,7 @@ router.post('/', optionalUser, async (req, res) => {
     const novoPedido = await QuoteRequest.create({
       userId: req.user?.id || undefined,
       nome,
+      nomeFestejado: nomeFestejado || undefined,
       email,
       telefone,
       tipoEvento,
@@ -114,7 +115,7 @@ router.post('/:id/messages/admin', requireAdmin, async (req, res) => {
       return res.status(409).json({ erro: 'Esta conversa está fechada. Reabre-a para poderes responder.' });
     }
 
-    pedido.mensagens.push({ autor: 'admin', texto: texto.trim() });
+    pedido.mensagens.push({ autor: 'admin', texto: texto.trim(), enviadoPor: req.admin.username });
 
     // Assim que respondes pela primeira vez, o estado passa automaticamente para "em andamento"
     if (pedido.status === 'nao_respondido') {
@@ -185,6 +186,7 @@ router.patch('/:id', requireAdmin, async (req, res) => {
   try {
     const CAMPOS_EDITAVEIS = [
       'nome',
+      'nomeFestejado',
       'email',
       'telefone',
       'tipoEvento',

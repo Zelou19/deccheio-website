@@ -55,7 +55,8 @@ function renderizarPedido(pedido) {
       .map((msg) => {
         const classe = msg.autor === 'admin' ? 'msg-admin' : 'msg-cliente';
         const hora = new Date(msg.criadoEm).toLocaleString('pt-PT', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
-        return `<div class="msg ${classe}">${escaparHtml(msg.texto)}<span class="msg-meta">${hora}</span></div>`;
+        const autor = msg.autor === 'admin' ? 'Equipa DecoraçãoCheio' : 'Você';
+        return `<div class="msg ${classe}">${escaparHtml(msg.texto)}<span class="msg-meta">${hora}</span><span class="msg-autor">${autor}</span></div>`;
       })
       .join('');
   }
