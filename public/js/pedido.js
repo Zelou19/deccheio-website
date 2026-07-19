@@ -49,7 +49,7 @@ function renderizarPedido(pedido) {
   ultimaContagemMensagens = pedido.mensagens.length;
 
   if (pedido.mensagens.length === 0) {
-    elMensagens.innerHTML = '<p class="chat-vazio">Ainda não há mensagens. Escreve a primeira!</p>';
+    elMensagens.innerHTML = '<p class="chat-vazio">Ainda não há mensagens. Escreva a primeira!</p>';
   } else {
     elMensagens.innerHTML = pedido.mensagens
       .map((msg) => {

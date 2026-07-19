@@ -242,6 +242,19 @@ a { color: inherit; }
 
 .orcamento-intro p:not(.eyebrow) { color: var(--taupe); max-width: 380px; }
 
+.orcamento-gate {
+  background: var(--bg);
+  padding: 36px;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.orcamento-gate p {
+  color: var(--taupe);
+  max-width: 420px;
+  margin: 0 auto 20px;
+}
+
 .quote-form {
   background: var(--bg);
   padding: 36px;

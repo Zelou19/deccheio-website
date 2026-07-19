@@ -62,6 +62,7 @@ function linkGoogleCalendar(pedido) {
     text: `${pedido.tipoEvento} — ${pedido.nome}`,
     dates: `${inicio}/${paraYYYYMMDD(fim)}`,
     details: detalhes,
+    location: pedido.localEvento || '',
   });
 
   return `https://calendar.google.com/calendar/render?${parametros.toString()}`;
@@ -77,6 +78,7 @@ function renderizarPedido(pedido) {
   elDetalhes.textContent = [
     pedido.nomeFestejado ? `Para: ${pedido.nomeFestejado}` : null,
     pedido.dataEvento ? `Data: ${new Date(pedido.dataEvento).toLocaleDateString('pt-PT')}` : null,
+    pedido.localEvento ? `Local: ${pedido.localEvento}` : null,
     pedido.numeroConvidados ? `${pedido.numeroConvidados} convidados` : null,
     pedido.orcamentoAproximado ? `Orçamento: ${pedido.orcamentoAproximado}` : null,
     pedido.mensagem || null,
@@ -145,6 +147,7 @@ function abrirEdicao() {
   document.getElementById('edit-telefone').value = pedidoAtual.telefone || '';
   document.getElementById('edit-tipoEvento').value = pedidoAtual.tipoEvento || '';
   document.getElementById('edit-dataEvento').value = formatarDataParaInput(pedidoAtual.dataEvento);
+  document.getElementById('edit-localEvento').value = pedidoAtual.localEvento || '';
   document.getElementById('edit-numeroConvidados').value = pedidoAtual.numeroConvidados ?? '';
   document.getElementById('edit-orcamentoAproximado').value = pedidoAtual.orcamentoAproximado || '';
   document.getElementById('edit-mensagem').value = pedidoAtual.mensagem || '';
@@ -178,6 +181,7 @@ formEditar?.addEventListener('submit', async (event) => {
     telefone: document.getElementById('edit-telefone').value.trim(),
     tipoEvento: document.getElementById('edit-tipoEvento').value,
     dataEvento: document.getElementById('edit-dataEvento').value || '',
+    localEvento: document.getElementById('edit-localEvento').value.trim(),
     numeroConvidados: document.getElementById('edit-numeroConvidados').value || '',
     orcamentoAproximado: document.getElementById('edit-orcamentoAproximado').value.trim(),
     mensagem: document.getElementById('edit-mensagem').value.trim(),

@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>De Cheio — Decoração e Organização de Eventos</title>
-<meta name="description" content="Cada evento tem uma impressão digital própria. Pede o teu orçamento e conta-nos a tua história.">
+<meta name="description" content="Cada evento tem uma impressão digital própria. Peça o seu orçamento e conte-nos a sua história.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -43,7 +43,7 @@
     <div class="wrap hero-inner">
       <p class="eyebrow">Decoração &amp; organização de eventos</p>
       <h1>Cada festa tem<br>uma impressão digital.</h1>
-      <p class="hero-lede">Contamos-te a nossa e ouvimos a tua — e a partir disso desenhamos um evento que só podia ser teu. Casamentos, aniversários, batizados e eventos corporativos, sempre com o mesmo cuidado ao detalhe.</p>
+      <p class="hero-lede">Contamos-lhe a nossa e ouvimos a sua — e a partir disso desenhamos um evento que só podia ser seu. Casamentos, aniversários, batizados e eventos corporativos, sempre com o mesmo cuidado ao detalhe.</p>
       <a href="#orcamento" class="btn btn-primary">Pedir orçamento</a>
     </div>
   </section>
@@ -93,17 +93,17 @@
         <li>
           <span class="passo-num">01</span>
           <h3>Pedido de orçamento</h3>
-          <p>Preenches o formulário abaixo com o essencial sobre o teu evento.</p>
+          <p>Preencha o formulário abaixo com o essencial sobre o seu evento.</p>
         </li>
         <li>
           <span class="passo-num">02</span>
           <h3>Conversa direta</h3>
-          <p>Respondemos e afinamos os detalhes contigo, por chat, até tudo estar bem desenhado.</p>
+          <p>Respondemos e afinamos os detalhes consigo, por chat, até tudo estar bem desenhado.</p>
         </li>
         <li>
           <span class="passo-num">03</span>
           <h3>O evento acontece</h3>
-          <p>Tratamos da decoração para que só precises de aparecer e aproveitar.</p>
+          <p>Tratamos da decoração para que só precise de aparecer e aproveitar.</p>
         </li>
       </ol>
     </div>
@@ -114,11 +114,18 @@
     <div class="wrap orcamento-inner">
       <div class="orcamento-intro">
         <p class="eyebrow">Vamos começar</p>
-        <h2>Pede o teu orçamento</h2>
-        <p>Conta-nos sobre o teu evento. Respondemos por email e, a partir daí, continuamos a conversa por aqui.</p>
+        <h2>Peça o seu orçamento</h2>
+        <p>Conte-nos sobre o seu evento. Respondemos por email e, a partir daí, continuamos a conversa por aqui.</p>
       </div>
 
-      <form id="quote-form" class="quote-form" novalidate>
+      <p id="orcamento-loading" class="chat-hint">A verificar sessão...</p>
+
+      <div id="orcamento-gate" class="orcamento-gate" hidden>
+        <p>Para pedir um orçamento é preciso ter sessão iniciada — assim consegue acompanhar a conversa e ver todos os seus pedidos sempre que quiser.</p>
+        <a href="/login.html?redirecionar=%2F%23orcamento" class="btn btn-primary">Iniciar sessão / Criar conta</a>
+      </div>
+
+      <form id="quote-form" class="quote-form" novalidate hidden>
         <div class="form-row">
           <label for="nome">Nome do cliente</label>
           <input type="text" id="nome" name="nome" required>
@@ -144,7 +151,7 @@
           <div>
             <label for="tipoEvento">Tipo de evento</label>
             <select id="tipoEvento" name="tipoEvento" required>
-              <option value="" disabled selected>Escolhe uma opção</option>
+              <option value="" disabled selected>Escolha uma opção</option>
               <option value="Casamento">Casamento</option>
               <option value="Aniversário">Aniversário</option>
               <option value="Batizado">Batizado</option>
@@ -171,8 +178,13 @@
         </div>
 
         <div class="form-row">
-          <label for="mensagem">A tua ideia <span class="opcional">(opcional)</span></label>
-          <textarea id="mensagem" name="mensagem" rows="4" placeholder="Conta-nos o que imaginas para o teu evento..."></textarea>
+          <label for="localEvento">Local do evento <span class="opcional">(opcional)</span></label>
+          <input type="text" id="localEvento" name="localEvento" placeholder="ex: Quinta da Boavista, Porto">
+        </div>
+
+        <div class="form-row">
+          <label for="mensagem">A sua ideia <span class="opcional">(opcional)</span></label>
+          <textarea id="mensagem" name="mensagem" rows="4" placeholder="Conte-nos o que imagina para o seu evento..."></textarea>
         </div>
 
         <button type="submit" class="btn btn-primary btn-submit">Enviar pedido</button>

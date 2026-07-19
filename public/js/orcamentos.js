@@ -51,7 +51,7 @@ function renderizarLista() {
   const filtrados = todosPedidos.filter((p) => (abaAtual === 'fechadas' ? p.fechado : !p.fechado));
 
   if (filtrados.length === 0) {
-    elLista.innerHTML = `<p class="sem-resultados">${abaAtual === 'fechadas' ? 'Ainda não tens conversas fechadas.' : 'Não tens conversas abertas.'}</p>`;
+    elLista.innerHTML = `<p class="sem-resultados">${abaAtual === 'fechadas' ? 'Ainda não tem conversas fechadas.' : 'Não tem conversas abertas.'}</p>`;
     return;
   }
 

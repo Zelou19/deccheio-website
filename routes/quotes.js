@@ -1,27 +1,29 @@
 const express = require('express');
 const router = express.Router();
 const QuoteRequest = require('../models/QuoteRequest');
-const { requireUser, optionalUser } = require('./auth');
+const { requireUser } = require('./auth');
 const { requireAdmin } = require('./adminAuth');
 
 // POST /api/quotes — cliente envia um novo pedido de orçamento pelo site
-// (optionalUser: se a pessoa tiver sessão iniciada, o pedido fica ligado à conta dela)
-router.post('/', optionalUser, async (req, res) => {
+// (requireUser: é obrigatório ter sessão iniciada — assim o pedido fica sempre ligado
+// à conta da pessoa e ela consegue acompanhar tudo em "Os meus orçamentos")
+router.post('/', requireUser, async (req, res) => {
   try {
-    const { nome, nomeFestejado, email, telefone, tipoEvento, dataEvento, numeroConvidados, orcamentoAproximado, mensagem } = req.body;
+    const { nome, nomeFestejado, email, telefone, tipoEvento, dataEvento, localEvento, numeroConvidados, orcamentoAproximado, mensagem } = req.body;
 
     if (!nome || !email || !tipoEvento) {
       return res.status(400).json({ erro: 'Faltam campos obrigatórios (nome, email, tipo de evento).' });
     }
 
     const novoPedido = await QuoteRequest.create({
-      userId: req.user?.id || undefined,
+      userId: req.user.id,
       nome,
       nomeFestejado: nomeFestejado || undefined,
       email,
       telefone,
       tipoEvento,
       dataEvento: dataEvento || undefined,
+      localEvento: localEvento || undefined,
       numeroConvidados: numeroConvidados || undefined,
       orcamentoAproximado,
       mensagem,
@@ -191,6 +193,7 @@ router.patch('/:id', requireAdmin, async (req, res) => {
       'telefone',
       'tipoEvento',
       'dataEvento',
+      'localEvento',
       'numeroConvidados',
       'orcamentoAproximado',
       'mensagem',
