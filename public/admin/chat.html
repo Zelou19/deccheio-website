@@ -7,13 +7,20 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../css/style.css">
 <link rel="stylesheet" href="../css/chat.css">
+<link rel="stylesheet" href="../css/admin.css">
 <link rel="icon" type="image/x-icon" href="/favicon.ico">
 <link rel="apple-touch-icon" href="/img/logo512.png">
 </head>
 <body>
 
 <main class="wrap chat-page">
-  <p><a href="/admin/">&larr; Voltar à lista</a></p>
+  <p style="display:flex; justify-content:space-between; align-items:center;">
+    <a href="/admin/">&larr; Voltar à lista</a>
+    <span style="display:flex; gap:18px;">
+      <a href="/admin/conta.html" class="admin-sair" style="text-decoration:none;">A minha conta</a>
+      <button class="admin-sair" id="btn-sair">Sair</button>
+    </span>
+  </p>
 
   <div id="estado-carregamento">A carregar...</div>
 
@@ -130,6 +137,7 @@
   </div>
 </main>
 
+<script src="../js/admin-session.js"></script>
 <script src="../js/admin-chat.js"></script>
 </body>
 </html>

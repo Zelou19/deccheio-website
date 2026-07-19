@@ -15,19 +15,14 @@
 
 <main class="wrap" style="padding-bottom: 80px;">
 
-  <div id="admin-gate" class="admin-gate">
-    <h1>Painel De Cheio</h1>
-    <p>Introduz a tua chave de acesso.</p>
-    <input type="password" id="admin-key-input" placeholder="Chave de admin">
-    <button id="admin-key-btn" class="btn btn-primary">Entrar</button>
-    <p id="gate-erro" class="form-feedback erro"></p>
-  </div>
-
-  <div id="admin-conteudo" hidden>
+  <div id="admin-conteudo">
 
     <div class="admin-header">
       <h1>Calendário</h1>
-      <a href="/admin/index.html" class="admin-sair" style="text-decoration:none;">&larr; Pedidos de orçamento</a>
+      <div style="display:flex; align-items:center; gap:18px;">
+        <a href="/admin/conta.html" class="admin-sair" style="text-decoration:none;">A minha conta</a>
+        <a href="/admin/index.html" class="admin-sair" style="text-decoration:none;">&larr; Pedidos de orçamento</a>
+      </div>
     </div>
 
     <p class="calendario-ajuda">
@@ -55,6 +50,7 @@
 
 </main>
 
+<script src="../js/admin-session.js"></script>
 <script src="../js/admin-calendario.js"></script>
 </body>
 </html>

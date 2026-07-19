@@ -17,21 +17,14 @@
 
 <main class="wrap">
 
-  <div id="admin-gate" class="admin-gate">
-    <h1>Painel De Cheio</h1>
-    <p>Introduz a tua chave de acesso.</p>
-    <input type="password" id="admin-key-input" placeholder="Chave de admin">
-    <button id="admin-key-btn" class="btn btn-primary">Entrar</button>
-    <p id="gate-erro" class="form-feedback erro"></p>
-  </div>
-
-  <div id="admin-conteudo" hidden style="padding-bottom: 60px;">
+  <div id="admin-conteudo" style="padding-bottom: 60px;">
 
     <div class="admin-header">
       <h1>Pedidos de orçamento</h1>
       <div style="display:flex; align-items:center; gap:18px;">
         <a href="/admin/eventos.html" class="admin-sair" style="text-decoration:none;">Os nossos eventos</a>
         <a href="/admin/calendario.html" class="admin-sair" style="text-decoration:none;">Calendário</a>
+        <a href="/admin/conta.html" class="admin-sair" style="text-decoration:none;">A minha conta</a>
         <button class="admin-sair" id="btn-sair">Sair</button>
       </div>
     </div>
@@ -84,6 +77,7 @@
 
 </main>
 
+<script src="../js/admin-session.js"></script>
 <script src="../js/admin.js"></script>
 </body>
 </html>

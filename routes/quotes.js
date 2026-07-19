@@ -2,16 +2,7 @@ const express = require('express');
 const router = express.Router();
 const QuoteRequest = require('../models/QuoteRequest');
 const { requireUser, optionalUser } = require('./auth');
-
-// Middleware simples: protege ações de admin com uma chave partilhada (definida no .env).
-// Isto é temporário — na Fase 3 (painel de gestão) isto passa a ter um login a sério.
-function requireAdmin(req, res, next) {
-  const chave = req.headers['x-admin-key'];
-  if (!process.env.ADMIN_KEY || chave !== process.env.ADMIN_KEY) {
-    return res.status(401).json({ erro: 'Não autorizado.' });
-  }
-  next();
-}
+const { requireAdmin } = require('./adminAuth');
 
 // POST /api/quotes — cliente envia um novo pedido de orçamento pelo site
 // (optionalUser: se a pessoa tiver sessão iniciada, o pedido fica ligado à conta dela)
@@ -232,9 +223,9 @@ router.patch('/:id', requireAdmin, async (req, res) => {
   }
 });
 
-// DELETE /api/quotes/:id — apaga um pedido e a conversa para sempre. Protegido pela chave de admin,
-// que o frontend pede sempre de novo neste caso específico (mesmo que já tenha sessão de admin aberta),
-// como confirmação extra para não se apagar nada sem querer.
+// DELETE /api/quotes/:id — apaga um pedido e a conversa para sempre. Além de exigir sessão de
+// admin, o frontend pede sempre a palavra-passe do próprio admin outra vez neste caso específico
+// (verificada em /api/admin/auth/verificar-senha antes de chegar aqui), como confirmação extra.
 router.delete('/:id', requireAdmin, async (req, res) => {
   try {
     const pedido = await QuoteRequest.findByIdAndDelete(req.params.id);

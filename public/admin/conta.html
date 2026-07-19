@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A minha conta — Admin — De Cheio</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/admin.css">
+<link rel="stylesheet" href="../css/auth.css">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/img/logo512.png">
+</head>
+<body>
+
+<main class="wrap" style="padding-bottom: 80px; max-width: 520px;">
+
+  <div class="admin-header">
+    <h1>A minha conta</h1>
+    <div style="display:flex; align-items:center; gap:18px;">
+      <a href="/admin/index.html" class="admin-sair" style="text-decoration:none;">&larr; Pedidos de orçamento</a>
+      <button class="admin-sair" id="btn-sair">Sair</button>
+    </div>
+  </div>
+
+  <p id="conta-info" style="color: var(--taupe); margin-top: -12px;"></p>
+
+  <section style="margin-top: 24px;">
+    <h2 style="font-size: 1.05rem;">Mudar palavra-passe</h2>
+    <form id="form-mudar-senha" class="auth-form" style="max-width: 360px;">
+      <input type="password" id="senha-atual" placeholder="Palavra-passe atual" required autocomplete="current-password">
+      <input type="password" id="senha-nova" placeholder="Nova palavra-passe (mín. 6 caracteres)" required minlength="6" autocomplete="new-password">
+      <button type="submit" class="btn btn-primary">Guardar nova palavra-passe</button>
+    </form>
+    <p id="senha-feedback" class="form-feedback" role="status" aria-live="polite"></p>
+  </section>
+
+  <section id="secao-utilizadores" class="admin-so-owner" hidden style="margin-top: 40px;">
+    <h2 style="font-size: 1.05rem;">Utilizadores do painel</h2>
+    <p style="color: var(--taupe); font-size: 0.88rem;">
+      Só tu, como dono da conta, consegues ver e adicionar utilizadores aqui.
+    </p>
+
+    <div id="lista-utilizadores" style="margin: 16px 0;"></div>
+
+    <h3 style="font-size: 0.95rem;">Adicionar novo utilizador</h3>
+    <form id="form-novo-utilizador" class="auth-form" style="max-width: 360px;">
+      <input type="text" id="novo-username" placeholder="Nome de utilizador" required autocomplete="off">
+      <input type="password" id="novo-senha" placeholder="Palavra-passe (mín. 6 caracteres)" required minlength="6" autocomplete="new-password">
+      <button type="submit" class="btn btn-primary">Adicionar utilizador</button>
+    </form>
+    <p id="utilizador-feedback" class="form-feedback" role="status" aria-live="polite"></p>
+  </section>
+
+</main>
+
+<script src="../js/admin-session.js"></script>
+<script src="../js/admin-conta.js"></script>
+</body>
+</html>

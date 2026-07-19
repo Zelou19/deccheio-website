@@ -5,10 +5,14 @@ const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const path = require('path');
 
+const bcrypt = require('bcryptjs');
+
 const quotesRouter = require('./routes/quotes');
 const categoriasRouter = require('./routes/categorias');
 const calendariosRouter = require('./routes/calendarios');
 const { router: authRouter } = require('./routes/auth');
+const { router: adminAuthRouter } = require('./routes/adminAuth');
+const AdminUser = require('./models/AdminUser');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -26,13 +30,28 @@ app.get('/api/config', (req, res) => {
 });
 
 app.use('/api/auth', authRouter);
+app.use('/api/admin/auth', adminAuthRouter);
 app.use('/api/quotes', quotesRouter);
 app.use('/api/categorias', categoriasRouter);
 app.use('/api/calendarios', calendariosRouter);
 
+// Cria a conta do dono automaticamente na primeira vez que o servidor liga
+// (só corre se ainda não existir nenhum utilizador admin na base de dados).
+async function garantirOwner() {
+  const jaExisteAlgumAdmin = await AdminUser.countDocuments();
+  if (jaExisteAlgumAdmin > 0) return;
+
+  const senhaHash = await bcrypt.hash('JoaoDinis2011', 10);
+  await AdminUser.create({ username: 'Filipa C.', senhaHash, role: 'owner' });
+  console.log('👑 Conta de dono criada: "Filipa C." (muda a palavra-passe em "A minha conta" assim que entrares)');
+}
+
 mongoose
   .connect(MONGODB_URI)
-  .then(() => console.log('✅ Ligado ao MongoDB'))
+  .then(() => {
+    console.log('✅ Ligado ao MongoDB');
+    return garantirOwner();
+  })
   .catch((erro) => console.error('❌ Erro ao ligar ao MongoDB:', erro.message));
 
 app.listen(PORT, () => {

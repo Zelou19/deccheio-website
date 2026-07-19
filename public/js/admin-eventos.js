@@ -1,37 +1,12 @@
-const gate = document.getElementById('admin-gate');
-const conteudo = document.getElementById('admin-conteudo');
-const gateErro = document.getElementById('gate-erro');
-const inputChave = document.getElementById('admin-key-input');
-
+const listaCategorias = document.getElementById('lista-categorias');
 const formNovaCategoria = document.getElementById('form-nova-categoria');
 const inputNomeCategoria = document.getElementById('nome-categoria');
 const categoriaFeedback = document.getElementById('categoria-feedback');
-const listaCategorias = document.getElementById('lista-categorias');
-
-function getChave() {
-  return sessionStorage.getItem('adminKey') || '';
-}
 
 function escaparHtml(texto) {
   const div = document.createElement('div');
   div.textContent = texto || '';
   return div.innerHTML;
-}
-
-// GET /api/categorias é pública (alimenta a página principal), por isso a chave de
-// admin é validada aqui contra /api/quotes (endpoint protegido) antes de mostrar o painel.
-async function validarChaveEcarregar() {
-  const verificacao = await fetch('/api/quotes', { headers: { 'x-admin-key': getChave() } });
-
-  if (!verificacao.ok) {
-    sessionStorage.removeItem('adminKey');
-    gate.hidden = false;
-    conteudo.hidden = true;
-    gateErro.textContent = 'Chave incorreta.';
-    return;
-  }
-
-  await carregarCategorias();
 }
 
 async function carregarCategorias() {
@@ -43,8 +18,6 @@ async function carregarCategorias() {
   }
 
   const categorias = await resposta.json();
-  gate.hidden = true;
-  conteudo.hidden = false;
   renderizarCategorias(categorias);
 }
 
@@ -100,7 +73,6 @@ listaCategorias.addEventListener('click', async (event) => {
     if (!confirm('Apagar esta categoria e todas as suas fotos?')) return;
     await fetch(`/api/categorias/${alvo.dataset.id}`, {
       method: 'DELETE',
-      headers: { 'x-admin-key': getChave() },
     });
     carregarCategorias();
   }
@@ -108,7 +80,6 @@ listaCategorias.addEventListener('click', async (event) => {
   if (alvo.dataset.acao === 'apagar-foto') {
     await fetch(`/api/categorias/${alvo.dataset.catId}/fotos/${alvo.dataset.fotoId}`, {
       method: 'DELETE',
-      headers: { 'x-admin-key': getChave() },
     });
     carregarCategorias();
   }
@@ -129,7 +100,7 @@ listaCategorias.addEventListener('change', async (event) => {
     const dataUrl = await ficheiroParaDataUrl(ficheiro);
     const resposta = await fetch(`/api/categorias/${catId}/fotos`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-admin-key': getChave() },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ dataUrl }),
     });
 
@@ -154,7 +125,7 @@ formNovaCategoria.addEventListener('submit', async (event) => {
 
   const resposta = await fetch('/api/categorias', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'x-admin-key': getChave() },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ nome }),
   });
   const resultado = await resposta.json();
@@ -169,17 +140,6 @@ formNovaCategoria.addEventListener('submit', async (event) => {
   carregarCategorias();
 });
 
-document.getElementById('admin-key-btn').addEventListener('click', () => {
-  sessionStorage.setItem('adminKey', inputChave.value.trim());
-  validarChaveEcarregar();
+protegerPaginaAdmin().then((admin) => {
+  if (admin) carregarCategorias();
 });
-
-inputChave.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') document.getElementById('admin-key-btn').click();
-});
-
-if (getChave()) {
-  validarChaveEcarregar();
-} else {
-  gate.hidden = false;
-}

@@ -1,15 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Categoria = require('../models/Categoria');
-
-// Mesma chave de admin partilhada usada em routes/quotes.js
-function requireAdmin(req, res, next) {
-  const chave = req.headers['x-admin-key'];
-  if (!process.env.ADMIN_KEY || chave !== process.env.ADMIN_KEY) {
-    return res.status(401).json({ erro: 'Não autorizado.' });
-  }
-  next();
-}
+const { requireAdmin } = require('./adminAuth');
 
 // GET /api/categorias — lista todas as categorias com as suas fotos.
 // Pública: é o que alimenta a secção "Os nossos eventos" na página principal.

@@ -1,10 +1,6 @@
 const params = new URLSearchParams(window.location.search);
 const idPedido = params.get('id');
 
-function getChave() {
-  return sessionStorage.getItem('adminKey') || '';
-}
-
 const elCarregamento = document.getElementById('estado-carregamento');
 const elConteudo = document.getElementById('conteudo-pedido');
 const elErro = document.getElementById('estado-erro');
@@ -192,7 +188,7 @@ formEditar?.addEventListener('submit', async (event) => {
   try {
     const resposta = await fetch(`/api/quotes/${idPedido}`, {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json', 'x-admin-key': getChave() },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(alteracoes),
     });
     const pedido = await resposta.json();
@@ -223,7 +219,7 @@ form?.addEventListener('submit', async (event) => {
 
   const resposta = await fetch(`/api/quotes/${idPedido}/messages/admin`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'x-admin-key': getChave() },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ texto }),
   });
   const pedido = await resposta.json();
@@ -241,7 +237,7 @@ form?.addEventListener('submit', async (event) => {
 selectStatus.addEventListener('change', async () => {
   await fetch(`/api/quotes/${idPedido}/status`, {
     method: 'PATCH',
-    headers: { 'Content-Type': 'application/json', 'x-admin-key': getChave() },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ status: selectStatus.value }),
   });
   carregarPedido();
@@ -250,7 +246,6 @@ selectStatus.addEventListener('change', async () => {
 btnFecharConversa?.addEventListener('click', async () => {
   await fetch(`/api/quotes/${idPedido}/fechar`, {
     method: 'PATCH',
-    headers: { 'x-admin-key': getChave() },
   });
   carregarPedido();
 });
@@ -258,7 +253,6 @@ btnFecharConversa?.addEventListener('click', async () => {
 btnReabrirConversa?.addEventListener('click', async () => {
   await fetch(`/api/quotes/${idPedido}/reabrir`, {
     method: 'PATCH',
-    headers: { 'x-admin-key': getChave() },
   });
   carregarPedido();
 });
@@ -291,7 +285,7 @@ btnConfirmarApagar?.addEventListener('click', async () => {
   feedbackApagar.className = 'form-feedback';
 
   if (!senha) {
-    feedbackApagar.textContent = 'Escreve a palavra-passe para confirmar.';
+    feedbackApagar.textContent = 'Escreve a tua palavra-passe para confirmar.';
     feedbackApagar.classList.add('erro');
     return;
   }
@@ -300,18 +294,22 @@ btnConfirmarApagar?.addEventListener('click', async () => {
   btnConfirmarApagar.textContent = 'A apagar...';
 
   try {
-    // Nota: usa-se sempre a palavra-passe escrita agora neste campo (não a guardada em sessão),
-    // de propósito — é essa a confirmação extra pedida para uma ação irreversível.
-    const resposta = await fetch(`/api/quotes/${idPedido}`, {
-      method: 'DELETE',
-      headers: { 'x-admin-key': senha },
+    // Confirmação extra para uma ação irreversível: verifica sempre a palavra-passe
+    // escrita agora neste campo (a da tua própria conta), mesmo já tendo sessão aberta.
+    const verificacao = await fetch('/api/admin/auth/verificar-senha', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ senha }),
     });
 
-    if (resposta.status === 401) {
+    if (!verificacao.ok) {
       feedbackApagar.textContent = 'Palavra-passe incorreta.';
       feedbackApagar.classList.add('erro');
       return;
     }
+
+    const resposta = await fetch(`/api/quotes/${idPedido}`, { method: 'DELETE' });
+
     if (!resposta.ok) {
       const erro = await resposta.json().catch(() => ({}));
       feedbackApagar.textContent = erro.erro || 'Não foi possível apagar.';
@@ -333,6 +331,9 @@ if (!idPedido) {
   elCarregamento.hidden = true;
   elErro.hidden = false;
 } else {
-  carregarPedido();
-  setInterval(carregarPedido, 5000);
+  protegerPaginaAdmin().then((admin) => {
+    if (!admin) return;
+    carregarPedido();
+    setInterval(carregarPedido, 5000);
+  });
 }

@@ -1,15 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Calendario = require('../models/Calendario');
-
-// Mesma chave de admin partilhada usada nas outras rotas
-function requireAdmin(req, res, next) {
-  const chave = req.headers['x-admin-key'];
-  if (!process.env.ADMIN_KEY || chave !== process.env.ADMIN_KEY) {
-    return res.status(401).json({ erro: 'Não autorizado.' });
-  }
-  next();
-}
+const { requireAdmin } = require('./adminAuth');
 
 // GET /api/calendarios — lista os calendários guardados (só usado no painel admin,
 // mas sem chave de propósito: os IDs de calendários públicos não são segredo).

@@ -1,8 +1,3 @@
-const gate = document.getElementById('admin-gate');
-const conteudo = document.getElementById('admin-conteudo');
-const gateErro = document.getElementById('gate-erro');
-const inputChave = document.getElementById('admin-key-input');
-
 const filtroStatus = document.getElementById('filtro-status');
 const filtroTipo = document.getElementById('filtro-tipo');
 const filtroBusca = document.getElementById('filtro-busca');
@@ -17,26 +12,15 @@ const ROTULOS_STATUS = {
   concluido: 'Concluído',
 };
 
-function getChave() {
-  return sessionStorage.getItem('adminKey') || '';
-}
-
 async function carregarPedidos() {
-  const resposta = await fetch('/api/quotes', {
-    headers: { 'x-admin-key': getChave() },
-  });
+  const resposta = await fetch('/api/quotes');
 
   if (resposta.status === 401) {
-    sessionStorage.removeItem('adminKey');
-    gate.hidden = false;
-    conteudo.hidden = true;
-    gateErro.textContent = 'Chave incorreta.';
+    window.location.href = '/admin/login.html';
     return;
   }
 
   todosPedidos = await resposta.json();
-  gate.hidden = true;
-  conteudo.hidden = false;
 
   renderizarStats();
   renderizarLista();
@@ -103,7 +87,7 @@ function renderizarLista() {
     select.addEventListener('change', async () => {
       await fetch(`/api/quotes/${select.dataset.id}/status`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json', 'x-admin-key': getChave() },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: select.value }),
       });
       carregarPedidos();
@@ -116,28 +100,11 @@ function renderizarLista() {
       const acao = fechadoAtualmente ? 'reabrir' : 'fechar';
       await fetch(`/api/quotes/${botao.dataset.id}/${acao}`, {
         method: 'PATCH',
-        headers: { 'x-admin-key': getChave() },
       });
       carregarPedidos();
     });
   });
 }
-
-document.getElementById('admin-key-btn').addEventListener('click', () => {
-  sessionStorage.setItem('adminKey', inputChave.value.trim());
-  carregarPedidos();
-});
-
-inputChave.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') document.getElementById('admin-key-btn').click();
-});
-
-document.getElementById('btn-sair').addEventListener('click', () => {
-  sessionStorage.removeItem('adminKey');
-  conteudo.hidden = true;
-  gate.hidden = false;
-  inputChave.value = '';
-});
 
 [filtroStatus, filtroTipo, filtroBusca].forEach((el) => el.addEventListener('input', renderizarLista));
 
@@ -149,4 +116,6 @@ botoesAba.forEach((botao) => {
   });
 });
 
-if (getChave()) carregarPedidos();
+protegerPaginaAdmin().then((admin) => {
+  if (admin) carregarPedidos();
+});
