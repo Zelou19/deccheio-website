@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Os nossos eventos — Admin — De Cheio</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/admin.css">
+<link rel="stylesheet" href="../css/eventos.css">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/img/logo512.png">
+</head>
+<body>
+
+<main class="wrap" style="padding-bottom: 80px;">
+
+  <div id="admin-gate" class="admin-gate">
+    <h1>Painel De Cheio</h1>
+    <p>Introduz a tua chave de acesso.</p>
+    <input type="password" id="admin-key-input" placeholder="Chave de admin">
+    <button id="admin-key-btn" class="btn btn-primary">Entrar</button>
+    <p id="gate-erro" class="form-feedback erro"></p>
+  </div>
+
+  <div id="admin-conteudo" hidden>
+
+    <div class="admin-header">
+      <h1>Os nossos eventos</h1>
+      <a href="/admin/index.html" class="admin-sair" style="text-decoration:none;">&larr; Pedidos de orçamento</a>
+    </div>
+
+    <form id="form-nova-categoria" class="nova-categoria-form">
+      <input type="text" id="nome-categoria" placeholder="Nome da categoria (ex: Casamentos)" required>
+      <button type="submit" class="btn btn-primary">Criar categoria</button>
+    </form>
+    <p id="categoria-feedback" class="form-feedback" role="status" aria-live="polite"></p>
+
+    <div id="lista-categorias"></div>
+
+  </div>
+
+</main>
+
+<script src="../js/admin-eventos.js"></script>
+</body>
+</html>
