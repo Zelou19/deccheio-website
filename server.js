@@ -7,6 +7,7 @@ const path = require('path');
 
 const quotesRouter = require('./routes/quotes');
 const categoriasRouter = require('./routes/categorias');
+const calendariosRouter = require('./routes/calendarios');
 const { router: authRouter } = require('./routes/auth');
 
 const app = express();
@@ -27,6 +28,7 @@ app.get('/api/config', (req, res) => {
 app.use('/api/auth', authRouter);
 app.use('/api/quotes', quotesRouter);
 app.use('/api/categorias', categoriasRouter);
+app.use('/api/calendarios', calendariosRouter);
 
 mongoose
   .connect(MONGODB_URI)

@@ -1,0 +1,75 @@
+.calendario-ajuda {
+  color: var(--taupe);
+  font-size: 0.88rem;
+  max-width: 640px;
+  margin-bottom: 28px;
+}
+
+.novo-calendario-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.novo-calendario-form input[type="text"] {
+  flex: 1;
+  min-width: 200px;
+}
+
+.novo-calendario-form input[type="color"] {
+  width: 44px;
+  height: 42px;
+  padding: 2px;
+  border: 1px solid rgba(50,45,40,0.25);
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.lista-calendarios {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 32px;
+}
+
+.calendario-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg-alt);
+  padding: 0.5em 0.6em 0.5em 1em;
+  border-radius: 999px;
+  font-size: 0.88rem;
+}
+
+.calendario-chip .bolinha {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.calendario-chip button {
+  background: none;
+  border: none;
+  color: var(--taupe);
+  cursor: pointer;
+  font-size: 1.1rem;
+  line-height: 1;
+  padding: 0 4px;
+}
+.calendario-chip button:hover { color: var(--wine); }
+
+.embed-container iframe {
+  width: 100%;
+  height: 650px;
+  border: 1px solid rgba(50,45,40,0.15);
+  border-radius: 6px;
+}
+
+.embed-vazio {
+  color: var(--taupe);
+  font-style: italic;
+}

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calendário — Admin — De Cheio</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/admin.css">
+<link rel="stylesheet" href="../css/calendario.css">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/img/logo512.png">
+</head>
+<body>
+
+<main class="wrap" style="padding-bottom: 80px;">
+
+  <div id="admin-gate" class="admin-gate">
+    <h1>Painel De Cheio</h1>
+    <p>Introduz a tua chave de acesso.</p>
+    <input type="password" id="admin-key-input" placeholder="Chave de admin">
+    <button id="admin-key-btn" class="btn btn-primary">Entrar</button>
+    <p id="gate-erro" class="form-feedback erro"></p>
+  </div>
+
+  <div id="admin-conteudo" hidden>
+
+    <div class="admin-header">
+      <h1>Calendário</h1>
+      <a href="/admin/index.html" class="admin-sair" style="text-decoration:none;">&larr; Pedidos de orçamento</a>
+    </div>
+
+    <p class="calendario-ajuda">
+      <strong>Não tornes o calendário público.</strong> Em vez disso, no Google Calendar de cada
+      pessoa: Definições → escolhe o calendário → "Partilhar com pessoas específicas" → adiciona
+      o email de cada conta Google que deve poder ver (com a permissão "Ver todos os detalhes do
+      evento"). Só quem tiver sessão iniciada numa dessas contas consegue ver o conteúdo aqui —
+      as outras pessoas veem o espaço em branco, mesmo que abram esta página.
+      Depois, em "Integrar calendário", copia o <strong>ID do calendário</strong> e cola-o abaixo.
+    </p>
+
+    <form id="form-novo-calendario" class="novo-calendario-form">
+      <input type="text" id="nome-calendario" placeholder="Nome (ex: Ana, Empregado 1)" required>
+      <input type="text" id="id-calendario" placeholder="ID do calendário Google (ex: abc123@group.calendar.google.com)" required>
+      <input type="color" id="cor-calendario" value="#6B2A34" title="Cor deste calendário">
+      <button type="submit" class="btn btn-primary">Adicionar</button>
+    </form>
+    <p id="calendario-feedback" class="form-feedback" role="status" aria-live="polite"></p>
+
+    <div id="lista-calendarios" class="lista-calendarios"></div>
+
+    <div id="embed-container" class="embed-container"></div>
+
+  </div>
+
+</main>
+
+<script src="../js/admin-calendario.js"></script>
+</body>
+</html>

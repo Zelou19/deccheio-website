@@ -21,6 +21,7 @@ const feedbackEditar = document.getElementById('editar-feedback');
 const elStatus = document.getElementById('pedido-status');
 const selectStatus = document.getElementById('status-select');
 const btnFecharConversa = document.getElementById('btn-fechar-conversa');
+const btnAddCalendario = document.getElementById('btn-add-calendario');
 const avisoFechada = document.getElementById('aviso-fechada');
 const btnReabrirConversa = document.getElementById('btn-reabrir-conversa');
 const elMensagens = document.getElementById('chat-mensagens');
@@ -43,6 +44,33 @@ function escaparHtml(texto) {
   return div.innerHTML;
 }
 
+// Formata a data do evento como YYYYMMDD/YYYYMMDD+1 (o Google Calendar pede a data
+// de fim seguinte, mesmo para eventos de dia inteiro) e monta o link de "adicionar evento".
+function linkGoogleCalendar(pedido) {
+  const data = new Date(pedido.dataEvento);
+  const paraYYYYMMDD = (d) => d.toISOString().slice(0, 10).replace(/-/g, '');
+
+  const inicio = paraYYYYMMDD(data);
+  const fim = new Date(data);
+  fim.setUTCDate(fim.getUTCDate() + 1);
+
+  const detalhes = [
+    pedido.numeroConvidados ? `${pedido.numeroConvidados} convidados` : null,
+    pedido.orcamentoAproximado ? `Orçamento: ${pedido.orcamentoAproximado}` : null,
+    pedido.mensagem || null,
+    `Contacto: ${pedido.email}${pedido.telefone ? ' · ' + pedido.telefone : ''}`,
+  ].filter(Boolean).join('\n');
+
+  const parametros = new URLSearchParams({
+    action: 'TEMPLATE',
+    text: `${pedido.tipoEvento} — ${pedido.nome}`,
+    dates: `${inicio}/${paraYYYYMMDD(fim)}`,
+    details: detalhes,
+  });
+
+  return `https://calendar.google.com/calendar/render?${parametros.toString()}`;
+}
+
 function renderizarPedido(pedido) {
   pedidoAtual = pedido;
 
@@ -60,6 +88,13 @@ function renderizarPedido(pedido) {
   elStatus.textContent = ROTULOS_STATUS[pedido.status];
   elStatus.dataset.status = pedido.status;
   selectStatus.value = pedido.status;
+
+  if (pedido.dataEvento) {
+    btnAddCalendario.hidden = false;
+    btnAddCalendario.href = linkGoogleCalendar(pedido);
+  } else {
+    btnAddCalendario.hidden = true;
+  }
 
   if (pedido.fechado) {
     btnFecharConversa.hidden = true;
