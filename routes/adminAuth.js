@@ -22,7 +22,7 @@ function gerarToken(admin) {
 }
 
 function dadosPublicos(admin) {
-  return { id: admin._id, username: admin.username, role: admin.role };
+  return { id: admin._id, username: admin.username, email: admin.email || '', role: admin.role };
 }
 
 // Middleware: exige sessão de admin válida (qualquer role)
@@ -49,14 +49,22 @@ function requireOwner(req, res, next) {
 }
 
 // POST /api/admin/auth/login
+// Aceita tanto o nome de utilizador (ex: "Filipa C.") como o email, e ignora
+// maiúsculas/minúsculas e espaços a mais — para não ser fácil de errar ao escrever.
 router.post('/login', async (req, res) => {
   try {
     const { username, senha } = req.body;
     if (!username || !senha) {
-      return res.status(400).json({ erro: 'Preenche o utilizador e a palavra-passe.' });
+      return res.status(400).json({ erro: 'Preenche o utilizador (ou email) e a palavra-passe.' });
     }
 
-    const admin = await AdminUser.findOne({ username: username.trim() }).select('+senhaHash');
+    const identificador = username.trim();
+    const admin = await AdminUser.findOne({
+      $or: [
+        { username: new RegExp(`^${identificador.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') },
+        { email: identificador.toLowerCase() },
+      ],
+    }).select('+senhaHash');
     if (!admin) return res.status(401).json({ erro: 'Utilizador ou palavra-passe incorretos.' });
 
     const senhaCorreta = await bcrypt.compare(senha, admin.senhaHash);
@@ -77,8 +85,10 @@ router.post('/logout', (req, res) => {
 });
 
 // GET /api/admin/auth/me — devolve o admin autenticado (ou 401 se não houver sessão)
-router.get('/me', requireAdmin, (req, res) => {
-  res.json({ admin: req.admin });
+router.get('/me', requireAdmin, async (req, res) => {
+  const admin = await AdminUser.findById(req.admin.id);
+  if (!admin) return res.status(401).json({ erro: 'Sessão inválida ou expirada.' });
+  res.json({ admin: dadosPublicos(admin) });
 });
 
 // POST /api/admin/auth/senha — o próprio admin muda a sua palavra-passe
@@ -105,6 +115,39 @@ router.post('/senha', requireAdmin, async (req, res) => {
   } catch (erro) {
     console.error('Erro ao mudar palavra-passe de admin:', erro);
     res.status(500).json({ erro: 'Não foi possível mudar a palavra-passe. Tenta novamente.' });
+  }
+});
+
+// POST /api/admin/auth/email — o próprio admin define ou muda o email da conta
+// (confirma com a palavra-passe atual, tal como ao mudar a palavra-passe)
+router.post('/email', requireAdmin, async (req, res) => {
+  try {
+    const { email, senhaAtual } = req.body;
+    if (!email || !senhaAtual) {
+      return res.status(400).json({ erro: 'Preenche o email e a palavra-passe atual.' });
+    }
+
+    const emailLimpo = email.trim().toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailLimpo)) {
+      return res.status(400).json({ erro: 'Este email não parece válido.' });
+    }
+
+    const admin = await AdminUser.findById(req.admin.id).select('+senhaHash');
+    if (!admin) return res.status(404).json({ erro: 'Utilizador não encontrado.' });
+
+    const senhaCorreta = await bcrypt.compare(senhaAtual, admin.senhaHash);
+    if (!senhaCorreta) return res.status(401).json({ erro: 'A palavra-passe está incorreta.' });
+
+    const emailEmUso = await AdminUser.findOne({ email: emailLimpo, _id: { $ne: admin._id } });
+    if (emailEmUso) return res.status(409).json({ erro: 'Já há outra conta a usar este email.' });
+
+    admin.email = emailLimpo;
+    await admin.save();
+
+    res.json({ sucesso: true, admin: dadosPublicos(admin) });
+  } catch (erro) {
+    console.error('Erro ao atualizar email de admin:', erro);
+    res.status(500).json({ erro: 'Não foi possível guardar o email. Tenta novamente.' });
   }
 });
 

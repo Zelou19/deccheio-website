@@ -11,9 +11,61 @@ const btnFecharConversa = document.getElementById('btn-fechar-conversa');
 const avisoFechada = document.getElementById('aviso-fechada');
 const btnReabrirConversa = document.getElementById('btn-reabrir-conversa');
 const elMensagens = document.getElementById('chat-mensagens');
+const elImagensPedido = document.getElementById('pedido-imagens');
 const form = document.getElementById('chat-form');
 const textarea = document.getElementById('chat-texto');
 const feedback = document.getElementById('chat-feedback');
+const inputImagem = document.getElementById('chat-imagem');
+const elImagemNome = document.getElementById('chat-imagem-nome');
+const btnRemoverImagem = document.getElementById('chat-imagem-remover');
+
+let imagemSelecionada = null; // data URL da imagem anexada à próxima mensagem
+
+// Reduz a imagem para no máximo 1600px no lado maior e converte para JPEG a 80% de qualidade.
+function comprimirImagem(ficheiro, ladoMaximo = 1600, qualidade = 0.8) {
+  return new Promise((resolve, reject) => {
+    const leitor = new FileReader();
+    leitor.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > ladoMaximo || height > ladoMaximo) {
+          if (width > height) {
+            height = Math.round(height * (ladoMaximo / width));
+            width = ladoMaximo;
+          } else {
+            width = Math.round(width * (ladoMaximo / height));
+            height = ladoMaximo;
+          }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', qualidade));
+      };
+      img.onerror = reject;
+      img.src = leitor.result;
+    };
+    leitor.onerror = reject;
+    leitor.readAsDataURL(ficheiro);
+  });
+}
+
+inputImagem.addEventListener('change', async () => {
+  const ficheiro = inputImagem.files[0];
+  if (!ficheiro) return;
+  imagemSelecionada = await comprimirImagem(ficheiro);
+  elImagemNome.textContent = ficheiro.name;
+  btnRemoverImagem.hidden = false;
+});
+
+btnRemoverImagem.addEventListener('click', () => {
+  imagemSelecionada = null;
+  inputImagem.value = '';
+  elImagemNome.textContent = '';
+  btnRemoverImagem.hidden = true;
+});
 
 const ROTULOS_STATUS = {
   nao_respondido: 'Ainda não respondido',
@@ -33,6 +85,13 @@ function renderizarPedido(pedido) {
   elStatus.textContent = ROTULOS_STATUS[pedido.status] || pedido.status;
   elStatus.dataset.status = pedido.status;
   elData.textContent = `Pedido feito a ${formatarData(pedido.createdAt)}`;
+
+  if (pedido.imagensInspiracao?.length) {
+    elImagensPedido.hidden = false;
+    elImagensPedido.innerHTML = pedido.imagensInspiracao
+      .map((src) => `<img src="${src}" alt="Imagem de inspiração enviada" onclick="window.open(this.src, '_blank')">`)
+      .join('');
+  }
 
   if (pedido.fechado) {
     btnFecharConversa.hidden = true;
@@ -56,7 +115,8 @@ function renderizarPedido(pedido) {
         const classe = msg.autor === 'admin' ? 'msg-admin' : 'msg-cliente';
         const hora = new Date(msg.criadoEm).toLocaleString('pt-PT', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
         const autor = msg.autor === 'admin' ? 'Equipa DecoraçãoCheio' : 'Você';
-        return `<div class="msg ${classe}">${escaparHtml(msg.texto)}<span class="msg-meta">${hora}</span><span class="msg-autor">${autor}</span></div>`;
+        const imagemHtml = msg.imagem ? `<img class="msg-imagem" src="${msg.imagem}" alt="Imagem anexada" onclick="window.open(this.src, '_blank')">` : '';
+        return `<div class="msg ${classe}">${imagemHtml}${escaparHtml(msg.texto)}<span class="msg-meta">${hora}</span><span class="msg-autor">${autor}</span></div>`;
       })
       .join('');
   }
@@ -87,7 +147,7 @@ async function carregarPedido() {
 form?.addEventListener('submit', async (event) => {
   event.preventDefault();
   const texto = textarea.value.trim();
-  if (!texto) return;
+  if (!texto && !imagemSelecionada) return;
 
   feedback.textContent = '';
   feedback.className = 'form-feedback';
@@ -96,12 +156,16 @@ form?.addEventListener('submit', async (event) => {
     const resposta = await fetch(`/api/quotes/${idPedido}/messages/cliente`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ texto }),
+      body: JSON.stringify({ texto, imagem: imagemSelecionada }),
     });
     const pedido = await resposta.json();
     if (!resposta.ok) throw new Error(pedido.erro || 'Não foi possível enviar.');
 
     textarea.value = '';
+    imagemSelecionada = null;
+    inputImagem.value = '';
+    elImagemNome.textContent = '';
+    btnRemoverImagem.hidden = true;
     renderizarPedido(pedido);
   } catch (erro) {
     feedback.textContent = erro.message;

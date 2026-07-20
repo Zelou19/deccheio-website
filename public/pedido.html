@@ -45,11 +45,21 @@
     <p class="chat-hint">Guarde este link — é através dele que continua a conversa connosco sobre o seu evento.</p>
     <p class="chat-hint" id="link-orcamentos" hidden><a href="/orcamentos.html">&larr; Ver todos os meus orçamentos</a></p>
 
+    <div id="pedido-imagens" class="imagens-galeria" hidden></div>
+
     <div class="chat-box">
       <div id="chat-mensagens" class="chat-mensagens"></div>
 
       <form id="chat-form" class="chat-form">
-        <textarea id="chat-texto" rows="2" placeholder="Escreva a sua mensagem..." required></textarea>
+        <div class="chat-form-principal">
+          <textarea id="chat-texto" rows="2" placeholder="Escreva a sua mensagem..."></textarea>
+          <div class="chat-anexo-row">
+            <label class="chat-anexo-btn" for="chat-imagem">📎 Anexar imagem</label>
+            <input type="file" id="chat-imagem" accept="image/*" hidden>
+            <span id="chat-imagem-nome" class="chat-anexo-nome"></span>
+            <button type="button" id="chat-imagem-remover" class="chat-anexo-remover" hidden>&times; remover</button>
+          </div>
+        </div>
         <button type="submit" class="btn btn-primary">Enviar</button>
       </form>
       <p id="chat-feedback" class="form-feedback" role="status" aria-live="polite"></p>

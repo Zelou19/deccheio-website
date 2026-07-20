@@ -4,15 +4,35 @@ const QuoteRequest = require('../models/QuoteRequest');
 const { requireUser } = require('./auth');
 const { requireAdmin } = require('./adminAuth');
 
+// Limites simples para as imagens enviadas em base64 (o frontend já as comprime antes de
+// enviar, isto é só uma rede de segurança do lado do servidor).
+const MAX_IMAGENS_POR_PEDIDO = 5;
+const MAX_TAMANHO_IMAGEM_BYTES = 4 * 1024 * 1024; // 4MB por imagem, já em base64
+
+function imagemValida(dataUrl) {
+  return typeof dataUrl === 'string' && dataUrl.startsWith('data:image/') && dataUrl.length <= MAX_TAMANHO_IMAGEM_BYTES;
+}
+
 // POST /api/quotes — cliente envia um novo pedido de orçamento pelo site
 // (requireUser: é obrigatório ter sessão iniciada — assim o pedido fica sempre ligado
 // à conta da pessoa e ela consegue acompanhar tudo em "Os meus orçamentos")
 router.post('/', requireUser, async (req, res) => {
   try {
-    const { nome, nomeFestejado, email, telefone, tipoEvento, dataEvento, localEvento, numeroConvidados, orcamentoAproximado, mensagem } = req.body;
+    const { nome, nomeFestejado, email, telefone, tipoEvento, dataEvento, localEvento, numeroConvidados, orcamentoAproximado, mensagem, imagens } = req.body;
 
     if (!nome || !email || !tipoEvento) {
       return res.status(400).json({ erro: 'Faltam campos obrigatórios (nome, email, tipo de evento).' });
+    }
+
+    let imagensInspiracao = [];
+    if (imagens !== undefined) {
+      if (!Array.isArray(imagens) || imagens.length > MAX_IMAGENS_POR_PEDIDO) {
+        return res.status(400).json({ erro: `Só pode enviar até ${MAX_IMAGENS_POR_PEDIDO} imagens.` });
+      }
+      if (!imagens.every(imagemValida)) {
+        return res.status(400).json({ erro: 'Uma das imagens é inválida ou demasiado grande.' });
+      }
+      imagensInspiracao = imagens;
     }
 
     const novoPedido = await QuoteRequest.create({
@@ -27,6 +47,7 @@ router.post('/', requireUser, async (req, res) => {
       numeroConvidados: numeroConvidados || undefined,
       orcamentoAproximado,
       mensagem,
+      imagensInspiracao,
     });
 
     res.status(201).json({ sucesso: true, pedido: novoPedido });
@@ -66,7 +87,7 @@ router.get('/minhas', requireUser, async (req, res) => {
     res.json(pedidos);
   } catch (erro) {
     console.error('Erro ao listar os meus orçamentos:', erro);
-    res.status(500).json({ erro: 'Não foi possível carregar os teus orçamentos.' });
+    res.status(500).json({ erro: 'Não foi possível carregar os seus orçamentos.' });
   }
 });
 
@@ -86,16 +107,18 @@ router.get('/:id', async (req, res) => {
 // POST /api/quotes/:id/messages/cliente — o CLIENTE envia uma mensagem no chat do seu pedido
 router.post('/:id/messages/cliente', async (req, res) => {
   try {
-    const { texto } = req.body;
-    if (!texto || !texto.trim()) return res.status(400).json({ erro: 'A mensagem está vazia.' });
+    const { texto, imagem } = req.body;
+    const textoLimpo = (texto || '').trim();
+    if (!textoLimpo && !imagem) return res.status(400).json({ erro: 'Escreva uma mensagem ou anexe uma imagem.' });
+    if (imagem && !imagemValida(imagem)) return res.status(400).json({ erro: 'A imagem é inválida ou demasiado grande.' });
 
     const pedido = await QuoteRequest.findById(req.params.id);
     if (!pedido) return res.status(404).json({ erro: 'Pedido não encontrado.' });
     if (pedido.fechado) {
-      return res.status(409).json({ erro: 'Esta conversa está fechada. Reabre-a para poderes enviar mais mensagens.' });
+      return res.status(409).json({ erro: 'Esta conversa está fechada. Reabra-a para poder enviar mais mensagens.' });
     }
 
-    pedido.mensagens.push({ autor: 'cliente', texto: texto.trim() });
+    pedido.mensagens.push({ autor: 'cliente', texto: textoLimpo, imagem: imagem || undefined });
     await pedido.save();
 
     res.status(201).json(pedido);
@@ -108,16 +131,18 @@ router.post('/:id/messages/cliente', async (req, res) => {
 // POST /api/quotes/:id/messages/admin — TU respondes no chat de um pedido. Protegido pela chave de admin.
 router.post('/:id/messages/admin', requireAdmin, async (req, res) => {
   try {
-    const { texto } = req.body;
-    if (!texto || !texto.trim()) return res.status(400).json({ erro: 'A mensagem está vazia.' });
+    const { texto, imagem } = req.body;
+    const textoLimpo = (texto || '').trim();
+    if (!textoLimpo && !imagem) return res.status(400).json({ erro: 'Escreva uma mensagem ou anexe uma imagem.' });
+    if (imagem && !imagemValida(imagem)) return res.status(400).json({ erro: 'A imagem é inválida ou demasiado grande.' });
 
     const pedido = await QuoteRequest.findById(req.params.id);
     if (!pedido) return res.status(404).json({ erro: 'Pedido não encontrado.' });
     if (pedido.fechado) {
-      return res.status(409).json({ erro: 'Esta conversa está fechada. Reabre-a para poderes responder.' });
+      return res.status(409).json({ erro: 'Esta conversa está fechada. Reabra-a para poder responder.' });
     }
 
-    pedido.mensagens.push({ autor: 'admin', texto: texto.trim(), enviadoPor: req.admin.username });
+    pedido.mensagens.push({ autor: 'admin', texto: textoLimpo, imagem: imagem || undefined, enviadoPor: req.admin.username });
 
     // Assim que respondes pela primeira vez, o estado passa automaticamente para "em andamento"
     if (pedido.status === 'nao_respondido') {

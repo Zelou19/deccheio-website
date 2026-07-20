@@ -34,6 +34,11 @@ const quoteRequestSchema = new mongoose.Schema(
     orcamentoAproximado: { type: String, trim: true }, // ex: "500-1000€", texto livre por agora
     mensagem: { type: String, trim: true },
 
+    // Fotos de inspiração enviadas com o pedido inicial (ex: prints do Pinterest, fotos de
+    // outros eventos). Guardadas como "data URL" (a imagem já codificada em base64), tal como
+    // as fotos do portefólio em Categoria — mais simples do que gerir ficheiros em disco.
+    imagensInspiracao: [{ type: String }],
+
     // Estado interno do pedido — usado no painel de admin (fase 3)
     status: {
       type: String,
@@ -52,6 +57,9 @@ const quoteRequestSchema = new mongoose.Schema(
       {
         autor: { type: String, enum: ['cliente', 'admin'] },
         texto: String,
+        // Uma imagem opcional anexada à mensagem (ex: mais uma referência visual durante a
+        // conversa). Também guardada como data URL, tal como as imagens de inspiração acima.
+        imagem: { type: String },
         criadoEm: { type: Date, default: Date.now },
         // Só preenchido em mensagens do admin: guarda o nome de utilizador de quem respondeu.
         enviadoPor: { type: String },

@@ -26,6 +26,19 @@
   <p id="conta-info" style="color: var(--taupe); margin-top: -12px;"></p>
 
   <section style="margin-top: 24px;">
+    <h2 style="font-size: 1.05rem;">Email da conta</h2>
+    <p style="color: var(--taupe); font-size: 0.88rem;">
+      Depois de definido, também podes entrar no painel com este email em vez do nome de utilizador.
+    </p>
+    <form id="form-mudar-email" class="auth-form" style="max-width: 360px;">
+      <input type="email" id="email-novo" placeholder="O teu email" required autocomplete="email">
+      <input type="password" id="email-senha-atual" placeholder="Palavra-passe atual" required autocomplete="current-password">
+      <button type="submit" class="btn btn-primary">Guardar email</button>
+    </form>
+    <p id="email-feedback" class="form-feedback" role="status" aria-live="polite"></p>
+  </section>
+
+  <section style="margin-top: 24px;">
     <h2 style="font-size: 1.05rem;">Mudar palavra-passe</h2>
     <form id="form-mudar-senha" class="auth-form" style="max-width: 360px;">
       <input type="password" id="senha-atual" placeholder="Palavra-passe atual" required autocomplete="current-password">

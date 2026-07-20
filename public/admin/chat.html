@@ -115,10 +115,20 @@
       Esta conversa está fechada. <button type="button" id="btn-reabrir-conversa" class="link-perigo">Reabrir conversa</button> para poderes responder outra vez.
     </p>
 
+    <div id="pedido-imagens" class="imagens-galeria" hidden></div>
+
     <div class="chat-box">
       <div id="chat-mensagens" class="chat-mensagens"></div>
       <form id="chat-form" class="chat-form">
-        <textarea id="chat-texto" rows="2" placeholder="Responde ao cliente..." required></textarea>
+        <div class="chat-form-principal">
+          <textarea id="chat-texto" rows="2" placeholder="Responde ao cliente..."></textarea>
+          <div class="chat-anexo-row">
+            <label class="chat-anexo-btn" for="chat-imagem">📎 Anexar imagem</label>
+            <input type="file" id="chat-imagem" accept="image/*" hidden>
+            <span id="chat-imagem-nome" class="chat-anexo-nome"></span>
+            <button type="button" id="chat-imagem-remover" class="chat-anexo-remover" hidden>&times; remover</button>
+          </div>
+        </div>
         <button type="submit" class="btn btn-primary">Enviar</button>
       </form>
       <p id="chat-feedback" class="form-feedback" role="status" aria-live="polite"></p>
