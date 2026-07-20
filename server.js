@@ -10,6 +10,7 @@ const bcrypt = require('bcryptjs');
 const quotesRouter = require('./routes/quotes');
 const categoriasRouter = require('./routes/categorias');
 const calendariosRouter = require('./routes/calendarios');
+const reviewsRouter = require('./routes/reviews');
 const { router: authRouter } = require('./routes/auth');
 const { router: adminAuthRouter } = require('./routes/adminAuth');
 const AdminUser = require('./models/AdminUser');
@@ -35,6 +36,7 @@ app.use('/api/admin/auth', adminAuthRouter);
 app.use('/api/quotes', quotesRouter);
 app.use('/api/categorias', categoriasRouter);
 app.use('/api/calendarios', calendariosRouter);
+app.use('/api/reviews', reviewsRouter);
 
 // Cria a conta do dono automaticamente na primeira vez que o servidor liga
 // (só corre se ainda não existir nenhum utilizador admin na base de dados).

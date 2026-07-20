@@ -1,0 +1,35 @@
+.reviews { padding: 90px 0; background: var(--bg); }
+
+.reviews-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 22px;
+  margin-top: 40px;
+}
+
+.review-card {
+  background: var(--bg-alt);
+  border-radius: 10px;
+  padding: 28px 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.review-estrelas { color: var(--gold); font-size: 1.05rem; letter-spacing: 2px; }
+.review-estrelas .vazia { color: rgba(140,129,117,0.3); }
+
+.review-texto {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  line-height: 1.55;
+  color: var(--ink);
+  flex: 1;
+}
+.review-texto::before { content: '“'; }
+.review-texto::after { content: '”'; }
+
+.review-autor { font-weight: 600; font-size: 0.92rem; color: var(--ink); }
+.review-tipo-evento { color: var(--taupe); font-size: 0.82rem; }
+
+.reviews-vazio { color: var(--taupe); }
