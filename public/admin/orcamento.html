@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Orçamento — Admin — De Cheio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/chat.css">
+<link rel="stylesheet" href="../css/admin.css">
+<link rel="stylesheet" href="../css/orcamento-doc.css">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/img/logo512.png">
+</head>
+<body>
+
+<main class="wrap chat-page">
+  <p style="display:flex; justify-content:space-between; align-items:center;">
+    <a href="/admin/orcamentos.html">&larr; Voltar aos orçamentos</a>
+    <span style="display:flex; gap:18px;">
+      <a href="/admin/conta.html" class="admin-sair" style="text-decoration:none;">A minha conta</a>
+      <button class="admin-sair" id="btn-sair">Sair</button>
+    </span>
+  </p>
+
+  <div id="estado-carregamento">A carregar...</div>
+
+  <form id="form-orcamento" hidden>
+    <div class="pedido-cabecalho">
+      <div>
+        <p class="eyebrow" id="orc-eyebrow">Novo orçamento</p>
+        <h1 id="orc-titulo">Orçamento</h1>
+      </div>
+      <span class="status-pill" id="orc-status-pill" hidden>—</span>
+    </div>
+
+    <p id="orc-de-pedido" class="chat-hint" hidden></p>
+
+    <h2 class="orc-subtitulo">Dados do cliente</h2>
+    <div class="form-row-split">
+      <div class="form-row">
+        <label for="orc-nome">Nome do cliente</label>
+        <input type="text" id="orc-nome" required>
+      </div>
+      <div class="form-row">
+        <label for="orc-nomeFestejado">Nome do aniversariante / noivos / empresa</label>
+        <input type="text" id="orc-nomeFestejado">
+      </div>
+    </div>
+    <div class="form-row-split">
+      <div class="form-row">
+        <label for="orc-email">Email</label>
+        <input type="email" id="orc-email">
+      </div>
+      <div class="form-row">
+        <label for="orc-telefone">Telefone</label>
+        <input type="text" id="orc-telefone">
+      </div>
+    </div>
+    <div class="form-row-split">
+      <div class="form-row">
+        <label for="orc-tipoEvento">Tipo de evento</label>
+        <select id="orc-tipoEvento">
+          <option value="">—</option>
+          <option value="Casamento">Casamento</option>
+          <option value="Aniversário">Aniversário</option>
+          <option value="Batizado">Batizado</option>
+          <option value="Evento corporativo">Evento corporativo</option>
+          <option value="Baby shower">Baby shower</option>
+          <option value="Outro">Outro</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label for="orc-dataEvento">Data do evento</label>
+        <input type="date" id="orc-dataEvento">
+      </div>
+    </div>
+    <div class="form-row">
+      <label for="orc-localEvento">Local do evento</label>
+      <input type="text" id="orc-localEvento" placeholder="ex: Quinta da Boavista, Porto">
+    </div>
+
+    <h2 class="orc-subtitulo">Itens do orçamento</h2>
+    <table class="orc-itens-tabela">
+      <thead>
+        <tr>
+          <th>Descrição</th>
+          <th class="orc-col-num">Quantidade</th>
+          <th class="orc-col-num">Preço unitário</th>
+          <th class="orc-col-num">Subtotal</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="orc-itens-corpo"></tbody>
+    </table>
+    <button type="button" id="btn-add-item" class="btn-cancelar" style="width:auto;">+ Adicionar item</button>
+
+    <div class="orc-totais">
+      <div class="form-row orc-desconto-row">
+        <label for="orc-desconto">Desconto (€)</label>
+        <input type="number" id="orc-desconto" min="0" step="0.01" value="0">
+      </div>
+      <div class="orc-total-final">
+        Total: <strong id="orc-total-valor">0,00 €</strong>
+      </div>
+    </div>
+
+    <div class="form-row-split">
+      <div class="form-row">
+        <label for="orc-validoAte">Válido até</label>
+        <input type="date" id="orc-validoAte">
+      </div>
+      <div class="form-row">
+        <label for="orc-status">Estado</label>
+        <select id="orc-status">
+          <option value="rascunho">Rascunho</option>
+          <option value="enviado">Enviado</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <label for="orc-notas">Notas / condições / forma de pagamento</label>
+      <textarea id="orc-notas" rows="4"></textarea>
+    </div>
+
+    <div style="display:flex; gap:10px; align-items:center;">
+      <button type="submit" class="btn btn-primary" style="width:auto;" id="btn-guardar-orcamento">Guardar orçamento</button>
+      <span id="orc-feedback" class="form-feedback" role="status" aria-live="polite"></span>
+    </div>
+
+    <div class="zona-perigo" id="orc-zona-perigo" hidden>
+      <button type="button" id="btn-mostrar-apagar" class="link-perigo">Apagar este orçamento para sempre</button>
+
+      <div id="painel-apagar" hidden>
+        <p>Isto apaga o orçamento <strong>permanentemente</strong>. Não é possível desfazer.</p>
+        <div class="form-row-split" style="display:flex; gap:10px; align-items:flex-end;">
+          <div style="flex:1;">
+            <label for="apagar-senha">Confirma com a palavra-passe de admin</label>
+            <input type="password" id="apagar-senha" placeholder="Palavra-passe">
+          </div>
+          <button type="button" id="btn-confirmar-apagar" class="btn btn-perigo">Apagar para sempre</button>
+          <button type="button" id="btn-cancelar-apagar" class="btn-cancelar">Cancelar</button>
+        </div>
+        <p id="apagar-feedback" class="form-feedback" role="status" aria-live="polite"></p>
+      </div>
+    </div>
+  </form>
+
+  <div id="estado-erro" hidden class="erro-pedido">
+    <h1>Orçamento não encontrado</h1>
+  </div>
+</main>
+
+<script src="../js/admin-session.js"></script>
+<script src="../js/admin-orcamento.js"></script>
+</body>
+</html>

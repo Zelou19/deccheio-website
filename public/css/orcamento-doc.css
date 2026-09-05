@@ -1,0 +1,88 @@
+.orc-subtitulo {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  margin: 28px 0 14px;
+  color: var(--ink);
+}
+
+.orc-itens-tabela {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 14px;
+}
+
+.orc-itens-tabela th {
+  text-align: left;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--taupe);
+  padding: 0 8px 8px;
+  font-weight: 500;
+}
+
+.orc-itens-tabela td {
+  padding: 6px 8px;
+  vertical-align: middle;
+  border-bottom: 1px solid rgba(50,45,40,0.08);
+}
+
+.orc-itens-tabela .orc-col-num {
+  text-align: right;
+  width: 130px;
+}
+
+.orc-itens-tabela input {
+  width: 100%;
+  font-size: 0.9rem;
+}
+
+.orc-itens-tabela .item-subtotal {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.btn-remover-item {
+  background: none;
+  border: none;
+  color: var(--wine);
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+.btn-remover-item:hover { opacity: 0.7; }
+
+.orc-totais {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 20px;
+  margin: 20px 0 8px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(50,45,40,0.15);
+}
+
+.orc-desconto-row {
+  margin-bottom: 0;
+  max-width: 200px;
+}
+
+.orc-total-final {
+  font-size: 1.1rem;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.orc-total-final strong {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  color: var(--wine);
+}
+
+@media (max-width: 700px) {
+  .orc-itens-tabela .orc-col-num { width: auto; }
+  .orc-itens-tabela th:nth-child(3),
+  .orc-itens-tabela td:nth-child(3) { display: none; }
+  .orc-totais { flex-direction: column; align-items: stretch; }
+}

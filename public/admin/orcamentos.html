@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Orçamentos — Admin — De Cheio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/chat.css">
+<link rel="stylesheet" href="../css/admin.css">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/img/logo512.png">
+</head>
+<body>
+
+<main class="wrap">
+
+  <div id="admin-conteudo" style="padding-bottom: 60px;">
+
+    <div class="admin-header">
+      <h1>Orçamentos</h1>
+      <div style="display:flex; align-items:center; gap:18px;">
+        <a href="/admin/index.html" class="admin-sair" style="text-decoration:none;">&larr; Pedidos de orçamento</a>
+        <a href="/admin/conta.html" class="admin-sair" style="text-decoration:none;">A minha conta</a>
+        <button class="admin-sair" id="btn-sair">Sair</button>
+      </div>
+    </div>
+
+    <div class="filtros-bar">
+      <select id="filtro-status">
+        <option value="">Todos os estados</option>
+        <option value="rascunho">Rascunho</option>
+        <option value="enviado">Enviado</option>
+      </select>
+      <button type="button" class="btn btn-primary" id="btn-novo-orcamento" style="width:auto;">+ Orçamento do zero</button>
+    </div>
+
+    <div id="lista-orcamentos"></div>
+  </div>
+
+</main>
+
+<script src="../js/admin-session.js"></script>
+<script src="../js/admin-orcamentos.js"></script>
+</body>
+</html>

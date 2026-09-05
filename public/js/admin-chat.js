@@ -11,6 +11,8 @@ const elTelefone = document.getElementById('pedido-telefone');
 const elDetalhes = document.getElementById('pedido-detalhes');
 const elInfoVista = document.getElementById('pedido-info-vista');
 const btnEditarPedido = document.getElementById('btn-editar-pedido');
+const btnCriarOrcamento = document.getElementById('btn-criar-orcamento');
+const elOrcamentosExistentes = document.getElementById('orcamentos-existentes');
 const formEditar = document.getElementById('form-editar-pedido');
 const btnCancelarEditar = document.getElementById('btn-cancelar-editar');
 const feedbackEditar = document.getElementById('editar-feedback');
@@ -190,7 +192,50 @@ async function carregarPedido() {
   elCarregamento.hidden = true;
   elConteudo.hidden = false;
   renderizarPedido(pedido);
+  carregarOrcamentosDoPedido();
 }
+
+// ---------- Orçamentos ligados a este pedido ----------
+async function carregarOrcamentosDoPedido() {
+  try {
+    const resposta = await fetch(`/api/orcamentos?quoteRequestId=${idPedido}`);
+    if (!resposta.ok) return;
+    const orcamentos = await resposta.json();
+
+    if (!orcamentos.length) {
+      elOrcamentosExistentes.hidden = true;
+      return;
+    }
+
+    elOrcamentosExistentes.hidden = false;
+    elOrcamentosExistentes.innerHTML = 'Orçamentos deste pedido: ' + orcamentos
+      .map((orc) => `<a href="/admin/orcamento.html?id=${orc._id}">${new Date(orc.createdAt).toLocaleDateString('pt-PT')} (${orc.status === 'enviado' ? 'enviado' : 'rascunho'})</a>`)
+      .join(' · ');
+  } catch (erro) {
+    // silencioso — não é crítico para a página de conversa
+  }
+}
+
+btnCriarOrcamento?.addEventListener('click', async () => {
+  btnCriarOrcamento.disabled = true;
+  try {
+    const resposta = await fetch('/api/orcamentos', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ quoteRequestId: idPedido }),
+    });
+    const orcamento = await resposta.json();
+    if (!resposta.ok) {
+      alert(orcamento.erro || 'Não foi possível criar o orçamento.');
+      return;
+    }
+    window.location.href = `/admin/orcamento.html?id=${orcamento._id}`;
+  } catch (erro) {
+    alert('Não foi possível criar o orçamento. Tenta novamente.');
+  } finally {
+    btnCriarOrcamento.disabled = false;
+  }
+});
 
 // ---------- Editar dados do pedido ----------
 function formatarDataParaInput(iso) {

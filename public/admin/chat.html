@@ -30,8 +30,12 @@
         <p class="eyebrow" id="pedido-tipo">—</p>
         <h1 id="pedido-titulo">—</h1>
       </div>
-      <button type="button" id="btn-editar-pedido" class="btn-toggle-fechar">Editar dados</button>
+      <span style="display:flex; gap:10px;">
+        <button type="button" id="btn-criar-orcamento" class="btn-toggle-fechar">Criar orçamento</button>
+        <button type="button" id="btn-editar-pedido" class="btn-toggle-fechar">Editar dados</button>
+      </span>
     </div>
+    <p id="orcamentos-existentes" class="chat-hint" hidden></p>
     <p style="color: var(--taupe); margin-top: -0.6em;" id="pedido-info-vista">
       <span id="pedido-email"></span> · <span id="pedido-telefone"></span>
     </p>

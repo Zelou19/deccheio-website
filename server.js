@@ -8,6 +8,7 @@ const path = require('path');
 const bcrypt = require('bcryptjs');
 
 const quotesRouter = require('./routes/quotes');
+const orcamentosRouter = require('./routes/orcamentos');
 const categoriasRouter = require('./routes/categorias');
 const calendariosRouter = require('./routes/calendarios');
 const reviewsRouter = require('./routes/reviews');
@@ -34,6 +35,7 @@ app.get('/api/config', (req, res) => {
 app.use('/api/auth', authRouter);
 app.use('/api/admin/auth', adminAuthRouter);
 app.use('/api/quotes', quotesRouter);
+app.use('/api/orcamentos', orcamentosRouter);
 app.use('/api/categorias', categoriasRouter);
 app.use('/api/calendarios', calendariosRouter);
 app.use('/api/reviews', reviewsRouter);
