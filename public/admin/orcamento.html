@@ -125,8 +125,16 @@
       <textarea id="orc-notas" rows="4"></textarea>
     </div>
 
+    <h2 class="orc-subtitulo">Imagens de inspiração</h2>
+    <p class="chat-hint">Estas imagens aparecem no documento final do orçamento.</p>
+    <div id="orc-imagens-galeria" class="imagens-galeria orc-imagens-galeria" hidden></div>
+    <label class="chat-anexo-btn" for="orc-imagem-input">📎 Adicionar imagem</label>
+    <input type="file" id="orc-imagem-input" accept="image/*" multiple hidden>
+    <p id="orc-imagens-feedback" class="form-feedback" role="status" aria-live="polite"></p>
+
     <div style="display:flex; gap:10px; align-items:center;">
       <button type="submit" class="btn btn-primary" style="width:auto;" id="btn-guardar-orcamento">Guardar orçamento</button>
+      <a id="btn-ver-orcamento" href="#" target="_blank" rel="noopener" class="btn-toggle-fechar" hidden>Ver / descarregar documento</a>
       <span id="orc-feedback" class="form-feedback" role="status" aria-live="polite"></span>
     </div>
 

@@ -4,6 +4,19 @@ const Orcamento = require('../models/Orcamento');
 const QuoteRequest = require('../models/QuoteRequest');
 const { requireAdmin } = require('./adminAuth');
 
+const MAX_IMAGENS_POR_ORCAMENTO = 8;
+const MAX_TAMANHO_IMAGEM_BYTES = 4 * 1024 * 1024; // 4MB por imagem, já em base64
+
+function imagemValida(dataUrl) {
+  return typeof dataUrl === 'string' && dataUrl.startsWith('data:image/') && dataUrl.length <= MAX_TAMANHO_IMAGEM_BYTES;
+}
+
+function limparImagens(imagens) {
+  if (!Array.isArray(imagens)) return undefined;
+  const validas = imagens.filter(imagemValida).slice(0, MAX_IMAGENS_POR_ORCAMENTO);
+  return validas;
+}
+
 // Tudo neste ficheiro é só para admins — o cliente ainda não vê orçamentos (fase futura).
 router.use(requireAdmin);
 
@@ -42,6 +55,9 @@ router.post('/', async (req, res) => {
       dados.tipoEvento = pedido.tipoEvento;
       dados.dataEvento = pedido.dataEvento;
       dados.localEvento = pedido.localEvento;
+      // Ponto de partida: as imagens de inspiração que o cliente já tinha enviado no pedido.
+      // O admin pode depois remover as que não interessam e/ou adicionar outras.
+      dados.imagens = (pedido.imagensInspiracao || []).slice(0, MAX_IMAGENS_POR_ORCAMENTO);
     } else {
       // Criado do zero: exige pelo menos o nome do cliente
       if (!req.body.nome || !req.body.nome.trim()) {
@@ -54,6 +70,7 @@ router.post('/', async (req, res) => {
       dados.tipoEvento = req.body.tipoEvento || undefined;
       dados.dataEvento = req.body.dataEvento || undefined;
       dados.localEvento = req.body.localEvento || undefined;
+      dados.imagens = limparImagens(req.body.imagens) || [];
     }
 
     const orcamento = await Orcamento.create(dados);
@@ -115,6 +132,13 @@ router.patch('/:id', async (req, res) => {
     }
     if (Object.prototype.hasOwnProperty.call(req.body, 'itens')) {
       alteracoes.itens = limparItens(req.body.itens);
+    }
+    if (Object.prototype.hasOwnProperty.call(req.body, 'imagens')) {
+      const imagens = limparImagens(req.body.imagens);
+      if (imagens === undefined) {
+        return res.status(400).json({ erro: 'Lista de imagens inválida.' });
+      }
+      alteracoes.imagens = imagens;
     }
     if (alteracoes.dataEvento === '') alteracoes.dataEvento = null;
     if (alteracoes.validoAte === '') alteracoes.validoAte = null;

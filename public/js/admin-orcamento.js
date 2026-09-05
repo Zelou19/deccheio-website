@@ -25,7 +25,14 @@ const campoStatus = document.getElementById('orc-status');
 const campoNotas = document.getElementById('orc-notas');
 const feedback = document.getElementById('orc-feedback');
 const btnGuardar = document.getElementById('btn-guardar-orcamento');
+const btnVerOrcamento = document.getElementById('btn-ver-orcamento');
 const elZonaPerigo = document.getElementById('orc-zona-perigo');
+const elGaleria = document.getElementById('orc-imagens-galeria');
+const inputImagem = document.getElementById('orc-imagem-input');
+const feedbackImagens = document.getElementById('orc-imagens-feedback');
+
+let imagensAtuais = []; // data URLs das imagens deste orçamento
+const MAX_IMAGENS = 8;
 
 let quoteRequestIdAtual = null;
 let contadorLinhas = 0;
@@ -88,7 +95,87 @@ function recalcular() {
 
 campoDesconto.addEventListener('input', recalcular);
 
-// ---------- Carregar / preencher ----------
+// ---------- Imagens de inspiração ----------
+// Reduz a imagem para no máximo 1600px no lado maior e converte para JPEG a 80% de qualidade
+// (mesma lógica usada no chat, para as imagens não ficarem pesadas).
+function comprimirImagem(ficheiro, ladoMaximo = 1600, qualidade = 0.8) {
+  return new Promise((resolve, reject) => {
+    const leitor = new FileReader();
+    leitor.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > ladoMaximo || height > ladoMaximo) {
+          if (width > height) {
+            height = Math.round(height * (ladoMaximo / width));
+            width = ladoMaximo;
+          } else {
+            width = Math.round(width * (ladoMaximo / height));
+            height = ladoMaximo;
+          }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', qualidade));
+      };
+      img.onerror = reject;
+      img.src = leitor.result;
+    };
+    leitor.onerror = reject;
+    leitor.readAsDataURL(ficheiro);
+  });
+}
+
+function renderizarGaleria() {
+  if (!imagensAtuais.length) {
+    elGaleria.hidden = true;
+    elGaleria.innerHTML = '';
+    return;
+  }
+  elGaleria.hidden = false;
+  elGaleria.innerHTML = imagensAtuais.map((src, indice) => `
+    <div class="orc-imagem-item">
+      <img src="${src}" alt="Imagem de inspiração" onclick="window.open(this.src, '_blank')">
+      <button type="button" class="orc-imagem-remover" data-indice="${indice}" title="Remover">&times;</button>
+    </div>
+  `).join('');
+
+  elGaleria.querySelectorAll('.orc-imagem-remover').forEach((botao) => {
+    botao.addEventListener('click', () => {
+      imagensAtuais.splice(Number(botao.dataset.indice), 1);
+      renderizarGaleria();
+    });
+  });
+}
+
+inputImagem.addEventListener('change', async () => {
+  feedbackImagens.textContent = '';
+  feedbackImagens.className = 'form-feedback';
+
+  const ficheiros = Array.from(inputImagem.files);
+  inputImagem.value = '';
+
+  for (const ficheiro of ficheiros) {
+    if (imagensAtuais.length >= MAX_IMAGENS) {
+      feedbackImagens.textContent = `Só podes ter até ${MAX_IMAGENS} imagens neste orçamento.`;
+      feedbackImagens.classList.add('erro');
+      break;
+    }
+    try {
+      const dataUrl = await comprimirImagem(ficheiro);
+      imagensAtuais.push(dataUrl);
+    } catch (erro) {
+      feedbackImagens.textContent = 'Não foi possível processar uma das imagens.';
+      feedbackImagens.classList.add('erro');
+    }
+  }
+
+  renderizarGaleria();
+});
+
+
 function preencherFormulario(orc) {
   quoteRequestIdAtual = orc.quoteRequestId || null;
 
@@ -126,6 +213,13 @@ function preencherFormulario(orc) {
   }
 
   elZonaPerigo.hidden = false;
+
+  imagensAtuais = Array.isArray(orc.imagens) ? [...orc.imagens] : [];
+  renderizarGaleria();
+
+  btnVerOrcamento.hidden = false;
+  btnVerOrcamento.href = `/admin/orcamento-ver.html?id=${idOrcamento}`;
+
   recalcular();
 }
 
@@ -137,6 +231,9 @@ function prepararFormularioVazio() {
   campoStatus.value = 'rascunho';
   criarLinhaItem();
   elZonaPerigo.hidden = true;
+  imagensAtuais = [];
+  renderizarGaleria();
+  btnVerOrcamento.hidden = true;
   recalcular();
 }
 
@@ -180,6 +277,7 @@ form.addEventListener('submit', async (event) => {
     validoAte: campoValidoAte.value || '',
     status: campoStatus.value,
     notas: campoNotas.value.trim(),
+    imagens: imagensAtuais,
   };
 
   if (!dados.nome) {

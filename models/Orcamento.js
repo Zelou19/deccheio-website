@@ -39,6 +39,11 @@ const orcamentoSchema = new mongoose.Schema(
     notas: { type: String, trim: true },
     validoAte: { type: Date },
 
+    // Imagens de inspiração a incluir no documento — herdadas do pedido de origem (quando
+    // existe) e/ou adicionadas à mão pelo admin. Guardadas como data URL, tal como as
+    // imagens do pedido e do chat.
+    imagens: [{ type: String }],
+
     status: {
       type: String,
       enum: ['rascunho', 'enviado'],

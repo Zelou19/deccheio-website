@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Orçamento — De Cheio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/orcamento-ver.css">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/img/logo512.png">
+</head>
+<body>
+
+<div class="doc-barra-acoes no-print">
+  <a href="#" id="link-voltar">&larr; Voltar</a>
+  <button type="button" id="btn-imprimir">Imprimir / Guardar como PDF</button>
+</div>
+
+<div id="estado-carregamento" class="doc-wrap no-print">A carregar...</div>
+<div id="estado-erro" class="doc-wrap no-print" hidden><h1>Orçamento não encontrado</h1></div>
+
+<main id="documento" class="doc-wrap" hidden>
+
+  <header class="doc-cabecalho">
+    <div class="doc-marca">
+      <img src="/img/fingerprint-heart.png" alt="" class="doc-marca-icone">
+      <span class="doc-marca-texto">De <em>Cheio</em></span>
+    </div>
+    <div class="doc-marca-tagline">Decoração de eventos</div>
+  </header>
+
+  <section class="doc-titulo-bloco">
+    <h1>Orçamento</h1>
+    <div class="doc-meta">
+      <span id="doc-numero"></span>
+      <span id="doc-data"></span>
+    </div>
+  </section>
+
+  <section class="doc-info-grid">
+    <div>
+      <p class="doc-label">Cliente</p>
+      <p class="doc-valor" id="doc-nome">—</p>
+      <p class="doc-valor-sec" id="doc-contacto"></p>
+    </div>
+    <div>
+      <p class="doc-label">Evento</p>
+      <p class="doc-valor" id="doc-tipo-evento">—</p>
+      <p class="doc-valor-sec" id="doc-detalhes-evento"></p>
+    </div>
+  </section>
+
+  <table class="doc-tabela">
+    <thead>
+      <tr>
+        <th>Descrição</th>
+        <th class="doc-col-num">Qtd.</th>
+        <th class="doc-col-num">Preço unit.</th>
+        <th class="doc-col-num">Subtotal</th>
+      </tr>
+    </thead>
+    <tbody id="doc-itens"></tbody>
+  </table>
+
+  <section class="doc-totais-bloco">
+    <div class="doc-totais-linhas" id="doc-linhas-totais"></div>
+  </section>
+
+  <section id="doc-imagens-secao" class="doc-imagens-secao" hidden>
+    <p class="doc-label">Imagens de inspiração</p>
+    <div class="doc-imagens-galeria" id="doc-imagens"></div>
+  </section>
+
+  <section id="doc-notas-secao" class="doc-notas-secao" hidden>
+    <p class="doc-label">Notas e condições</p>
+    <p class="doc-notas-texto" id="doc-notas"></p>
+  </section>
+
+  <p class="doc-validade" id="doc-validade" hidden></p>
+
+  <footer class="doc-rodape">
+    Obrigado pela preferência — De Cheio, decoração de eventos.
+  </footer>
+
+</main>
+
+<script src="../js/admin-session.js"></script>
+<script src="../js/admin-orcamento-ver.js"></script>
+</body>
+</html>

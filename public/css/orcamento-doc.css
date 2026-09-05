@@ -80,6 +80,41 @@
   color: var(--wine);
 }
 
+.orc-imagens-galeria {
+  margin-top: 10px;
+}
+
+.orc-imagem-item {
+  position: relative;
+  width: 84px;
+  height: 84px;
+}
+
+.orc-imagem-item img {
+  width: 84px;
+  height: 84px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid rgba(50,45,40,0.15);
+  cursor: zoom-in;
+}
+
+.orc-imagem-remover {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: none;
+  background: var(--wine);
+  color: var(--bg);
+  cursor: pointer;
+  font-size: 0.9rem;
+  line-height: 1;
+}
+.orc-imagem-remover:hover { opacity: 0.85; }
+
 @media (max-width: 700px) {
   .orc-itens-tabela .orc-col-num { width: auto; }
   .orc-itens-tabela th:nth-child(3),
