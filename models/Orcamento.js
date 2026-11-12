@@ -6,6 +6,8 @@ const mongoose = require('mongoose');
 const itemOrcamentoSchema = new mongoose.Schema(
   {
     descricao: { type: String, required: true, trim: true },
+    // Secção do catálogo De Cheio a que o item pertence (ex: "Cerimónia"). Opcional.
+    secao: { type: String, trim: true },
     quantidade: { type: Number, required: true, min: 0, default: 1 },
     precoUnitario: { type: Number, required: true, min: 0, default: 0 },
   },
@@ -26,6 +28,10 @@ const orcamentoSchema = new mongoose.Schema(
     tipoEvento: { type: String, trim: true },
     dataEvento: { type: Date },
     localEvento: { type: String, trim: true },
+    numeroConvidados: { type: Number, min: 0 },
+
+    // Versão da proposta (V00, V01...) — aparece na capa do documento
+    versao: { type: String, trim: true, default: 'V00' },
 
     itens: {
       type: [itemOrcamentoSchema],

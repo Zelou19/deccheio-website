@@ -31,7 +31,6 @@ const quoteRequestSchema = new mongoose.Schema(
     dataEvento: { type: Date },
     localEvento: { type: String, trim: true },
     numeroConvidados: { type: Number },
-    orcamentoAproximado: { type: String, trim: true }, // ex: "500-1000€", texto livre por agora
     mensagem: { type: String, trim: true },
 
     // Fotos de inspiração enviadas com o pedido inicial (ex: prints do Pinterest, fotos de
