@@ -5,9 +5,659 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Calendário — Admin — De Cheio</title>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../css/style.css">
-<link rel="stylesheet" href="../css/admin.css">
-<link rel="stylesheet" href="../css/calendario.css">
+<style>
+/* ---------- Tokens ---------- */
+:root {
+  --bg: #FAF6EF;
+  --bg-alt: #F1E9DC;
+  --ink: #322D28;
+  --taupe: #8C8175;
+  --gold: #B08B4F;
+  --wine: #6B2A34;
+
+  --font-display: 'Fraunces', serif;
+  --font-body: 'Work Sans', sans-serif;
+
+  --wrap: 1120px;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.55;
+}
+
+.wrap {
+  max-width: var(--wrap);
+  margin: 0 auto;
+  padding: 0 28px;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  color: var(--ink);
+  margin: 0 0 0.4em;
+}
+
+h1 { font-size: clamp(2.4rem, 5vw, 3.8rem); line-height: 1.08; font-weight: 500; }
+h2 { font-size: clamp(1.7rem, 3vw, 2.4rem); }
+h3 { font-size: 1.15rem; }
+
+p { margin: 0 0 1em; color: var(--ink); }
+
+a { color: inherit; }
+
+.eyebrow {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold);
+  font-weight: 600;
+  margin-bottom: 0.9em;
+}
+
+/* ---------- Buttons ---------- */
+.btn {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 0.9em 1.8em;
+  border-radius: 2px;
+  text-decoration: none;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.btn-primary {
+  background: var(--wine);
+  color: var(--bg);
+}
+.btn-primary:hover { background: #591f28; }
+
+/* ---------- Header ---------- */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(250, 246, 239, 0.92);
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid rgba(50, 45, 40, 0.08);
+}
+
+.header-inner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 16px;
+  padding-bottom: 16px;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  letter-spacing: 0.02em;
+  color: var(--ink);
+}
+
+.brand-word { font-weight: 500; }
+.brand-heart { width: 20px; height: 18px; object-fit: contain; }
+.brand-small { font-size: 1.05rem; }
+
+.site-nav {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  font-size: 0.92rem;
+}
+
+.site-nav a { text-decoration: none; color: var(--ink); }
+.site-nav a:hover { color: var(--wine); }
+
+.nav-cta {
+  background: var(--ink);
+  color: var(--bg) !important;
+  padding: 0.55em 1.3em;
+  border-radius: 2px;
+  font-weight: 600;
+}
+.nav-cta:hover { background: var(--wine) !important; }
+
+/* ---------- Menu hambúrguer (só aparece em mobile) ---------- */
+.nav-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.nav-toggle span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: var(--ink);
+  border-radius: 2px;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+.nav-toggle[aria-expanded="true"] span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.nav-toggle[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+.nav-toggle[aria-expanded="true"] span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+/* ---------- Hero ---------- */
+.hero {
+  position: relative;
+  overflow: hidden;
+  padding: 90px 0 110px;
+}
+
+.hero-motif {
+  position: absolute;
+  top: -60px;
+  right: -140px;
+  width: 620px;
+  height: 580px;
+  color: var(--gold);
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.hero-inner { position: relative; max-width: 680px; }
+
+.hero-lede {
+  font-size: 1.1rem;
+  color: var(--ink);
+  max-width: 540px;
+}
+
+/* ---------- Serviços ---------- */
+.servicos { padding: 90px 0; background: var(--bg-alt); }
+
+.servicos-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  margin-top: 40px;
+}
+
+.servico-card {
+  background: var(--bg);
+  padding: 28px 24px;
+  border-top: 2px solid var(--gold);
+}
+
+.servico-card p { color: var(--taupe); font-size: 0.95rem; margin-bottom: 0; }
+
+/* ---------- Como funciona ---------- */
+.como-funciona { padding: 90px 0; }
+
+.passos {
+  list-style: none;
+  margin: 40px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 40px;
+}
+
+.passos li { border-left: 1px solid rgba(50,45,40,0.15); padding-left: 24px; }
+
+.passo-num {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  color: var(--gold);
+  margin-bottom: 0.3em;
+}
+
+.passos p { color: var(--taupe); font-size: 0.95rem; }
+
+/* ---------- Orçamento (form) ---------- */
+.orcamento { padding: 90px 0 120px; background: var(--bg-alt); }
+
+.orcamento-inner {
+  display: grid;
+  grid-template-columns: 0.9fr 1.3fr;
+  gap: 64px;
+  align-items: start;
+}
+
+.orcamento-intro p:not(.eyebrow) { color: var(--taupe); max-width: 380px; }
+
+.orcamento-gate {
+  background: var(--bg);
+  padding: 36px;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.orcamento-gate p {
+  color: var(--taupe);
+  max-width: 420px;
+  margin: 0 auto 20px;
+}
+
+.quote-form {
+  background: var(--bg);
+  padding: 36px;
+  border-radius: 4px;
+}
+
+.form-row { margin-bottom: 18px; }
+
+.form-row-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--ink);
+}
+
+.opcional { font-weight: 400; color: var(--taupe); }
+
+.imagens-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.imagem-preview-item {
+  position: relative;
+  width: 76px;
+  height: 76px;
+}
+
+.imagem-preview-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid rgba(50,45,40,0.15);
+}
+
+.imagem-preview-remover {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: none;
+  background: var(--wine);
+  color: var(--bg);
+  font-size: 0.8rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.imagem-preview-remover:hover { background: #4d1a21; }
+
+input[type="file"] {
+  padding: 10px 0;
+  border: none;
+  font-size: 0.85rem;
+}
+
+input, select, textarea {
+  width: 100%;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  padding: 0.7em 0.8em;
+  border: 1px solid rgba(50,45,40,0.25);
+  border-radius: 2px;
+  background: var(--bg);
+  color: var(--ink);
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: 2px solid var(--gold);
+  outline-offset: 1px;
+  border-color: var(--gold);
+}
+
+textarea { resize: vertical; }
+
+.btn-submit { width: 100%; margin-top: 8px; }
+
+.form-feedback {
+  margin: 14px 0 0;
+  font-size: 0.9rem;
+  min-height: 1.2em;
+}
+
+.form-feedback.sucesso { color: #2E6B4F; }
+.form-feedback.erro { color: var(--wine); }
+
+/* ---------- Footer ---------- */
+.site-footer {
+  padding: 40px 0;
+  border-top: 1px solid rgba(50,45,40,0.1);
+}
+
+.footer-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: var(--taupe);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 900px) {
+  .servicos-grid { grid-template-columns: repeat(2, 1fr); }
+  .passos { grid-template-columns: 1fr; gap: 28px; }
+  .orcamento-inner { grid-template-columns: 1fr; }
+  .hero-motif { opacity: 0.22; right: -220px; }
+}
+
+@media (max-width: 760px) {
+  .nav-toggle { display: flex; }
+
+  .site-nav {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 2px;
+    font-size: 0.92rem;
+    background: var(--bg);
+    border-bottom: 1px solid rgba(50, 45, 40, 0.08);
+    padding: 0 20px;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transition: max-height 0.25s ease, opacity 0.2s ease, padding 0.25s ease;
+  }
+
+  .site-nav.nav-aberto {
+    max-height: 60vh;
+    opacity: 1;
+    pointer-events: auto;
+    padding: 8px 20px 18px;
+  }
+
+  .site-nav a,
+  .site-nav span,
+  .site-nav button {
+    width: 100%;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(50, 45, 40, 0.06);
+  }
+
+  .site-nav .nav-cta {
+    text-align: center;
+    margin-top: 6px;
+    border-bottom: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .servicos-grid { grid-template-columns: 1fr; }
+  .form-row-split { grid-template-columns: 1fr; }
+  .footer-inner { flex-direction: column; gap: 10px; text-align: center; }
+  .hero { padding: 60px 0 80px; }
+}
+</style>
+<style>
+.admin-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 0;
+  border-bottom: 1px solid rgba(50,45,40,0.1);
+  margin-bottom: 32px;
+}
+
+.admin-header h1 {
+  font-size: 1.4rem;
+  margin: 0;
+}
+
+.admin-sair {
+  font-size: 0.85rem;
+  color: var(--taupe);
+  text-decoration: none;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: var(--font-body);
+}
+.admin-sair:hover { color: var(--wine); }
+
+.stats-bar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.stat-card {
+  background: var(--bg-alt);
+  border-radius: 6px;
+  padding: 18px 20px;
+  text-align: left;
+}
+
+.stat-card .stat-num {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 2rem;
+  color: var(--ink);
+  line-height: 1;
+}
+
+.stat-card .stat-label {
+  font-size: 0.78rem;
+  color: var(--taupe);
+  letter-spacing: 0.02em;
+}
+
+.stat-card.total { border-top: 3px solid var(--ink); }
+.stat-card.nao_respondido { border-top: 3px solid var(--wine); }
+.stat-card.em_andamento { border-top: 3px solid var(--gold); }
+.stat-card.concluido { border-top: 3px solid #2E6B4F; }
+
+.filtros-bar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.filtros-bar select,
+.filtros-bar input {
+  width: auto;
+  min-width: 160px;
+  font-size: 0.88rem;
+}
+
+.filtros-bar input[type="search"] { flex: 1; min-width: 200px; }
+
+.pedido-card {
+  position: relative;
+  background: var(--bg-alt);
+  border-radius: 6px;
+  padding: 18px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  text-decoration: none;
+  color: var(--ink);
+}
+
+.status-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+.status-dot[data-status="nao_respondido"] { background: var(--wine); }
+.status-dot[data-status="em_andamento"] { background: var(--gold); }
+.status-dot[data-status="concluido"] { background: #2E6B4F; }
+
+.pedido-card-info { flex: 1; min-width: 0; }
+
+.pedido-card-nome {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.pedido-card-meta {
+  font-size: 0.82rem;
+  color: var(--taupe);
+  margin-top: 2px;
+}
+
+.pedido-card-tag {
+  display: inline-block;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--taupe);
+  background: var(--bg);
+  padding: 0.2em 0.7em;
+  border-radius: 999px;
+  margin-right: 8px;
+}
+
+.pedido-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.sem-resultados {
+  text-align: center;
+  color: var(--taupe);
+  padding: 40px 0;
+}
+
+@media (max-width: 700px) {
+  .stats-bar { grid-template-columns: repeat(2, 1fr); }
+  .pedido-card { flex-direction: column; align-items: flex-start; }
+  .pedido-card-actions { width: 100%; justify-content: space-between; }
+}
+</style>
+<style>
+.calendario-ajuda {
+  color: var(--taupe);
+  font-size: 0.88rem;
+  max-width: 640px;
+  margin-bottom: 28px;
+}
+
+.novo-calendario-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.novo-calendario-form input[type="text"] {
+  flex: 1;
+  min-width: 200px;
+}
+
+.novo-calendario-form input[type="color"] {
+  width: 44px;
+  height: 42px;
+  padding: 2px;
+  border: 1px solid rgba(50,45,40,0.25);
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.lista-calendarios {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 32px;
+}
+
+.calendario-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg-alt);
+  padding: 0.5em 0.6em 0.5em 1em;
+  border-radius: 999px;
+  font-size: 0.88rem;
+}
+
+.calendario-chip .bolinha {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.calendario-chip button {
+  background: none;
+  border: none;
+  color: var(--taupe);
+  cursor: pointer;
+  font-size: 1.1rem;
+  line-height: 1;
+  padding: 0 4px;
+}
+.calendario-chip button:hover { color: var(--wine); }
+
+.embed-container iframe {
+  width: 100%;
+  height: 650px;
+  border: 1px solid rgba(50,45,40,0.15);
+  border-radius: 6px;
+}
+
+.embed-vazio {
+  color: var(--taupe);
+  font-style: italic;
+}
+</style>
 <link rel="icon" type="image/x-icon" href="/favicon.ico">
 <link rel="apple-touch-icon" href="/img/logo512.png">
 </head>
@@ -52,7 +702,131 @@
 
 </main>
 
-<script src="../js/admin-session.js"></script>
-<script src="../js/admin-calendario.js"></script>
+<script>
+// Script partilhado por todas as páginas do painel de admin.
+// Substitui o antigo sistema de "chave de admin" por uma sessão a sério (cookie + login).
+// Tem de ser incluído ANTES do script próprio de cada página (admin.js, admin-chat.js, etc.).
+
+window.adminAtual = null;
+
+// Verifica se há sessão válida. Se não houver, manda logo para o login.
+// Devolve os dados do admin (username, role) quando a sessão é válida, ou null.
+async function protegerPaginaAdmin() {
+  try {
+    const resposta = await fetch('/api/admin/auth/me');
+    if (!resposta.ok) {
+      window.location.href = '/admin/login.html';
+      return null;
+    }
+    const dados = await resposta.json();
+    window.adminAtual = dados.admin;
+
+    // Elementos marcados com esta classe só aparecem para o dono da conta (ex: link "Utilizadores")
+    document.querySelectorAll('.admin-so-owner').forEach((el) => {
+      el.hidden = dados.admin.role !== 'owner';
+    });
+
+    return dados.admin;
+  } catch (erro) {
+    window.location.href = '/admin/login.html';
+    return null;
+  }
+}
+
+document.getElementById('btn-sair')?.addEventListener('click', async () => {
+  await fetch('/api/admin/auth/logout', { method: 'POST' });
+  window.location.href = '/admin/login.html';
+});
+</script>
+<script>
+const formNovoCalendario = document.getElementById('form-novo-calendario');
+const inputNome = document.getElementById('nome-calendario');
+const inputId = document.getElementById('id-calendario');
+const inputCor = document.getElementById('cor-calendario');
+const calendarioFeedback = document.getElementById('calendario-feedback');
+const listaCalendarios = document.getElementById('lista-calendarios');
+const embedContainer = document.getElementById('embed-container');
+
+function escaparHtml(texto) {
+  const div = document.createElement('div');
+  div.textContent = texto || '';
+  return div.innerHTML;
+}
+
+function montarUrlEmbed(calendarios) {
+  const parametros = new URLSearchParams({ ctz: 'Europe/Lisbon', height: '650' });
+  calendarios.forEach((cal) => {
+    parametros.append('src', cal.googleCalendarId);
+    parametros.append('color', cal.cor || '#6B2A34');
+  });
+  return `https://calendar.google.com/calendar/embed?${parametros.toString()}`;
+}
+
+async function carregarCalendarios() {
+  const resposta = await fetch('/api/calendarios');
+  if (!resposta.ok) {
+    listaCalendarios.innerHTML = '<p class="sem-resultados">Não foi possível carregar os calendários.</p>';
+    return;
+  }
+
+  const calendarios = await resposta.json();
+
+  listaCalendarios.innerHTML = calendarios.length === 0
+    ? ''
+    : calendarios.map((cal) => `
+        <span class="calendario-chip">
+          <span class="bolinha" style="background:${cal.cor}"></span>
+          ${escaparHtml(cal.nome)}
+          <button type="button" data-id="${cal._id}" title="Remover">&times;</button>
+        </span>
+      `).join('');
+
+  embedContainer.innerHTML = calendarios.length === 0
+    ? '<p class="embed-vazio">Adiciona pelo menos um calendário para o veres aqui.</p>'
+    : `<iframe src="${montarUrlEmbed(calendarios)}" frameborder="0" scrolling="no"></iframe>`;
+}
+
+listaCalendarios.addEventListener('click', async (event) => {
+  const id = event.target.dataset.id;
+  if (!id) return;
+  if (!confirm('Remover este calendário da lista? (o calendário no Google não é afetado)')) return;
+
+  await fetch(`/api/calendarios/${id}`, {
+    method: 'DELETE',
+  });
+  carregarCalendarios();
+});
+
+formNovoCalendario.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  calendarioFeedback.textContent = '';
+  calendarioFeedback.className = 'form-feedback';
+
+  const nome = inputNome.value.trim();
+  const googleCalendarId = inputId.value.trim();
+  if (!nome || !googleCalendarId) return;
+
+  const resposta = await fetch('/api/calendarios', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ nome, googleCalendarId, cor: inputCor.value }),
+  });
+  const resultado = await resposta.json();
+
+  if (!resposta.ok) {
+    calendarioFeedback.textContent = resultado.erro || 'Não foi possível adicionar o calendário.';
+    calendarioFeedback.classList.add('erro');
+    return;
+  }
+
+  formNovoCalendario.reset();
+  inputCor.value = '#6B2A34';
+  carregarCalendarios();
+});
+
+protegerPaginaAdmin().then((admin) => {
+  if (admin) carregarCalendarios();
+});
+</script>
 </body>
 </html>

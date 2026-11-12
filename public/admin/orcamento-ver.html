@@ -7,7 +7,385 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700&family=Allura&family=Cormorant+Garamond:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../css/orcamento-ver.css">
+<style>
+/* Documento "Proposta de Orçamento" — páginas A4 no estilo da proposta De Cheio.
+   No ecrã aparecem como folhas empilhadas; ao imprimir/guardar em PDF cada uma é uma página. */
+
+:root {
+  --doc-creme: #F5F0E3;
+  --doc-amarelo: #EBE6C2;
+  --doc-verde: #55654F;
+  --doc-castanho: #3F322B;
+  --doc-castanho-claro: #A9856A;
+  --doc-cinza: #8a8a86;
+  --doc-linha: #d9d3bf;
+  --doc-fonte: 'Jost', 'Work Sans', sans-serif;
+  --doc-script: 'Allura', cursive;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  background: #d9d6cf;
+  font-family: var(--doc-fonte);
+  color: var(--doc-castanho);
+  margin: 0;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* ---------- barra de ações (só no ecrã) ---------- */
+.doc-barra-acoes {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: #322D28;
+  color: #FAF6EF;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 28px;
+}
+.doc-barra-acoes a { color: #FAF6EF; text-decoration: none; font-size: 0.9rem; }
+.doc-barra-acoes a:hover { color: #B08B4F; }
+.doc-barra-acoes button {
+  background: #6B2A34;
+  color: #FAF6EF;
+  border: none;
+  padding: 0.6em 1.3em;
+  border-radius: 4px;
+  font-family: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.doc-barra-acoes button:hover { background: #591f28; }
+
+.doc-estado { max-width: 780px; margin: 40px auto; padding: 0 20px; }
+
+/* ---------- páginas ---------- */
+#documento { width: 210mm; margin: 24px auto 80px; }
+
+.doc-pagina {
+  position: relative;
+  width: 210mm;
+  min-height: 296mm;
+  background: #fff;
+  margin: 0 0 22px;
+  padding: 14mm 16mm 0;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 24px rgba(50,45,40,0.18);
+  break-after: page;
+  page-break-after: always;
+  overflow: hidden;
+}
+.doc-pagina.doc-creme { background: var(--doc-creme); }
+
+#doc-seccoes { display: contents; }
+
+/* cabeçalho pequeno de cada página */
+.pag-cabecalho {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: #4b3e36;
+  margin: 0 8mm 7mm;
+  text-transform: uppercase;
+}
+
+/* rodapé com contactos */
+.pag-rodape {
+  margin: auto -16mm 0;
+  display: flex;
+  align-items: stretch;
+  height: 13mm;
+  flex-shrink: 0;
+}
+.pag-rodape-logo {
+  width: 28%;
+  background: var(--doc-creme);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.doc-creme .pag-rodape-logo { background: #efe8d6; }
+.pag-rodape-logo .marca { font-size: 3.9mm; }
+.pag-rodape-texto {
+  flex: 1;
+  background: var(--doc-amarelo);
+  display: flex;
+  align-items: center;
+  padding: 0 6mm;
+  font-size: 0.72rem;
+  color: var(--doc-verde);
+  gap: 14px;
+  white-space: nowrap;
+}
+.pag-rodape-texto strong { font-weight: 700; }
+.pag-rodape-texto span { color: var(--doc-castanho); }
+
+/* ---------- títulos ---------- */
+.titulo-grande {
+  font-size: 2.3rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  margin: 0 0 8mm;
+  color: #3b2d26;
+}
+.titulo-espacado { letter-spacing: 0.04em; font-size: 2.1rem; margin-bottom: 10mm; }
+
+.subtitulo-castanho {
+  font-size: 1.02rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--doc-castanho-claro);
+  margin: 0 0 6mm;
+}
+
+.titulo-secao {
+  font-size: 1.55rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--doc-verde);
+  margin: 0 0 3mm;
+  line-height: 1.15;
+}
+
+/* ---------- capa ---------- */
+.doc-capa { padding: 0; align-items: stretch; min-height: 296mm; }
+.doc-capa .pag-rodape { margin: auto 0 0; }
+
+/* Logótipo em letras: "DE ♥" por cima de "CHEIO" */
+.marca {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: stretch;
+  font-family: 'Cormorant Garamond', 'Cormorant', Georgia, serif;
+  font-weight: 500;
+  color: #8b8a86;
+  line-height: 0.95;
+  letter-spacing: 0.14em;
+}
+.marca-linha { display: flex; justify-content: space-between; align-items: flex-end; }
+.marca-linha img { height: 1.75em; width: auto; margin: 0 -0.15em -0.28em 0; }
+.marca-cheio { display: block; }
+
+.capa-logo { text-align: center; margin-top: 34mm; font-size: 24mm; }
+
+.capa-bloco {
+  position: relative;
+  margin: 8mm 0 0 38mm;
+  width: 128mm;
+  height: 44mm;
+}
+.capa-bloco-fundo {
+  position: absolute;
+  left: -4mm; top: -4mm;
+  width: 44mm; height: 48mm;
+  background: #f4efe2;
+}
+.capa-bloco::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; right: 0; bottom: 0;
+  background: var(--doc-amarelo);
+}
+.capa-bloco h1 {
+  position: relative;
+  margin: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  padding-left: 36mm;
+  font-size: 1.95rem;
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: -0.01em;
+  color: #3b3b3b;
+}
+.capa-sub {
+  margin: 8mm 0 0 38mm;
+  font-size: 0.98rem;
+  letter-spacing: 0.04em;
+  font-weight: 300;
+  text-transform: uppercase;
+}
+.capa-detalhes {
+  margin: auto 0 22mm 38mm;
+  width: 100mm;
+  border-top: 0.5mm solid #c8c8c8;
+  padding-top: 6mm;
+}
+.capa-detalhes p {
+  margin: 0 0 2.4mm 4mm;
+  font-size: 0.98rem;
+  font-weight: 300;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+/* ---------- essência ---------- */
+.essencia-grelha { display: grid; grid-template-columns: 1fr 70mm; gap: 12mm; }
+.essencia-texto p, .unicos-texto p, .proximo-texto p, .proximo-passos p {
+  margin: 0 0 4.2mm;
+  font-size: 0.93rem;
+  line-height: 1.38;
+  font-weight: 400;
+}
+.essencia-lado { padding-top: 14mm; }
+.essencia-frase { font-size: 0.93rem; line-height: 1.38; margin: 0 0 6mm; }
+
+.foto { display: block; object-fit: cover; box-shadow: 0 1px 6px rgba(0,0,0,0.12); }
+.foto-bouquet { width: 54mm; height: 70mm; margin-left: -8mm; }
+.essencia-fotos { display: flex; align-items: flex-start; gap: 8mm; margin-top: 4mm; }
+.foto-grupo { width: 100mm; height: 72mm; object-position: center 25%; }
+.essencia-assinatura { flex: 1; }
+.foto-filipa { width: 54mm; height: 72mm; margin-left: auto; }
+.assinatura { font-family: var(--doc-script); font-size: 2rem; margin: 6mm 0 0; text-align: right; color: #1d1d1d; }
+.assinatura-grande { font-size: 1.9rem; text-align: left; margin: 2mm 0 6mm; }
+.legenda-equipa { font-size: 1.75rem; font-weight: 400; line-height: 1.05; margin: 5mm 0 0; letter-spacing: -0.02em; }
+
+/* ---------- únicos ---------- */
+.unicos-texto { width: 140mm; }
+.unicos-texto strong { font-weight: 700; }
+.unicos-frase {
+  font-style: italic;
+  font-weight: 300;
+  text-align: center;
+  font-size: 0.98rem;
+  line-height: 1.4;
+  margin: 8mm 20mm 8mm 40mm;
+}
+.foto-larga { width: 100%; height: 108mm; object-position: center 40%; box-shadow: none; }
+
+/* ---------- secções do orçamento ---------- */
+.bloco-secao { margin-bottom: 9mm; break-inside: avoid; }
+.nota-secao {
+  margin: 0 0 4mm;
+  font-size: 0.82rem;
+  line-height: 1.4;
+  color: #5b5047;
+  border-bottom: 0.3mm solid var(--doc-linha);
+  padding-bottom: 3mm;
+}
+
+.tabela-itens { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+.tabela-itens th {
+  text-align: left;
+  font-size: 0.66rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--doc-cinza);
+  font-weight: 500;
+  padding: 0 2mm 2mm;
+  border-bottom: 0.3mm solid var(--doc-linha);
+}
+.tabela-itens td { padding: 2.2mm 2mm; border-bottom: 0.2mm solid #ece7d6; vertical-align: top; line-height: 1.3; }
+.tabela-itens .num { text-align: right; white-space: nowrap; width: 24mm; }
+.tabela-itens .qtd { text-align: right; width: 14mm; }
+.tabela-itens tfoot td { border: none; font-weight: 600; padding-top: 2.5mm; }
+
+/* ---------- valor base / notas ---------- */
+.valor-base-topo { display: flex; justify-content: space-between; align-items: flex-start; gap: 8mm; margin-bottom: 7mm; }
+.pilula-preco {
+  background: var(--doc-amarelo);
+  border-radius: 6mm;
+  padding: 4mm 8mm;
+  font-size: 1.45rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.caixa-contorno {
+  border: 0.3mm solid #e8e0b8;
+  border-radius: 5mm;
+  padding: 6mm 7mm;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+.caixa-contorno p { margin: 0 0 4mm; }
+.caixa-contorno ul { margin: 0; padding-left: 5mm; }
+.caixa-contorno li { margin-bottom: 4mm; }
+.titulo-resumo { margin-top: 12mm; }
+#bloco-valor-base[hidden] + .titulo-resumo { margin-top: 0; }
+.nota-linha { margin: 0 0 3.6mm; padding-left: 4mm; text-indent: -4mm; }
+
+.tabela-resumo { width: 100%; border-collapse: collapse; font-size: 0.95rem; margin-top: 3mm; }
+.tabela-resumo td { padding: 1.8mm 2mm; border-bottom: 0.2mm solid var(--doc-linha); }
+.tabela-resumo td:last-child { text-align: right; white-space: nowrap; }
+.tabela-resumo .linha-total td {
+  border-bottom: none;
+  background: var(--doc-amarelo);
+  font-weight: 700;
+  font-size: 1.1rem;
+  padding: 3.4mm 3mm;
+}
+.validade { font-size: 0.85rem; color: var(--doc-verde); margin: 4mm 0 0; }
+
+/* ---------- próximo passo ---------- */
+.proximo-texto { width: 128mm; margin-bottom: 6mm; }
+.titulo-funcionamos { font-size: 1.9rem; font-weight: 400; letter-spacing: -0.02em; line-height: 1.05; margin: 6mm 0 6mm; width: 110mm; }
+.proximo-passos { width: 140mm; }
+
+.proximo-fotos { display: flex; gap: 8mm; align-items: flex-end; margin-top: 4mm; }
+.foto-p1 { width: 100mm; height: 70mm; object-position: center 25%; }
+.foto-p2 { width: 56mm; height: 80mm; margin-left: auto; }
+
+/* ---------- fecho ---------- */
+.doc-fecho { padding: 0; }
+.fecho-topo { display: flex; gap: 14mm; padding: 28mm 16mm 12mm; }
+.fecho-logo { width: 56mm; flex-shrink: 0; padding-top: 22mm; font-size: 12mm; }
+.fecho-texto { flex: 1; }
+.fecho-frase { font-style: italic; font-weight: 300; font-size: 1.05rem; line-height: 1.4; margin: 0 0 6mm; }
+.fecho-texto hr { border: none; border-top: 0.3mm solid #c9bfa6; margin: 8mm 0; }
+.fecho-contactos { font-size: 1.1rem; line-height: 1.6; margin: 0; padding-left: 6mm; }
+.fecho-foto { width: 100%; height: 126mm; object-fit: cover; margin-top: auto; display: block; }
+
+/* ---------- impressão ---------- */
+@page { size: A4; margin: 0; }
+
+@media print {
+  .no-print { display: none !important; }
+  body { background: #fff; }
+  #documento { margin: 0; zoom: 1 !important; }
+  .doc-pagina { margin: 0; box-shadow: none; height: 296.5mm; }
+}
+
+/* ---------- página do evento / flores ---------- */
+.titulo-evento { font-size: 1.75rem; font-weight: 300; letter-spacing: 0.04em; margin: 2mm 0 7mm; color: #3b3b3b; }
+
+.moodboard { display: grid; gap: 4mm; margin-bottom: 9mm; }
+.moodboard img { width: 100%; object-fit: cover; display: block; box-shadow: 0 1px 6px rgba(0,0,0,0.12); }
+.mood-1 { grid-template-columns: 1fr; }
+.mood-1 img { height: 118mm; }
+.mood-2 { grid-template-columns: 1fr 1fr; }
+.mood-2 img { height: 100mm; }
+.mood-3 { grid-template-columns: repeat(3, 1fr); }
+.mood-3 img { height: 86mm; }
+.mood-4-6 { grid-template-columns: repeat(3, 1fr); }
+.mood-4-6 img { height: 58mm; }
+.mood-7-8 { grid-template-columns: repeat(3, 1fr); }
+.mood-7-8 img { height: 44mm; }
+
+.evento-ficha { border-top: 0.3mm solid #c8c8c8; padding-top: 8mm; }
+.ficha-linha { display: grid; grid-template-columns: 62mm 1fr; align-items: center; gap: 6mm; margin-bottom: 8mm; }
+.ficha-linha h3 { margin: 0; font-size: 1.45rem; font-weight: 700; letter-spacing: 0.01em; color: #3b3b3b; }
+.ficha-linha p { margin: 0; font-size: 1rem; font-weight: 300; letter-spacing: 0.04em; text-transform: uppercase; }
+.paleta-doc { display: flex; flex-wrap: wrap; gap: 4mm; }
+.cor-doc { width: 14mm; height: 14mm; border-radius: 50%; box-shadow: 0 0 0 0.3mm #cfcfcf; }
+
+.flores-texto { font-size: 1.05rem; font-weight: 300; letter-spacing: 0.03em; text-transform: uppercase; margin: 0 0 8mm; max-width: 120mm; line-height: 1.4; }
+.flores-galeria { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5mm; }
+.flores-galeria img { width: 100%; height: 62mm; object-fit: cover; display: block; box-shadow: 0 1px 6px rgba(0,0,0,0.12); }
+
+/* ---------- fotos das opções (por baixo da tabela de cada secção) ---------- */
+.fotos-secao { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4mm; margin-top: 5mm; }
+.cartao-foto { margin: 0; text-align: center; break-inside: avoid; }
+.cartao-foto img { width: 100%; height: 46mm; object-fit: cover; display: block; box-shadow: 0 1px 5px rgba(0,0,0,0.12); }
+.cartao-foto figcaption { font-size: 0.95rem; font-weight: 400; margin-top: 1.6mm; color: var(--doc-castanho); }
+</style>
 <link rel="icon" type="image/x-icon" href="/favicon.ico">
 <link rel="apple-touch-icon" href="/img/logo512.png">
 </head>
@@ -80,6 +458,24 @@
     <img src="/img/equipa-sentadas.jpg" alt="Equipa Decoraçãocheio" class="foto foto-larga">
   </section>
 
+  <!-- PÁGINA DO EVENTO: moodboard + tema, palavras-chave, paleta -->
+  <section class="doc-pagina" id="pag-evento" data-cabecalho hidden>
+    <h2 class="titulo-evento" id="evento-titulo"></h2>
+    <div class="moodboard" id="moodboard"></div>
+    <div class="evento-ficha">
+      <div class="ficha-linha" id="ficha-tema" hidden><h3>TEMA</h3><p></p></div>
+      <div class="ficha-linha" id="ficha-palavras" hidden><h3>PALAVRAS-CHAVE</h3><p></p></div>
+      <div class="ficha-linha" id="ficha-paleta" hidden><h3>PALETA DE CORES</h3><div class="paleta-doc" id="paleta-doc"></div></div>
+    </div>
+  </section>
+
+  <!-- FLORES -->
+  <section class="doc-pagina" id="pag-flores" data-cabecalho hidden>
+    <h2 class="titulo-secao">FLORES</h2>
+    <p class="flores-texto" id="flores-texto"></p>
+    <div class="flores-galeria" id="flores-galeria"></div>
+  </section>
+
   <!-- 4.. · SECÇÕES DO ORÇAMENTO (geradas pelo JS) -->
   <div id="doc-seccoes"></div>
 
@@ -150,7 +546,351 @@
 
 </main>
 
-<script src="../js/admin-session.js"></script>
-<script src="../js/admin-orcamento-ver.js"></script>
+<script>
+// Script partilhado por todas as páginas do painel de admin.
+// Substitui o antigo sistema de "chave de admin" por uma sessão a sério (cookie + login).
+// Tem de ser incluído ANTES do script próprio de cada página (admin.js, admin-chat.js, etc.).
+
+window.adminAtual = null;
+
+// Verifica se há sessão válida. Se não houver, manda logo para o login.
+// Devolve os dados do admin (username, role) quando a sessão é válida, ou null.
+async function protegerPaginaAdmin() {
+  try {
+    const resposta = await fetch('/api/admin/auth/me');
+    if (!resposta.ok) {
+      window.location.href = '/admin/login.html';
+      return null;
+    }
+    const dados = await resposta.json();
+    window.adminAtual = dados.admin;
+
+    // Elementos marcados com esta classe só aparecem para o dono da conta (ex: link "Utilizadores")
+    document.querySelectorAll('.admin-so-owner').forEach((el) => {
+      el.hidden = dados.admin.role !== 'owner';
+    });
+
+    return dados.admin;
+  } catch (erro) {
+    window.location.href = '/admin/login.html';
+    return null;
+  }
+}
+
+document.getElementById('btn-sair')?.addEventListener('click', async () => {
+  await fetch('/api/admin/auth/logout', { method: 'POST' });
+  window.location.href = '/admin/login.html';
+});
+</script>
+<script>
+const params = new URLSearchParams(window.location.search);
+const idOrcamento = params.get('id');
+
+const elCarregamento = document.getElementById('estado-carregamento');
+const elErro = document.getElementById('estado-erro');
+const elDocumento = document.getElementById('documento');
+const linkVoltar = document.getElementById('link-voltar');
+const btnImprimir = document.getElementById('btn-imprimir');
+
+const NOME_VALOR_BASE = 'Valor base';
+const NOME_SEM_SECAO = 'Outros itens';
+const FOTOS_POR_LINHA = 4;
+const ALTURA_UTIL_PAGINA_MM = 245; // altura aproveitável de uma página A4 (sem cabeçalho/rodapé)
+
+function formatarMoeda(valor) {
+  return new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' }).format(valor || 0);
+}
+
+function escaparHtml(texto) {
+  const div = document.createElement('div');
+  div.textContent = texto ?? '';
+  return div.innerHTML;
+}
+
+function dataPorExtenso(iso) {
+  const d = new Date(iso);
+  const mes = d.toLocaleDateString('pt-PT', { month: 'long', timeZone: 'UTC' });
+  return `${d.getUTCDate()} ${mes} ${d.getUTCFullYear()}`.toUpperCase();
+}
+
+// Agrupa os itens por secção, pela ordem em que aparecem no orçamento
+function agruparPorSecao(itens) {
+  const grupos = [];
+  const porNome = new Map();
+  itens.forEach((item) => {
+    const nome = item.secao || NOME_SEM_SECAO;
+    if (!porNome.has(nome)) {
+      const grupo = { nome, itens: [] };
+      porNome.set(nome, grupo);
+      grupos.push(grupo);
+    }
+    porNome.get(nome).itens.push(item);
+  });
+  return grupos;
+}
+
+const subtotalDe = (itens) => itens.reduce((soma, i) => soma + i.quantidade * i.precoUnitario, 0);
+
+// Estimativa (em mm) da altura de uma secção, para decidir onde quebrar a página:
+// título + cabeçalho da tabela + margem, a nota da secção, e cada linha (mais alta se a descrição for longa)
+function pesoDaSecao(grupo, nota, fotos) {
+  const notaMm = nota ? 4 + Math.ceil(nota.length / 105) * 4.4 : 0;
+  const linhasMm = grupo.itens.reduce((soma, i) => soma + (i.descricao.length > 62 ? 12 : 8), 0);
+  const comFoto = grupo.itens.filter((i) => i.chave && fotos[i.chave]).length;
+  const fotosMm = comFoto ? Math.ceil(comFoto / FOTOS_POR_LINHA) * 52 + 4 : 0;
+  return 27 + notaMm + linhasMm + fotosMm;
+}
+
+function htmlSecao(grupo, nota, fotos) {
+  const linhas = grupo.itens.map((item) => `
+    <tr>
+      <td>${escaparHtml(item.descricao)}</td>
+      <td class="qtd">${item.quantidade}</td>
+      <td class="num">${formatarMoeda(item.precoUnitario)}</td>
+      <td class="num">${formatarMoeda(item.quantidade * item.precoUnitario)}</td>
+    </tr>`).join('');
+  // Fotos das opções escolhidas (as do catálogo), cada uma com o seu preço por baixo
+  const cartoes = grupo.itens
+    .filter((item) => item.chave && fotos[item.chave])
+    .map((item) => `
+      <figure class="cartao-foto">
+        <img src="${escaparHtml(fotos[item.chave])}" alt="">
+        <figcaption>${formatarMoeda(item.precoUnitario)}</figcaption>
+      </figure>`).join('');
+
+  return `
+    <div class="bloco-secao">
+      <h2 class="titulo-secao">${escaparHtml(grupo.nome.toUpperCase())}</h2>
+      ${nota ? `<p class="nota-secao">${escaparHtml(nota)}</p>` : ''}
+      <table class="tabela-itens">
+        <thead><tr><th>Descrição</th><th class="qtd">Qtd.</th><th class="num">Preço unit.</th><th class="num">Subtotal</th></tr></thead>
+        <tbody>${linhas}</tbody>
+      </table>
+      ${cartoes ? `<div class="fotos-secao">${cartoes}</div>` : ''}
+    </div>`;
+}
+
+function renderizarCapa(orc) {
+  const festejado = orc.nomeFestejado || orc.nome;
+  document.getElementById('capa-sub').textContent = [orc.versao || 'V00', orc.tipoEvento, festejado]
+    .filter(Boolean).join(' ').toUpperCase();
+
+  const preencher = (id, texto) => {
+    const el = document.getElementById(id);
+    el.hidden = !texto;
+    el.textContent = texto || '';
+  };
+  preencher('capa-local', orc.localEvento ? `LOCAL - ${orc.localEvento}` : '');
+  preencher('capa-data', orc.dataEvento ? `DATA - ${dataPorExtenso(orc.dataEvento)}` : '');
+  preencher('capa-convidados', orc.numeroConvidados ? `NÚMERO DE CONVIDADOS - ${orc.numeroConvidados}` : '');
+}
+
+function criarImagem(src) {
+  const img = document.createElement('img');
+  img.src = src; // as imagens são data URLs validadas no servidor (data:image/...)
+  img.alt = '';
+  return img;
+}
+
+function mostrarFicha(id, texto) {
+  const el = document.getElementById(id);
+  el.hidden = !texto;
+  if (texto) el.querySelector('p').textContent = texto;
+}
+
+// Página do evento (moodboard + tema/palavras-chave/paleta) e página das flores.
+// Cada uma só aparece se tiver conteúdo.
+function renderizarEvento(orc) {
+  const imagens = orc.imagens || [];
+  const paleta = (orc.paleta || []).filter((cor) => /^#[0-9a-fA-F]{6}$/.test(cor));
+  const temEvento = imagens.length || orc.tema || orc.palavrasChave || paleta.length;
+
+  const paginaEvento = document.getElementById('pag-evento');
+  paginaEvento.hidden = !temEvento;
+  if (temEvento) {
+    document.getElementById('evento-titulo').textContent = [orc.tipoEvento, orc.nomeFestejado || orc.nome]
+      .filter(Boolean).join(' ').toUpperCase();
+
+    const moodboard = document.getElementById('moodboard');
+    moodboard.innerHTML = '';
+    moodboard.hidden = !imagens.length;
+    moodboard.className = `moodboard mood-${imagens.length <= 3 ? imagens.length : imagens.length <= 6 ? '4-6' : '7-8'}`;
+    imagens.forEach((src) => moodboard.appendChild(criarImagem(src)));
+
+    mostrarFicha('ficha-tema', orc.tema);
+    mostrarFicha('ficha-palavras', orc.palavrasChave);
+    const fichaPaleta = document.getElementById('ficha-paleta');
+    fichaPaleta.hidden = !paleta.length;
+    document.getElementById('paleta-doc').innerHTML = paleta
+      .map((cor) => `<span class="cor-doc" style="background:${cor}"></span>`).join('');
+  }
+
+  const imagensFlores = orc.imagensFlores || [];
+  const paginaFlores = document.getElementById('pag-flores');
+  paginaFlores.hidden = !(orc.flores || imagensFlores.length);
+  if (!paginaFlores.hidden) {
+    document.getElementById('flores-texto').textContent = orc.flores || '';
+    const galeria = document.getElementById('flores-galeria');
+    galeria.innerHTML = '';
+    imagensFlores.forEach((src) => galeria.appendChild(criarImagem(src)));
+  }
+}
+
+function renderizarSeccoes(grupos, notasPorSecao, fotos) {
+  const contentor = document.getElementById('doc-seccoes');
+  contentor.innerHTML = '';
+  if (!grupos.length) {
+    contentor.innerHTML = '<section class="doc-pagina" data-cabecalho><p>Sem itens definidos.</p></section>';
+    return;
+  }
+
+  let pagina = null;
+  let peso = 0;
+  grupos.forEach((grupo) => {
+    const nota = notasPorSecao[grupo.nome];
+    const pesoGrupo = pesoDaSecao(grupo, nota, fotos);
+    if (!pagina || (peso > 0 && peso + pesoGrupo > ALTURA_UTIL_PAGINA_MM)) {
+      pagina = document.createElement('section');
+      pagina.className = 'doc-pagina';
+      pagina.dataset.cabecalho = '';
+      contentor.appendChild(pagina);
+      peso = 0;
+    }
+    pagina.insertAdjacentHTML('beforeend', htmlSecao(grupo, nota, fotos));
+    peso += pesoGrupo;
+  });
+}
+
+function renderizarResumo(orc, grupos) {
+  const linhas = grupos.map((g) => `<tr><td>${escaparHtml(g.nome)}</td><td>${formatarMoeda(subtotalDe(g.itens))}</td></tr>`);
+  const desconto = orc.desconto || 0;
+  if (desconto > 0) {
+    linhas.push(`<tr><td><strong>Subtotal</strong></td><td><strong>${formatarMoeda(subtotalDe(orc.itens || []))}</strong></td></tr>`);
+    linhas.push(`<tr><td>Desconto</td><td>-${formatarMoeda(desconto)}</td></tr>`);
+  }
+  linhas.push(`<tr class="linha-total"><td>Total</td><td>${formatarMoeda(orc.total)}</td></tr>`);
+  document.getElementById('resumo-corpo').innerHTML = linhas.join('');
+
+  if (orc.validoAte) {
+    const el = document.getElementById('doc-validade');
+    el.hidden = false;
+    el.textContent = `Este orçamento é válido até ${new Date(orc.validoAte).toLocaleDateString('pt-PT')}.`;
+  }
+}
+
+function renderizarNotas(texto) {
+  if (!texto || !texto.trim()) return;
+  document.getElementById('pag-notas').hidden = false;
+  document.getElementById('doc-notas').innerHTML = texto
+    .split('\n')
+    .map((linha) => linha.trim())
+    .filter(Boolean)
+    .map((linha) => `<p class="nota-linha">${escaparHtml(linha)}</p>`)
+    .join('');
+}
+
+// Cabeçalho pequeno e rodapé com contactos em todas as páginas (exceto capa/fecho, que têm o seu)
+function decorarPaginas() {
+  const rodape = `
+    <footer class="pag-rodape">
+      <div class="pag-rodape-logo"><div class="marca"><div class="marca-linha"><span>DE</span><img src="/img/logo512.png" alt=""></div><span class="marca-cheio">CHEIO</span></div></div>
+      <div class="pag-rodape-texto"><strong>Filipa Couceiro -</strong> <span>936814781</span> <strong>Email -</strong> <span>decoracao.fcheio@gmail.com</span></div>
+    </footer>`;
+  document.querySelectorAll('.doc-pagina').forEach((pagina) => {
+    if (pagina.hidden) return;
+    if ('cabecalho' in pagina.dataset && !pagina.querySelector('.pag-cabecalho')) {
+      pagina.insertAdjacentHTML('afterbegin', '<div class="pag-cabecalho"><span>DECORAÇÃOCHEIO</span><span>BY FILIPA COUCEIRO</span></div>');
+    }
+    if (!pagina.classList.contains('doc-fecho') && !pagina.querySelector('.pag-rodape')) {
+      pagina.insertAdjacentHTML('beforeend', rodape);
+    }
+  });
+}
+
+// Do catálogo vêm as notas de cada secção e o endereço das fotos de cada opção
+async function carregarCatalogo() {
+  const vazio = { notas: {}, fotos: {} };
+  try {
+    const resposta = await fetch('/api/orcamentos/base');
+    if (!resposta.ok) return vazio;
+    const base = await resposta.json();
+    const catalogo = { notas: {}, fotos: {} };
+    (base.secoes || []).forEach((secao) => {
+      if (secao.nota) catalogo.notas[secao.nome] = secao.nota;
+      secao.itens.forEach((item) => { if (item.foto) catalogo.fotos[item.chave] = item.foto; });
+    });
+    return catalogo;
+  } catch (erro) {
+    return vazio;
+  }
+}
+
+async function renderizarDocumento(orc) {
+  document.title = `Proposta de orçamento — ${orc.nome} — De Cheio`;
+  linkVoltar.href = `/admin/orcamento.html?id=${orc._id}`;
+
+  const itens = orc.itens || [];
+  const grupos = agruparPorSecao(itens);
+  const gruposNormais = grupos.filter((g) => g.nome !== NOME_VALOR_BASE);
+  const grupoValorBase = grupos.find((g) => g.nome === NOME_VALOR_BASE);
+
+  renderizarCapa(orc);
+  renderizarEvento(orc);
+  const catalogo = await carregarCatalogo();
+  renderizarSeccoes(gruposNormais, catalogo.notas, catalogo.fotos);
+
+  const blocoValorBase = document.getElementById('bloco-valor-base');
+  if (grupoValorBase) {
+    blocoValorBase.hidden = false;
+    document.getElementById('valor-base-preco').textContent = formatarMoeda(subtotalDe(grupoValorBase.itens));
+  } else {
+    blocoValorBase.hidden = true;
+  }
+
+  renderizarResumo(orc, grupos);
+  renderizarNotas(orc.notas);
+  decorarPaginas();
+
+  elCarregamento.hidden = true;
+  elDocumento.hidden = false;
+  ajustarZoom();
+}
+
+// No telemóvel a folha A4 (794px) não cabe: encolhe o documento só no ecrã
+function ajustarZoom() {
+  elDocumento.style.zoom = Math.min(1, (window.innerWidth - 16) / 794);
+}
+window.addEventListener('resize', ajustarZoom);
+window.addEventListener('beforeprint', () => { elDocumento.style.zoom = 1; });
+window.addEventListener('afterprint', ajustarZoom);
+
+btnImprimir.addEventListener('click', () => window.print());
+
+async function carregar() {
+  if (!idOrcamento) {
+    elCarregamento.hidden = true;
+    elErro.hidden = false;
+    return;
+  }
+
+  try {
+    const resposta = await fetch(`/api/orcamentos/${idOrcamento}`);
+    if (!resposta.ok) {
+      elCarregamento.hidden = true;
+      elErro.hidden = false;
+      return;
+    }
+    await renderizarDocumento(await resposta.json());
+  } catch (erro) {
+    elCarregamento.hidden = true;
+    elErro.hidden = false;
+  }
+}
+
+protegerPaginaAdmin().then((admin) => {
+  if (!admin) return;
+  carregar();
+});
+</script>
 </body>
 </html>
