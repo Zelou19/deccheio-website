@@ -3,6 +3,7 @@ const router = express.Router();
 const Orcamento = require('../models/Orcamento');
 const QuoteRequest = require('../models/QuoteRequest');
 const { requireAdmin } = require('./adminAuth');
+const orcamentoBase = require('../config/orcamentoBase');
 
 const MAX_IMAGENS_POR_ORCAMENTO = 8;
 const MAX_TAMANHO_IMAGEM_BYTES = 4 * 1024 * 1024; // 4MB por imagem, já em base64
@@ -26,6 +27,7 @@ function limparItens(itens) {
     .filter((item) => item && String(item.descricao || '').trim())
     .map((item) => ({
       descricao: String(item.descricao).trim(),
+      secao: item.secao ? String(item.secao).trim() : undefined,
       quantidade: Number(item.quantidade) || 0,
       precoUnitario: Number(item.precoUnitario) || 0,
     }));
@@ -35,10 +37,13 @@ function limparItens(itens) {
 // (envia { quoteRequestId } para pré-preencher os dados do cliente a partir desse pedido)
 router.post('/', async (req, res) => {
   try {
+    // Orçamentos novos arrancam com a base De Cheio: o valor base (recursos humanos &
+    // deslocações) e as condições padrão. Só se aplica quando o pedido não traz itens/notas
+    // (ex: "Criar orçamento" a partir de um pedido); o editor envia sempre o que lá está.
     const dados = {
-      itens: limparItens(req.body.itens),
+      itens: req.body.itens === undefined ? [{ ...orcamentoBase.valorBase }] : limparItens(req.body.itens),
       desconto: Number(req.body.desconto) || 0,
-      notas: req.body.notas || '',
+      notas: req.body.notas === undefined ? orcamentoBase.notasPadrao : req.body.notas || '',
       validoAte: req.body.validoAte || undefined,
       criadoPor: req.admin.username,
     };
@@ -55,6 +60,7 @@ router.post('/', async (req, res) => {
       dados.tipoEvento = pedido.tipoEvento;
       dados.dataEvento = pedido.dataEvento;
       dados.localEvento = pedido.localEvento;
+      dados.numeroConvidados = pedido.numeroConvidados;
       // Ponto de partida: as imagens de inspiração que o cliente já tinha enviado no pedido.
       // O admin pode depois remover as que não interessam e/ou adicionar outras.
       dados.imagens = (pedido.imagensInspiracao || []).slice(0, MAX_IMAGENS_POR_ORCAMENTO);
@@ -70,6 +76,8 @@ router.post('/', async (req, res) => {
       dados.tipoEvento = req.body.tipoEvento || undefined;
       dados.dataEvento = req.body.dataEvento || undefined;
       dados.localEvento = req.body.localEvento || undefined;
+      dados.numeroConvidados = Number(req.body.numeroConvidados) || undefined;
+      dados.versao = String(req.body.versao || '').trim() || undefined;
       dados.imagens = limparImagens(req.body.imagens) || [];
     }
 
@@ -96,6 +104,12 @@ router.get('/', async (req, res) => {
   }
 });
 
+// GET /api/orcamentos/base — o catálogo De Cheio (secções, itens e preços) + valor base e notas padrão.
+// Tem de vir antes de "/:id" para o Express não confundir "base" com um ID.
+router.get('/base', (req, res) => {
+  res.json(orcamentoBase);
+});
+
 // GET /api/orcamentos/:id — um orçamento específico
 router.get('/:id', async (req, res) => {
   try {
@@ -118,6 +132,8 @@ router.patch('/:id', async (req, res) => {
       'tipoEvento',
       'dataEvento',
       'localEvento',
+      'numeroConvidados',
+      'versao',
       'notas',
       'validoAte',
       'desconto',
@@ -142,6 +158,8 @@ router.patch('/:id', async (req, res) => {
     }
     if (alteracoes.dataEvento === '') alteracoes.dataEvento = null;
     if (alteracoes.validoAte === '') alteracoes.validoAte = null;
+    if (alteracoes.numeroConvidados === '' || alteracoes.numeroConvidados === 0) alteracoes.numeroConvidados = null;
+    if (alteracoes.versao !== undefined && !String(alteracoes.versao).trim()) alteracoes.versao = 'V00';
     if (alteracoes.status && !['rascunho', 'enviado'].includes(alteracoes.status)) {
       return res.status(400).json({ erro: 'Estado inválido.' });
     }
