@@ -81,6 +81,16 @@
       <label for="orc-localEvento">Local do evento</label>
       <input type="text" id="orc-localEvento" placeholder="ex: Quinta da Boavista, Porto">
     </div>
+    <div class="form-row-split">
+      <div class="form-row">
+        <label for="orc-numeroConvidados">Nº de convidados</label>
+        <input type="number" id="orc-numeroConvidados" min="1">
+      </div>
+      <div class="form-row">
+        <label for="orc-versao">Versão da proposta</label>
+        <input type="text" id="orc-versao" placeholder="V00" maxlength="12">
+      </div>
+    </div>
 
     <h2 class="orc-subtitulo">Itens do orçamento</h2>
     <table class="orc-itens-tabela">
@@ -96,6 +106,14 @@
       <tbody id="orc-itens-corpo"></tbody>
     </table>
     <button type="button" id="btn-add-item" class="btn-cancelar" style="width:auto;">+ Adicionar item</button>
+
+    <div class="orc-catalogo" id="orc-catalogo" hidden>
+      <h3 class="orc-catalogo-titulo">Catálogo De Cheio</h3>
+      <p class="chat-hint">Escolhe uma secção e clica num item para o juntar ao orçamento. Depois podes mudar a descrição, a quantidade e o preço.</p>
+      <select id="cat-secao" aria-label="Secção do catálogo"></select>
+      <p id="cat-nota" class="chat-hint"></p>
+      <div id="cat-itens" class="orc-catalogo-itens"></div>
+    </div>
 
     <div class="orc-totais">
       <div class="form-row orc-desconto-row">

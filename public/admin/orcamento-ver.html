@@ -3,11 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Orçamento — De Cheio</title>
+<title>Proposta de orçamento — De Cheio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../css/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700&family=Allura&family=Cormorant+Garamond:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../css/orcamento-ver.css">
 <link rel="icon" type="image/x-icon" href="/favicon.ico">
 <link rel="apple-touch-icon" href="/img/logo512.png">
@@ -19,72 +18,135 @@
   <button type="button" id="btn-imprimir">Imprimir / Guardar como PDF</button>
 </div>
 
-<div id="estado-carregamento" class="doc-wrap no-print">A carregar...</div>
-<div id="estado-erro" class="doc-wrap no-print" hidden><h1>Orçamento não encontrado</h1></div>
+<div id="estado-carregamento" class="doc-estado no-print">A carregar...</div>
+<div id="estado-erro" class="doc-estado no-print" hidden><h1>Orçamento não encontrado</h1></div>
 
-<main id="documento" class="doc-wrap" hidden>
+<main id="documento" hidden>
 
-  <header class="doc-cabecalho">
-    <div class="doc-marca">
-      <span class="doc-marca-texto">De</span>
-      <img src="/img/fingerprint-heart.png" alt="" class="doc-marca-icone">
-      <span class="doc-marca-texto">Cheio</span>
+  <!-- 1 · CAPA -->
+  <section class="doc-pagina doc-capa">
+    <div class="capa-logo"><div class="marca"><div class="marca-linha"><span>DE</span><img src="/img/logo512.png" alt=""></div><span class="marca-cheio">CHEIO</span></div></div>
+
+    <div class="capa-bloco">
+      <div class="capa-bloco-fundo"></div>
+      <h1>PROPOSTA<br>DE ORÇAMENTO</h1>
     </div>
-    <div class="doc-marca-tagline">Decoração de eventos</div>
-  </header>
+    <p class="capa-sub" id="capa-sub"></p>
 
-  <section class="doc-titulo-bloco">
-    <h1>Orçamento</h1>
-    <div class="doc-meta">
-      <span id="doc-numero"></span>
-      <span id="doc-data"></span>
-    </div>
-  </section>
-
-  <section class="doc-info-grid">
-    <div>
-      <p class="doc-label">Cliente</p>
-      <p class="doc-valor" id="doc-nome">—</p>
-      <p class="doc-valor-sec" id="doc-contacto"></p>
-    </div>
-    <div>
-      <p class="doc-label">Evento</p>
-      <p class="doc-valor" id="doc-tipo-evento">—</p>
-      <p class="doc-valor-sec" id="doc-detalhes-evento"></p>
+    <div class="capa-detalhes">
+      <p id="capa-local" hidden></p>
+      <p id="capa-data" hidden></p>
+      <p id="capa-convidados" hidden></p>
     </div>
   </section>
 
-  <table class="doc-tabela">
-    <thead>
-      <tr>
-        <th>Descrição</th>
-        <th class="doc-col-num">Qtd.</th>
-        <th class="doc-col-num">Preço unit.</th>
-        <th class="doc-col-num">Subtotal</th>
-      </tr>
-    </thead>
-    <tbody id="doc-itens"></tbody>
-  </table>
-
-  <section class="doc-totais-bloco">
-    <div class="doc-totais-linhas" id="doc-linhas-totais"></div>
+  <!-- 2 · A NOSSA ESSÊNCIA -->
+  <section class="doc-pagina doc-creme doc-estatica" data-cabecalho>
+    <h2 class="titulo-grande">A Nossa Essência</h2>
+    <div class="essencia-grelha">
+      <div class="essencia-texto">
+        <h3 class="subtitulo-castanho">DECORAÇÃOCHEIO</h3>
+        <p>Com a assinatura da fundadora Filipa Couceiro, este projeto ganhou vida em 2020 para transformar sonhos em cenários reais.</p>
+        <p>Romântica, empática e sonhadora nata, a Filipa é a alma de um projeto que acredita que tudo o que é feito com o coração se sente.</p>
+        <p>Mas, para ela, a verdadeira chave do sucesso reside na união: a Filipa dá um valor imenso à sua equipa, um grupo talentoso que partilha da mesma entrega e, sobretudo, dos mesmos valores.</p>
+        <p>Juntos, transformam o desenho e o planeamento de uma festa na tradução exata da tua história, dos teus sorrisos e das tuas emoções.</p>
+        <p>Não acreditamos em moldes ou repetições. Acreditamos que cada celebração é um capítulo irrepetível que merece ser vivido com a máxima intensidade e verdade.</p>
+      </div>
+      <div class="essencia-lado">
+        <p class="essencia-frase">No Decoraçãocheio, não decoramos apenas espaços, preenchemos cada canto com amor, paixão e o sentimento puro de quem celebra a vida.</p>
+        <img src="/img/equipa-bouquet.jpg" alt="" class="foto foto-bouquet">
+      </div>
+    </div>
+    <div class="essencia-fotos">
+      <img src="/img/equipa-grupo.jpg" alt="Equipa Decoraçãocheio" class="foto foto-grupo">
+      <div class="essencia-assinatura">
+        <img src="/img/equipa-filipa.jpg" alt="" class="foto foto-filipa">
+        <p class="assinatura">Filipa Couceiro</p>
+      </div>
+    </div>
+    <p class="legenda-equipa">Equipa<br>DECORAÇÃOCHEIO</p>
   </section>
 
-  <section id="doc-imagens-secao" class="doc-imagens-secao" hidden>
-    <p class="doc-label">Imagens de inspiração</p>
-    <div class="doc-imagens-galeria" id="doc-imagens"></div>
+  <!-- 3 · O QUE NOS TORNA ÚNICOS -->
+  <section class="doc-pagina doc-creme doc-estatica" data-cabecalho>
+    <h2 class="titulo-grande titulo-espacado">O que nos torna únicos</h2>
+    <div class="unicos-texto">
+      <p><strong>A Força da Nossa Equipa:</strong> Uma equipa unida pelo mesmo propósito, onde cada talento se complementa para criar, em conjunto, uma experiência tranquila e absolutamente especial.</p>
+      <p><strong>O Toque da Filipa:</strong> Uma dedicação genuína, feita de paixão, sensibilidade e compromisso com cada sonho, que orienta cada escolha e acompanha cada detalhe durante todo o processo com total transparência.</p>
+      <p><strong>Sentimento em Cada Detalhe:</strong> Colocamos carinho e intenção em cada flor, cada luz e cada escolha, criando ambientes onde as emoções ganham vida.</p>
+      <p><strong>Exclusividade Absoluta:</strong> Cada celebração é pensada à tua medida, com uma identidade própria, onde cada elemento reflete a tua história e os teus desejos.</p>
+    </div>
+    <p class="unicos-frase">Porque a nossa verdadeira assinatura é o amor.<br>Em cada evento, deixamos a nossa impressão digital através de detalhes que tocam o coração e marcam o início de novas memórias.</p>
+    <img src="/img/equipa-sentadas.jpg" alt="Equipa Decoraçãocheio" class="foto foto-larga">
   </section>
 
-  <section id="doc-notas-secao" class="doc-notas-secao" hidden>
-    <p class="doc-label">Notas e condições</p>
-    <p class="doc-notas-texto" id="doc-notas"></p>
+  <!-- 4.. · SECÇÕES DO ORÇAMENTO (geradas pelo JS) -->
+  <div id="doc-seccoes"></div>
+
+  <!-- VALOR BASE + RESUMO -->
+  <section class="doc-pagina" id="pag-resumo" data-cabecalho>
+   <div id="bloco-valor-base" hidden>
+    <div class="valor-base-topo">
+      <h2 class="titulo-secao">VALOR BASE<br>RECURSOS HUMANOS &amp; DESLOCAÇÕES</h2>
+      <span class="pilula-preco" id="valor-base-preco"></span>
+    </div>
+    <div class="caixa-contorno">
+      <p>Este valor já contempla recursos humanos referentes a toda a equipa em:</p>
+      <ul>
+        <li>Reunião, visitas técnicas, pré-montagem, montagem e desmontagem/recolha de todos os cenários.</li>
+        <li>Deslocações da equipa de todas as viagens inerentes a esse processo, incluindo aos nossos fornecedores.</li>
+        <li>A equipa só permanece no local parcialmente (montagens de todos os cenários de decoração, permanência até ao final da cerimónia e na altura do corte do bolo).</li>
+        <li>Caso queira acompanhamento total, por favor solicite orçamento.</li>
+      </ul>
+    </div>
+   </div>
+
+    <h2 class="titulo-secao titulo-resumo">RESUMO DO ORÇAMENTO</h2>
+    <table class="tabela-resumo" id="tabela-resumo"><tbody id="resumo-corpo"></tbody></table>
+    <p class="validade" id="doc-validade" hidden></p>
   </section>
 
-  <p class="doc-validade" id="doc-validade" hidden></p>
+  <!-- NOTAS -->
+  <section class="doc-pagina" id="pag-notas" data-cabecalho hidden>
+    <h2 class="titulo-secao">NOTAS</h2>
+    <div class="caixa-contorno" id="doc-notas"></div>
+  </section>
 
-  <footer class="doc-rodape">
-    Obrigado pela preferência — DeCoraçãoCheio, decoração de eventos.
-  </footer>
+  <!-- O PRÓXIMO PASSO -->
+  <section class="doc-pagina doc-creme doc-estatica" data-cabecalho>
+    <h2 class="titulo-grande">O PRÓXIMO PASSO</h2>
+    <h3 class="subtitulo-castanho">DECORAÇÃOCHEIO</h3>
+    <div class="proximo-texto">
+      <p>Olhamos para este orçamento não como uma lista de números, mas como o início de uma viagem bonita que queremos fazer convosco.</p>
+      <p>Cada detalhe aqui proposto foi pensado com o coração, respeitando a vossa verdade e a essência daquilo que celebram.</p>
+      <p>Estamos prontos para colocar toda a nossa paixão, dedicação e a força da nossa equipa ao vosso serviço, garantindo que o vosso dia seja tão leve, feliz e mágico como sempre imaginaram.</p>
+    </div>
+    <h3 class="titulo-funcionamos">Como funcionamos daqui para a frente?</h3>
+    <div class="proximo-passos">
+      <p><strong>(1) Esclarecimento de dúvidas:</strong> Este documento é vivo. Estamos totalmente disponíveis para ajustar, acrescentar ou alterar o que for necessário para que se sintam 100% seguros.</p>
+      <p><strong>(2) Validação do Orçamento:</strong> Para garantir a nossa total dedicação e exclusividade na vossa data, a reserva da mesma é oficializada após a vossa aprovação e o sinal de adjudicação.</p>
+      <p><strong>(3) Mãos à Obra:</strong> Assim que fecharmos este passo, a Filipa e a equipa Decoraçãocheio começam a desenhar o vosso cenário, partilhando convosco cada inspiração e etapa do processo.</p>
+    </div>
+    <div class="proximo-fotos">
+      <img src="/img/equipa-grupo.jpg" alt="" class="foto foto-p1">
+      <img src="/img/equipa-filipa.jpg" alt="" class="foto foto-p2">
+    </div>
+  </section>
+
+  <!-- FECHO -->
+  <section class="doc-pagina doc-creme doc-fecho">
+    <div class="fecho-topo">
+      <div class="fecho-logo"><div class="marca"><div class="marca-linha"><span>DE</span><img src="/img/logo512.png" alt=""></div><span class="marca-cheio">CHEIO</span></div></div>
+      <div class="fecho-texto">
+        <p class="fecho-frase">O vosso dia merece a nossa entrega mais bonita.<br>Estamos ansiosos por celebrar convosco!</p>
+        <p class="fecho-frase">Com todo o nosso carinho,</p>
+        <p class="assinatura assinatura-grande">Filipa Couceiro e Equipa Decoraçãocheio</p>
+        <hr>
+        <p class="fecho-contactos">936 814 781<br>decoracao.fcheio@gmail.com<br>@de_coracaocheio</p>
+      </div>
+    </div>
+    <img src="/img/equipa-sentadas.jpg" alt="Equipa Decoraçãocheio" class="fecho-foto">
+  </section>
 
 </main>
 
