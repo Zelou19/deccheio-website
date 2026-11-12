@@ -16,6 +16,8 @@ const campoTelefone = document.getElementById('orc-telefone');
 const campoTipoEvento = document.getElementById('orc-tipoEvento');
 const campoDataEvento = document.getElementById('orc-dataEvento');
 const campoLocalEvento = document.getElementById('orc-localEvento');
+const campoNumeroConvidados = document.getElementById('orc-numeroConvidados');
+const campoVersao = document.getElementById('orc-versao');
 const corpoItens = document.getElementById('orc-itens-corpo');
 const btnAddItem = document.getElementById('btn-add-item');
 const campoDesconto = document.getElementById('orc-desconto');
@@ -36,6 +38,15 @@ const MAX_IMAGENS = 8;
 
 let quoteRequestIdAtual = null;
 let contadorLinhas = 0;
+let catalogo = null; // catálogo De Cheio (vem de GET /api/orcamentos/base)
+
+function escaparAtributo(texto) {
+  return String(texto ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
 
 function formatarMoeda(valor) {
   return new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' }).format(valor || 0);
@@ -51,8 +62,9 @@ function criarLinhaItem(item = { descricao: '', quantidade: 1, precoUnitario: 0 
   contadorLinhas += 1;
   const tr = document.createElement('tr');
   tr.dataset.linha = contadorLinhas;
+  if (item.secao) tr.dataset.secao = item.secao;
   tr.innerHTML = `
-    <td><input type="text" class="item-descricao" placeholder="ex: Arco de balões" value="${item.descricao || ''}"></td>
+    <td>${item.secao ? `<small class="item-secao">${escaparAtributo(item.secao)}</small>` : ''}<input type="text" class="item-descricao" placeholder="ex: Arco de balões" value="${escaparAtributo(item.descricao || '')}"></td>
     <td class="orc-col-num"><input type="number" class="item-quantidade" min="0" step="1" value="${item.quantidade ?? 1}"></td>
     <td class="orc-col-num"><input type="number" class="item-preco" min="0" step="0.01" value="${item.precoUnitario ?? 0}"></td>
     <td class="orc-col-num item-subtotal">${formatarMoeda((item.quantidade || 0) * (item.precoUnitario || 0))}</td>
@@ -73,6 +85,7 @@ btnAddItem.addEventListener('click', () => criarLinhaItem());
 function lerItensDaTabela() {
   return Array.from(corpoItens.querySelectorAll('tr')).map((tr) => ({
     descricao: tr.querySelector('.item-descricao').value.trim(),
+    secao: tr.dataset.secao || undefined,
     quantidade: Number(tr.querySelector('.item-quantidade').value) || 0,
     precoUnitario: Number(tr.querySelector('.item-preco').value) || 0,
   }));
@@ -94,6 +107,61 @@ function recalcular() {
 }
 
 campoDesconto.addEventListener('input', recalcular);
+
+// ---------- Catálogo De Cheio ----------
+const elCatalogo = document.getElementById('orc-catalogo');
+const selectCatSecao = document.getElementById('cat-secao');
+const elCatNota = document.getElementById('cat-nota');
+const elCatItens = document.getElementById('cat-itens');
+
+async function carregarCatalogo() {
+  try {
+    const resposta = await fetch('/api/orcamentos/base');
+    if (resposta.ok) catalogo = await resposta.json();
+  } catch (erro) {
+    catalogo = null; // sem catálogo o editor continua a funcionar como antes
+  }
+}
+
+function renderizarCatSecao() {
+  const secao = catalogo.secoes[Number(selectCatSecao.value)];
+  elCatNota.textContent = secao.nota || '';
+  elCatNota.hidden = !secao.nota;
+  elCatItens.innerHTML = secao.itens.map((item, indice) => `
+    <button type="button" class="orc-catalogo-item" data-indice="${indice}">
+      <span>${escaparAtributo(item.descricao)}</span>
+      <strong>${formatarMoeda(item.precoUnitario)}</strong>
+    </button>
+  `).join('');
+}
+
+function prepararCatalogo() {
+  if (!catalogo || !catalogo.secoes?.length) return;
+  elCatalogo.hidden = false;
+  selectCatSecao.innerHTML = catalogo.secoes
+    .map((secao, indice) => `<option value="${indice}">${escaparAtributo(secao.nome)}</option>`)
+    .join('');
+  renderizarCatSecao();
+}
+
+selectCatSecao.addEventListener('change', renderizarCatSecao);
+
+elCatItens.addEventListener('click', (evento) => {
+  const botao = evento.target.closest('.orc-catalogo-item');
+  if (!botao || !catalogo) return;
+  const item = catalogo.secoes[Number(selectCatSecao.value)].itens[Number(botao.dataset.indice)];
+
+  // Se só existir uma linha em branco (a que aparece num orçamento vazio), ocupa-se essa
+  corpoItens.querySelectorAll('tr').forEach((tr) => {
+    const vazia = !tr.querySelector('.item-descricao').value.trim() && !Number(tr.querySelector('.item-preco').value);
+    if (vazia) tr.remove();
+  });
+
+  criarLinhaItem({ ...item });
+  recalcular();
+  feedback.textContent = `Adicionado: ${item.descricao}`;
+  feedback.classList.remove('erro');
+});
 
 // ---------- Imagens de inspiração ----------
 // Reduz a imagem para no máximo 1600px no lado maior e converte para JPEG a 80% de qualidade
@@ -186,6 +254,8 @@ function preencherFormulario(orc) {
   campoTipoEvento.value = orc.tipoEvento || '';
   campoDataEvento.value = formatarDataParaInput(orc.dataEvento);
   campoLocalEvento.value = orc.localEvento || '';
+  campoNumeroConvidados.value = orc.numeroConvidados || '';
+  campoVersao.value = orc.versao || 'V00';
 
   corpoItens.innerHTML = '';
   if (orc.itens && orc.itens.length) {
@@ -229,7 +299,11 @@ function prepararFormularioVazio() {
   elStatusPill.hidden = true;
   elDePedido.hidden = true;
   campoStatus.value = 'rascunho';
-  criarLinhaItem();
+  campoVersao.value = 'V00';
+  // Orçamento novo arranca com a base De Cheio: valor base + condições padrão
+  if (catalogo?.valorBase) criarLinhaItem({ ...catalogo.valorBase });
+  else criarLinhaItem();
+  if (catalogo?.notasPadrao) campoNotas.value = catalogo.notasPadrao;
   elZonaPerigo.hidden = true;
   imagensAtuais = [];
   renderizarGaleria();
@@ -238,6 +312,9 @@ function prepararFormularioVazio() {
 }
 
 async function carregar() {
+  await carregarCatalogo();
+  prepararCatalogo();
+
   if (!idOrcamento) {
     elCarregamento.hidden = true;
     form.hidden = false;
@@ -272,6 +349,8 @@ form.addEventListener('submit', async (event) => {
     tipoEvento: campoTipoEvento.value,
     dataEvento: campoDataEvento.value || '',
     localEvento: campoLocalEvento.value.trim(),
+    numeroConvidados: campoNumeroConvidados.value || '',
+    versao: campoVersao.value.trim() || 'V00',
     itens: lerItensDaTabela().filter((item) => item.descricao),
     desconto: Number(campoDesconto.value) || 0,
     validoAte: campoValidoAte.value || '',

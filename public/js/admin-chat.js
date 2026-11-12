@@ -106,7 +106,6 @@ function linkGoogleCalendar(pedido) {
 
   const detalhes = [
     pedido.numeroConvidados ? `${pedido.numeroConvidados} convidados` : null,
-    pedido.orcamentoAproximado ? `Orçamento: ${pedido.orcamentoAproximado}` : null,
     pedido.mensagem || null,
     `Contacto: ${pedido.email}${pedido.telefone ? ' · ' + pedido.telefone : ''}`,
   ].filter(Boolean).join('\n');
@@ -134,7 +133,6 @@ function renderizarPedido(pedido) {
     pedido.dataEvento ? `Data: ${new Date(pedido.dataEvento).toLocaleDateString('pt-PT')}` : null,
     pedido.localEvento ? `Local: ${pedido.localEvento}` : null,
     pedido.numeroConvidados ? `${pedido.numeroConvidados} convidados` : null,
-    pedido.orcamentoAproximado ? `Orçamento: ${pedido.orcamentoAproximado}` : null,
     pedido.mensagem || null,
   ].filter(Boolean).join(' · ');
 
@@ -182,7 +180,7 @@ function renderizarPedido(pedido) {
 }
 
 async function carregarPedido() {
-  const resposta = await fetch(`/api/quotes/${idPedido}`);
+  const resposta = await fetch(`/api/quotes/${idPedido}?viewer=admin`);
   if (!resposta.ok) {
     elCarregamento.hidden = true;
     elErro.hidden = false;
@@ -254,7 +252,6 @@ function abrirEdicao() {
   document.getElementById('edit-dataEvento').value = formatarDataParaInput(pedidoAtual.dataEvento);
   document.getElementById('edit-localEvento').value = pedidoAtual.localEvento || '';
   document.getElementById('edit-numeroConvidados').value = pedidoAtual.numeroConvidados ?? '';
-  document.getElementById('edit-orcamentoAproximado').value = pedidoAtual.orcamentoAproximado || '';
   document.getElementById('edit-mensagem').value = pedidoAtual.mensagem || '';
 
   feedbackEditar.textContent = '';
@@ -288,7 +285,6 @@ formEditar?.addEventListener('submit', async (event) => {
     dataEvento: document.getElementById('edit-dataEvento').value || '',
     localEvento: document.getElementById('edit-localEvento').value.trim(),
     numeroConvidados: document.getElementById('edit-numeroConvidados').value || '',
-    orcamentoAproximado: document.getElementById('edit-orcamentoAproximado').value.trim(),
     mensagem: document.getElementById('edit-mensagem').value.trim(),
   };
 

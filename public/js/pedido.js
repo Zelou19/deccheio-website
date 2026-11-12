@@ -131,7 +131,7 @@ function escaparHtml(texto) {
 
 async function carregarPedido() {
   try {
-    const resposta = await fetch(`/api/quotes/${idPedido}`);
+    const resposta = await fetch(`/api/quotes/${idPedido}?viewer=cliente`);
     if (!resposta.ok) throw new Error('não encontrado');
     const pedido = await resposta.json();
 

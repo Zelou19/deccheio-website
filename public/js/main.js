@@ -121,7 +121,6 @@ form.addEventListener('submit', async (event) => {
     dataEvento: form.dataEvento.value || undefined,
     localEvento: form.localEvento.value.trim(),
     numeroConvidados: form.numeroConvidados.value || undefined,
-    orcamentoAproximado: form.orcamentoAproximado.value.trim(),
     mensagem: form.mensagem.value.trim(),
     imagens: imagensSelecionadas,
   };
