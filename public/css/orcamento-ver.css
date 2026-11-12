@@ -1,243 +1,344 @@
-body {
-  background: var(--bg-alt);
-  font-family: var(--font-body);
-  color: var(--ink);
-  margin: 0;
+/* Documento "Proposta de Orçamento" — páginas A4 no estilo da proposta De Cheio.
+   No ecrã aparecem como folhas empilhadas; ao imprimir/guardar em PDF cada uma é uma página. */
+
+:root {
+  --doc-creme: #F5F0E3;
+  --doc-amarelo: #EBE6C2;
+  --doc-verde: #55654F;
+  --doc-castanho: #3F322B;
+  --doc-castanho-claro: #A9856A;
+  --doc-cinza: #8a8a86;
+  --doc-linha: #d9d3bf;
+  --doc-fonte: 'Jost', 'Work Sans', sans-serif;
+  --doc-script: 'Allura', cursive;
 }
 
+* { box-sizing: border-box; }
+
+body {
+  background: #d9d6cf;
+  font-family: var(--doc-fonte);
+  color: var(--doc-castanho);
+  margin: 0;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* ---------- barra de ações (só no ecrã) ---------- */
 .doc-barra-acoes {
   position: sticky;
   top: 0;
   z-index: 10;
-  background: var(--ink);
-  color: var(--bg);
+  background: #322D28;
+  color: #FAF6EF;
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 14px 28px;
 }
-
-.doc-barra-acoes a {
-  color: var(--bg);
-  text-decoration: none;
-  font-size: 0.9rem;
-}
-.doc-barra-acoes a:hover { color: var(--gold); }
-
+.doc-barra-acoes a { color: #FAF6EF; text-decoration: none; font-size: 0.9rem; }
+.doc-barra-acoes a:hover { color: #B08B4F; }
 .doc-barra-acoes button {
-  background: var(--wine);
-  color: var(--bg);
+  background: #6B2A34;
+  color: #FAF6EF;
   border: none;
   padding: 0.6em 1.3em;
   border-radius: 4px;
-  font-family: var(--font-body);
+  font-family: inherit;
   font-weight: 600;
   cursor: pointer;
 }
 .doc-barra-acoes button:hover { background: #591f28; }
 
-.doc-wrap {
-  max-width: 780px;
-  margin: 36px auto 80px;
-  background: var(--bg);
-  padding: 56px 64px;
-  border-radius: 4px;
-  box-shadow: 0 4px 24px rgba(50,45,40,0.12);
-}
+.doc-estado { max-width: 780px; margin: 40px auto; padding: 0 20px; }
 
-.doc-cabecalho {
+/* ---------- páginas ---------- */
+#documento { width: 210mm; margin: 24px auto 80px; }
+
+.doc-pagina {
+  position: relative;
+  width: 210mm;
+  min-height: 296mm;
+  background: #fff;
+  margin: 0 0 22px;
+  padding: 14mm 16mm 0;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 24px rgba(50,45,40,0.18);
+  break-after: page;
+  page-break-after: always;
+  overflow: hidden;
+}
+.doc-pagina.doc-creme { background: var(--doc-creme); }
+
+#doc-seccoes { display: contents; }
+
+/* cabeçalho pequeno de cada página */
+.pag-cabecalho {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  border-bottom: 2px solid var(--gold);
-  padding-bottom: 20px;
-  margin-bottom: 32px;
-}
-
-.doc-marca {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-family: var(--font-display);
-  font-size: 1.5rem;
-  color: var(--ink);
-}
-
-.doc-marca-icone { width: 26px; height: 24px; object-fit: contain; }
-.doc-marca-texto em { font-style: italic; color: var(--wine); }
-
-.doc-marca-tagline {
-  font-size: 0.8rem;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--taupe);
-}
-
-.doc-titulo-bloco {
-  margin-bottom: 32px;
-}
-
-.doc-titulo-bloco h1 {
-  font-family: var(--font-display);
-  font-size: 2.1rem;
-  margin: 0 0 6px;
-  color: var(--wine);
-}
-
-.doc-meta {
-  font-size: 0.85rem;
-  color: var(--taupe);
-  display: flex;
-  gap: 16px;
-}
-
-.doc-info-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 24px;
-  margin-bottom: 36px;
-}
-
-.doc-label {
-  font-size: 0.72rem;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--gold);
-  margin: 0 0 4px;
+  font-size: 0.62rem;
   font-weight: 600;
-}
-
-.doc-valor {
-  font-size: 1.05rem;
-  margin: 0;
-  color: var(--ink);
-}
-
-.doc-valor-sec {
-  font-size: 0.88rem;
-  color: var(--taupe);
-  margin: 4px 0 0;
-  line-height: 1.5;
-}
-
-.doc-tabela {
-  width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 8px;
-}
-
-.doc-tabela thead th {
-  text-align: left;
-  font-size: 0.75rem;
-  text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: var(--bg);
-  background: var(--ink);
-  padding: 10px 14px;
+  color: #4b3e36;
+  margin: 0 8mm 7mm;
+  text-transform: uppercase;
 }
 
-.doc-tabela .doc-col-num { text-align: right; }
-
-.doc-tabela tbody td {
-  padding: 10px 14px;
-  border-bottom: 1px solid rgba(50,45,40,0.1);
-  font-size: 0.95rem;
-}
-
-.doc-tabela tbody tr:nth-child(even) { background: var(--bg-alt); }
-
-.doc-totais-bloco {
+/* rodapé com contactos */
+.pag-rodape {
+  margin: auto -16mm 0;
   display: flex;
-  justify-content: flex-end;
-  margin: 20px 0 40px;
+  align-items: stretch;
+  height: 13mm;
+  flex-shrink: 0;
 }
-
-.doc-totais-linhas {
-  min-width: 260px;
-}
-
-.doc-linha-total {
+.pag-rodape-logo {
+  width: 28%;
+  background: var(--doc-creme);
   display: flex;
-  justify-content: space-between;
-  padding: 6px 0;
-  font-size: 0.95rem;
-  color: var(--taupe);
+  align-items: center;
+  justify-content: center;
 }
-
-.doc-linha-total.doc-linha-final {
-  border-top: 2px solid var(--gold);
-  margin-top: 6px;
-  padding-top: 12px;
-  font-family: var(--font-display);
-  font-size: 1.4rem;
-  color: var(--wine);
-}
-
-.doc-imagens-secao,
-.doc-notas-secao {
-  margin-bottom: 32px;
-}
-
-.doc-imagens-galeria {
+.doc-creme .pag-rodape-logo { background: #efe8d6; }
+.pag-rodape-logo .marca { font-size: 3.9mm; }
+.pag-rodape-texto {
+  flex: 1;
+  background: var(--doc-amarelo);
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
+  align-items: center;
+  padding: 0 6mm;
+  font-size: 0.72rem;
+  color: var(--doc-verde);
+  gap: 14px;
+  white-space: nowrap;
+}
+.pag-rodape-texto strong { font-weight: 700; }
+.pag-rodape-texto span { color: var(--doc-castanho); }
+
+/* ---------- títulos ---------- */
+.titulo-grande {
+  font-size: 2.3rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  margin: 0 0 8mm;
+  color: #3b2d26;
+}
+.titulo-espacado { letter-spacing: 0.04em; font-size: 2.1rem; margin-bottom: 10mm; }
+
+.subtitulo-castanho {
+  font-size: 1.02rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--doc-castanho-claro);
+  margin: 0 0 6mm;
 }
 
-.doc-imagens-galeria img {
-  width: 140px;
-  height: 140px;
-  object-fit: cover;
-  border-radius: 6px;
-  border: 1px solid rgba(50,45,40,0.15);
+.titulo-secao {
+  font-size: 1.55rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--doc-verde);
+  margin: 0 0 3mm;
+  line-height: 1.15;
 }
 
-.doc-notas-texto {
-  white-space: pre-wrap;
-  font-size: 0.92rem;
-  color: var(--ink);
-  line-height: 1.6;
+/* ---------- capa ---------- */
+.doc-capa { padding: 0; align-items: stretch; min-height: 296mm; }
+.doc-capa .pag-rodape { margin: auto 0 0; }
+
+/* Logótipo em letras: "DE ♥" por cima de "CHEIO" */
+.marca {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: stretch;
+  font-family: 'Cormorant Garamond', 'Cormorant', Georgia, serif;
+  font-weight: 500;
+  color: #8b8a86;
+  line-height: 0.95;
+  letter-spacing: 0.14em;
+}
+.marca-linha { display: flex; justify-content: space-between; align-items: flex-end; }
+.marca-linha img { height: 1.75em; width: auto; margin: 0 -0.15em -0.28em 0; }
+.marca-cheio { display: block; }
+
+.capa-logo { text-align: center; margin-top: 34mm; font-size: 24mm; }
+
+.capa-bloco {
+  position: relative;
+  margin: 8mm 0 0 38mm;
+  width: 128mm;
+  height: 44mm;
+}
+.capa-bloco-fundo {
+  position: absolute;
+  left: -4mm; top: -4mm;
+  width: 44mm; height: 48mm;
+  background: #f4efe2;
+}
+.capa-bloco::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; right: 0; bottom: 0;
+  background: var(--doc-amarelo);
+}
+.capa-bloco h1 {
+  position: relative;
   margin: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  padding-left: 36mm;
+  font-size: 1.95rem;
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: -0.01em;
+  color: #3b3b3b;
+}
+.capa-sub {
+  margin: 8mm 0 0 38mm;
+  font-size: 0.98rem;
+  letter-spacing: 0.04em;
+  font-weight: 300;
+  text-transform: uppercase;
+}
+.capa-detalhes {
+  margin: auto 0 22mm 38mm;
+  width: 100mm;
+  border-top: 0.5mm solid #c8c8c8;
+  padding-top: 6mm;
+}
+.capa-detalhes p {
+  margin: 0 0 2.4mm 4mm;
+  font-size: 0.98rem;
+  font-weight: 300;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
 }
 
-.doc-validade {
-  font-size: 0.85rem;
-  color: var(--taupe);
+/* ---------- essência ---------- */
+.essencia-grelha { display: grid; grid-template-columns: 1fr 70mm; gap: 12mm; }
+.essencia-texto p, .unicos-texto p, .proximo-texto p, .proximo-passos p {
+  margin: 0 0 4.2mm;
+  font-size: 0.93rem;
+  line-height: 1.38;
+  font-weight: 400;
+}
+.essencia-lado { padding-top: 14mm; }
+.essencia-frase { font-size: 0.93rem; line-height: 1.38; margin: 0 0 6mm; }
+
+.foto { display: block; object-fit: cover; box-shadow: 0 1px 6px rgba(0,0,0,0.12); }
+.foto-bouquet { width: 54mm; height: 70mm; margin-left: -8mm; }
+.essencia-fotos { display: flex; align-items: flex-start; gap: 8mm; margin-top: 4mm; }
+.foto-grupo { width: 100mm; height: 72mm; object-position: center 25%; }
+.essencia-assinatura { flex: 1; }
+.foto-filipa { width: 54mm; height: 72mm; margin-left: auto; }
+.assinatura { font-family: var(--doc-script); font-size: 2rem; margin: 6mm 0 0; text-align: right; color: #1d1d1d; }
+.assinatura-grande { font-size: 1.9rem; text-align: left; margin: 2mm 0 6mm; }
+.legenda-equipa { font-size: 1.75rem; font-weight: 400; line-height: 1.05; margin: 5mm 0 0; letter-spacing: -0.02em; }
+
+/* ---------- únicos ---------- */
+.unicos-texto { width: 140mm; }
+.unicos-texto strong { font-weight: 700; }
+.unicos-frase {
   font-style: italic;
-  margin-bottom: 24px;
-}
-
-.doc-rodape {
+  font-weight: 300;
   text-align: center;
+  font-size: 0.98rem;
+  line-height: 1.4;
+  margin: 8mm 20mm 8mm 40mm;
+}
+.foto-larga { width: 100%; height: 108mm; object-position: center 40%; box-shadow: none; }
+
+/* ---------- secções do orçamento ---------- */
+.bloco-secao { margin-bottom: 9mm; break-inside: avoid; }
+.nota-secao {
+  margin: 0 0 4mm;
   font-size: 0.82rem;
-  color: var(--taupe);
-  font-style: italic;
-  border-top: 1px solid rgba(50,45,40,0.1);
-  padding-top: 18px;
+  line-height: 1.4;
+  color: #5b5047;
+  border-bottom: 0.3mm solid var(--doc-linha);
+  padding-bottom: 3mm;
 }
 
-@media (max-width: 700px) {
-  .doc-wrap { padding: 32px 22px; }
-  .doc-info-grid { grid-template-columns: 1fr; }
-  .doc-cabecalho { flex-direction: column; align-items: flex-start; gap: 6px; }
+.tabela-itens { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+.tabela-itens th {
+  text-align: left;
+  font-size: 0.66rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--doc-cinza);
+  font-weight: 500;
+  padding: 0 2mm 2mm;
+  border-bottom: 0.3mm solid var(--doc-linha);
 }
+.tabela-itens td { padding: 2.2mm 2mm; border-bottom: 0.2mm solid #ece7d6; vertical-align: top; line-height: 1.3; }
+.tabela-itens .num { text-align: right; white-space: nowrap; width: 24mm; }
+.tabela-itens .qtd { text-align: right; width: 14mm; }
+.tabela-itens tfoot td { border: none; font-weight: 600; padding-top: 2.5mm; }
+
+/* ---------- valor base / notas ---------- */
+.valor-base-topo { display: flex; justify-content: space-between; align-items: flex-start; gap: 8mm; margin-bottom: 7mm; }
+.pilula-preco {
+  background: var(--doc-amarelo);
+  border-radius: 6mm;
+  padding: 4mm 8mm;
+  font-size: 1.45rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.caixa-contorno {
+  border: 0.3mm solid #e8e0b8;
+  border-radius: 5mm;
+  padding: 6mm 7mm;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+.caixa-contorno p { margin: 0 0 4mm; }
+.caixa-contorno ul { margin: 0; padding-left: 5mm; }
+.caixa-contorno li { margin-bottom: 4mm; }
+.titulo-resumo { margin-top: 12mm; }
+#bloco-valor-base[hidden] + .titulo-resumo { margin-top: 0; }
+.nota-linha { margin: 0 0 3.6mm; padding-left: 4mm; text-indent: -4mm; }
+
+.tabela-resumo { width: 100%; border-collapse: collapse; font-size: 0.95rem; margin-top: 3mm; }
+.tabela-resumo td { padding: 1.8mm 2mm; border-bottom: 0.2mm solid var(--doc-linha); }
+.tabela-resumo td:last-child { text-align: right; white-space: nowrap; }
+.tabela-resumo .linha-total td {
+  border-bottom: none;
+  background: var(--doc-amarelo);
+  font-weight: 700;
+  font-size: 1.1rem;
+  padding: 3.4mm 3mm;
+}
+.validade { font-size: 0.85rem; color: var(--doc-verde); margin: 4mm 0 0; }
+
+/* ---------- próximo passo ---------- */
+.proximo-texto { width: 128mm; margin-bottom: 6mm; }
+.titulo-funcionamos { font-size: 1.9rem; font-weight: 400; letter-spacing: -0.02em; line-height: 1.05; margin: 6mm 0 6mm; width: 110mm; }
+.proximo-passos { width: 140mm; }
+
+.proximo-fotos { display: flex; gap: 8mm; align-items: flex-end; margin-top: 4mm; }
+.foto-p1 { width: 100mm; height: 70mm; object-position: center 25%; }
+.foto-p2 { width: 56mm; height: 80mm; margin-left: auto; }
+
+/* ---------- fecho ---------- */
+.doc-fecho { padding: 0; }
+.fecho-topo { display: flex; gap: 14mm; padding: 28mm 16mm 12mm; }
+.fecho-logo { width: 56mm; flex-shrink: 0; padding-top: 22mm; font-size: 12mm; }
+.fecho-texto { flex: 1; }
+.fecho-frase { font-style: italic; font-weight: 300; font-size: 1.05rem; line-height: 1.4; margin: 0 0 6mm; }
+.fecho-texto hr { border: none; border-top: 0.3mm solid #c9bfa6; margin: 8mm 0; }
+.fecho-contactos { font-size: 1.1rem; line-height: 1.6; margin: 0; padding-left: 6mm; }
+.fecho-foto { width: 100%; height: 126mm; object-fit: cover; margin-top: auto; display: block; }
+
+/* ---------- impressão ---------- */
+@page { size: A4; margin: 0; }
 
 @media print {
   .no-print { display: none !important; }
-
   body { background: #fff; }
-
-  .doc-wrap {
-    box-shadow: none;
-    margin: 0 auto;
-    max-width: 100%;
-    padding: 0;
-  }
-
-  .doc-tabela tbody tr { break-inside: avoid; }
-  .doc-imagens-galeria img { break-inside: avoid; }
-
-  @page {
-    margin: 18mm 16mm;
-  }
+  #documento { margin: 0; zoom: 1 !important; }
+  .doc-pagina { margin: 0; box-shadow: none; height: 296.5mm; }
 }

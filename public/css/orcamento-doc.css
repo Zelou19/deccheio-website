@@ -121,3 +121,60 @@
   .orc-itens-tabela td:nth-child(3) { display: none; }
   .orc-totais { flex-direction: column; align-items: stretch; }
 }
+
+/* ---------- Catálogo De Cheio (no editor de orçamentos) ---------- */
+.orc-catalogo {
+  margin: 22px 0 8px;
+  padding: 16px 18px;
+  background: var(--bg-alt);
+  border-radius: 10px;
+}
+
+.orc-catalogo-titulo {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  margin: 0 0 6px;
+  color: var(--ink);
+}
+
+.orc-catalogo select {
+  width: 100%;
+  max-width: 340px;
+  margin: 6px 0;
+}
+
+.orc-catalogo-itens {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.orc-catalogo-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  font-size: 0.9rem;
+  color: var(--ink);
+  background: var(--bg);
+  border: 1px solid rgba(50,45,40,0.12);
+  border-radius: 8px;
+  padding: 9px 12px;
+  cursor: pointer;
+}
+
+.orc-catalogo-item:hover { border-color: var(--gold); }
+.orc-catalogo-item strong { white-space: nowrap; color: var(--wine); }
+
+.item-secao {
+  display: block;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--gold);
+  margin-bottom: 2px;
+}
