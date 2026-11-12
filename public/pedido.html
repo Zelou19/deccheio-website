@@ -7,8 +7,834 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css">
-<link rel="stylesheet" href="css/chat.css">
+<style>
+/* ---------- Tokens ---------- */
+:root {
+  --bg: #FAF6EF;
+  --bg-alt: #F1E9DC;
+  --ink: #322D28;
+  --taupe: #8C8175;
+  --gold: #B08B4F;
+  --wine: #6B2A34;
+
+  --font-display: 'Fraunces', serif;
+  --font-body: 'Work Sans', sans-serif;
+
+  --wrap: 1120px;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.55;
+}
+
+.wrap {
+  max-width: var(--wrap);
+  margin: 0 auto;
+  padding: 0 28px;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  color: var(--ink);
+  margin: 0 0 0.4em;
+}
+
+h1 { font-size: clamp(2.4rem, 5vw, 3.8rem); line-height: 1.08; font-weight: 500; }
+h2 { font-size: clamp(1.7rem, 3vw, 2.4rem); }
+h3 { font-size: 1.15rem; }
+
+p { margin: 0 0 1em; color: var(--ink); }
+
+a { color: inherit; }
+
+.eyebrow {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold);
+  font-weight: 600;
+  margin-bottom: 0.9em;
+}
+
+/* ---------- Buttons ---------- */
+.btn {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 0.9em 1.8em;
+  border-radius: 2px;
+  text-decoration: none;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.btn-primary {
+  background: var(--wine);
+  color: var(--bg);
+}
+.btn-primary:hover { background: #591f28; }
+
+/* ---------- Header ---------- */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(250, 246, 239, 0.92);
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid rgba(50, 45, 40, 0.08);
+}
+
+.header-inner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 16px;
+  padding-bottom: 16px;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  letter-spacing: 0.02em;
+  color: var(--ink);
+}
+
+.brand-word { font-weight: 500; }
+.brand-heart { width: 20px; height: 18px; object-fit: contain; }
+.brand-small { font-size: 1.05rem; }
+
+.site-nav {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  font-size: 0.92rem;
+}
+
+.site-nav a { text-decoration: none; color: var(--ink); }
+.site-nav a:hover { color: var(--wine); }
+
+.nav-cta {
+  background: var(--ink);
+  color: var(--bg) !important;
+  padding: 0.55em 1.3em;
+  border-radius: 2px;
+  font-weight: 600;
+}
+.nav-cta:hover { background: var(--wine) !important; }
+
+/* ---------- Menu hambúrguer (só aparece em mobile) ---------- */
+.nav-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.nav-toggle span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: var(--ink);
+  border-radius: 2px;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+.nav-toggle[aria-expanded="true"] span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.nav-toggle[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+.nav-toggle[aria-expanded="true"] span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+/* ---------- Hero ---------- */
+.hero {
+  position: relative;
+  overflow: hidden;
+  padding: 90px 0 110px;
+}
+
+.hero-motif {
+  position: absolute;
+  top: -60px;
+  right: -140px;
+  width: 620px;
+  height: 580px;
+  color: var(--gold);
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.hero-inner { position: relative; max-width: 680px; }
+
+.hero-lede {
+  font-size: 1.1rem;
+  color: var(--ink);
+  max-width: 540px;
+}
+
+/* ---------- Serviços ---------- */
+.servicos { padding: 90px 0; background: var(--bg-alt); }
+
+.servicos-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  margin-top: 40px;
+}
+
+.servico-card {
+  background: var(--bg);
+  padding: 28px 24px;
+  border-top: 2px solid var(--gold);
+}
+
+.servico-card p { color: var(--taupe); font-size: 0.95rem; margin-bottom: 0; }
+
+/* ---------- Como funciona ---------- */
+.como-funciona { padding: 90px 0; }
+
+.passos {
+  list-style: none;
+  margin: 40px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 40px;
+}
+
+.passos li { border-left: 1px solid rgba(50,45,40,0.15); padding-left: 24px; }
+
+.passo-num {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  color: var(--gold);
+  margin-bottom: 0.3em;
+}
+
+.passos p { color: var(--taupe); font-size: 0.95rem; }
+
+/* ---------- Orçamento (form) ---------- */
+.orcamento { padding: 90px 0 120px; background: var(--bg-alt); }
+
+.orcamento-inner {
+  display: grid;
+  grid-template-columns: 0.9fr 1.3fr;
+  gap: 64px;
+  align-items: start;
+}
+
+.orcamento-intro p:not(.eyebrow) { color: var(--taupe); max-width: 380px; }
+
+.orcamento-gate {
+  background: var(--bg);
+  padding: 36px;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.orcamento-gate p {
+  color: var(--taupe);
+  max-width: 420px;
+  margin: 0 auto 20px;
+}
+
+.quote-form {
+  background: var(--bg);
+  padding: 36px;
+  border-radius: 4px;
+}
+
+.form-row { margin-bottom: 18px; }
+
+.form-row-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--ink);
+}
+
+.opcional { font-weight: 400; color: var(--taupe); }
+
+.imagens-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.imagem-preview-item {
+  position: relative;
+  width: 76px;
+  height: 76px;
+}
+
+.imagem-preview-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid rgba(50,45,40,0.15);
+}
+
+.imagem-preview-remover {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: none;
+  background: var(--wine);
+  color: var(--bg);
+  font-size: 0.8rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.imagem-preview-remover:hover { background: #4d1a21; }
+
+input[type="file"] {
+  padding: 10px 0;
+  border: none;
+  font-size: 0.85rem;
+}
+
+input, select, textarea {
+  width: 100%;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  padding: 0.7em 0.8em;
+  border: 1px solid rgba(50,45,40,0.25);
+  border-radius: 2px;
+  background: var(--bg);
+  color: var(--ink);
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: 2px solid var(--gold);
+  outline-offset: 1px;
+  border-color: var(--gold);
+}
+
+textarea { resize: vertical; }
+
+.btn-submit { width: 100%; margin-top: 8px; }
+
+.form-feedback {
+  margin: 14px 0 0;
+  font-size: 0.9rem;
+  min-height: 1.2em;
+}
+
+.form-feedback.sucesso { color: #2E6B4F; }
+.form-feedback.erro { color: var(--wine); }
+
+/* ---------- Footer ---------- */
+.site-footer {
+  padding: 40px 0;
+  border-top: 1px solid rgba(50,45,40,0.1);
+}
+
+.footer-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: var(--taupe);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 900px) {
+  .servicos-grid { grid-template-columns: repeat(2, 1fr); }
+  .passos { grid-template-columns: 1fr; gap: 28px; }
+  .orcamento-inner { grid-template-columns: 1fr; }
+  .hero-motif { opacity: 0.22; right: -220px; }
+}
+
+@media (max-width: 760px) {
+  .nav-toggle { display: flex; }
+
+  .site-nav {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 2px;
+    font-size: 0.92rem;
+    background: var(--bg);
+    border-bottom: 1px solid rgba(50, 45, 40, 0.08);
+    padding: 0 20px;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transition: max-height 0.25s ease, opacity 0.2s ease, padding 0.25s ease;
+  }
+
+  .site-nav.nav-aberto {
+    max-height: 60vh;
+    opacity: 1;
+    pointer-events: auto;
+    padding: 8px 20px 18px;
+  }
+
+  .site-nav a,
+  .site-nav span,
+  .site-nav button {
+    width: 100%;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(50, 45, 40, 0.06);
+  }
+
+  .site-nav .nav-cta {
+    text-align: center;
+    margin-top: 6px;
+    border-bottom: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .servicos-grid { grid-template-columns: 1fr; }
+  .form-row-split { grid-template-columns: 1fr; }
+  .footer-inner { flex-direction: column; gap: 10px; text-align: center; }
+  .hero { padding: 60px 0 80px; }
+}
+</style>
+<style>
+.chat-page {
+  padding: 60px 0 100px;
+  max-width: 680px;
+}
+
+.pedido-resumo {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 10px;
+  color: var(--taupe);
+  font-size: 0.9rem;
+}
+
+.status-pill {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.3em 0.9em;
+  border-radius: 999px;
+  color: var(--bg);
+}
+
+.status-pill[data-status="nao_respondido"] { background: var(--wine); }
+.status-pill[data-status="em_andamento"] { background: var(--gold); }
+.status-pill[data-status="concluido"] { background: #2E6B4F; }
+
+.chat-hint {
+  color: var(--taupe);
+  font-size: 0.88rem;
+}
+
+.chat-box {
+  margin-top: 24px;
+  background: var(--bg-alt);
+  border-radius: 10px;
+  padding: 20px;
+}
+
+.chat-mensagens {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-height: 420px;
+  overflow-y: auto;
+  padding: 4px 6px 4px 4px;
+  margin-bottom: 16px;
+}
+
+.msg {
+  max-width: 78%;
+  padding: 0.75em 1.05em;
+  border-radius: 14px;
+  font-size: 0.92rem;
+  line-height: 1.45;
+  box-shadow: 0 1px 3px rgba(50, 45, 40, 0.06);
+}
+
+.msg-cliente {
+  align-self: flex-start;
+  background: var(--bg);
+  border: 1px solid rgba(50,45,40,0.1);
+  border-bottom-left-radius: 4px;
+}
+
+.msg-admin {
+  align-self: flex-end;
+  background: var(--wine);
+  color: var(--bg);
+  border-bottom-right-radius: 4px;
+}
+
+.msg-meta {
+  display: block;
+  font-size: 0.72rem;
+  opacity: 0.7;
+  margin-top: 6px;
+}
+
+.msg-autor {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  opacity: 0.85;
+  margin-top: 1px;
+}
+
+.msg-imagem {
+  display: block;
+  max-width: 100%;
+  max-height: 260px;
+  border-radius: 6px;
+  margin-bottom: 6px;
+  cursor: zoom-in;
+}
+
+.chat-vazio {
+  color: var(--taupe);
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+.chat-form {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+}
+
+.chat-form textarea {
+  flex: 1;
+  font-family: var(--font-body);
+}
+
+.chat-form-principal {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.chat-form-principal textarea { width: 100%; }
+
+.chat-anexo-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.chat-anexo-btn {
+  cursor: pointer;
+  font-size: 0.78rem;
+  color: var(--taupe);
+  border: 1px dashed rgba(50,45,40,0.3);
+  padding: 4px 12px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.chat-anexo-btn:hover { border-color: var(--wine); color: var(--wine); }
+
+.chat-anexo-nome {
+  font-size: 0.78rem;
+  color: var(--taupe);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chat-anexo-remover {
+  background: none;
+  border: none;
+  color: var(--wine);
+  cursor: pointer;
+  font-size: 0.9rem;
+  line-height: 1;
+  padding: 0 4px;
+}
+
+/* ---------- Imagens de inspiração do pedido ---------- */
+.imagens-galeria {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 14px 0;
+}
+
+.imagens-galeria img {
+  width: 84px;
+  height: 84px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid rgba(50,45,40,0.15);
+  cursor: zoom-in;
+}
+
+.erro-pedido { padding-top: 20px; }
+.erro-pedido p { color: var(--taupe); }
+
+/* ---------- Admin extras ---------- */
+.admin-gate {
+  max-width: 380px;
+  margin: 120px auto;
+  text-align: center;
+}
+
+.admin-gate input {
+  margin: 16px 0;
+}
+
+.admin-lista {
+  list-style: none;
+  padding: 0;
+  margin: 24px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.admin-lista li {
+  background: var(--bg-alt);
+  border-radius: 6px;
+  padding: 14px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.admin-lista a { text-decoration: none; }
+.admin-lista .pedido-nome { font-weight: 600; }
+.admin-lista .pedido-meta { color: var(--taupe); font-size: 0.85rem; }
+
+.status-select {
+  width: auto;
+  font-size: 0.85rem;
+  padding: 0.4em 0.6em;
+}
+
+/* ---------- Zona perigosa (apagar conversa) ---------- */
+.zona-perigo {
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(107, 42, 52, 0.2);
+}
+
+.link-perigo {
+  background: none;
+  border: none;
+  color: var(--wine);
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+}
+.link-perigo:hover { opacity: 0.8; }
+
+#painel-apagar {
+  margin-top: 14px;
+  background: rgba(107, 42, 52, 0.06);
+  border: 1px solid rgba(107, 42, 52, 0.25);
+  border-radius: 6px;
+  padding: 16px 18px;
+}
+
+#painel-apagar p { font-size: 0.88rem; color: var(--ink); }
+
+.btn-perigo {
+  background: var(--wine);
+  color: var(--bg);
+  white-space: nowrap;
+}
+.btn-perigo:hover { background: #4d1a21; }
+
+.btn-cancelar {
+  background: none;
+  border: 1px solid rgba(50,45,40,0.25);
+  color: var(--ink);
+  padding: 0.9em 1.2em;
+  border-radius: 2px;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+.btn-cancelar:hover { background: var(--bg-alt); }
+
+/* ---------- Separadores: Abertas / Fechadas ---------- */
+.abas-bar {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid rgba(50,45,40,0.12);
+}
+
+.aba-btn {
+  background: none;
+  border: none;
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  color: var(--taupe);
+  padding: 10px 18px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+}
+
+.aba-btn:hover { color: var(--ink); }
+
+.aba-btn.ativa {
+  color: var(--wine);
+  border-bottom-color: var(--wine);
+  font-weight: 600;
+}
+
+.sem-resultados {
+  text-align: center;
+  color: var(--taupe);
+  padding: 40px 0;
+}
+
+/* ---------- Fechar / reabrir conversa ---------- */
+.btn-toggle-fechar {
+  background: none;
+  border: 1px solid rgba(50,45,40,0.25);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  padding: 0.45em 1.1em;
+  border-radius: 999px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn-toggle-fechar:hover { background: var(--bg-alt); border-color: rgba(50,45,40,0.4); }
+
+.aviso-fechada {
+  background: rgba(140, 129, 117, 0.14);
+  border: 1px solid rgba(140, 129, 117, 0.35);
+  border-radius: 6px;
+  padding: 12px 16px;
+  font-size: 0.88rem;
+  color: var(--ink);
+  margin-bottom: 16px;
+}
+
+.aviso-fechada .link-perigo { font-size: 0.88rem; }
+
+.pedido-card-fechada {
+  color: var(--taupe);
+  font-style: italic;
+}
+
+/* ---------- Editar dados do pedido (admin) ---------- */
+.pedido-cabecalho {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.painel-edicao {
+  margin: 20px 0 28px;
+  background: var(--bg-alt);
+  border-radius: 6px;
+  padding: 20px 22px;
+}
+
+.painel-edicao .form-row-split { margin-bottom: 0; }
+.painel-edicao input,
+.painel-edicao select,
+.painel-edicao textarea { font-family: var(--font-body); }
+
+/* ---------- Chat maior e mais espaçoso em ecrãs de computador ---------- */
+@media (min-width: 860px) {
+  .chat-page { max-width: 820px; }
+
+  .chat-box {
+    padding: 32px 36px;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(50, 45, 40, 0.06);
+  }
+
+  .chat-mensagens {
+    max-height: 580px;
+    gap: 18px;
+  }
+
+  .msg {
+    max-width: 62%;
+    font-size: 1rem;
+    padding: 0.9em 1.3em;
+    border-radius: 18px;
+  }
+
+  .msg-cliente { border-bottom-left-radius: 5px; }
+  .msg-admin { border-bottom-right-radius: 5px; }
+
+  .msg-meta,
+  .msg-autor { font-size: 0.76rem; }
+
+  .msg-imagem {
+    max-height: 340px;
+  }
+
+  .chat-form textarea {
+    min-height: 60px;
+    font-size: 0.98rem;
+    padding: 0.8em 1em;
+  }
+
+  .chat-hint { font-size: 0.92rem; }
+}
+</style>
 <link rel="icon" type="image/x-icon" href="/favicon.ico">
 <link rel="apple-touch-icon" href="/img/logo512.png">
 </head>
@@ -73,6 +899,219 @@
 
 </main>
 
-<script src="js/pedido.js"></script>
+<script>
+const params = new URLSearchParams(window.location.search);
+const idPedido = params.get('id');
+
+const elCarregamento = document.getElementById('estado-carregamento');
+const elConteudo = document.getElementById('conteudo-pedido');
+const elErro = document.getElementById('estado-erro');
+const elTitulo = document.getElementById('pedido-titulo');
+const elStatus = document.getElementById('pedido-status');
+const elData = document.getElementById('pedido-data');
+const btnFecharConversa = document.getElementById('btn-fechar-conversa');
+const avisoFechada = document.getElementById('aviso-fechada');
+const btnReabrirConversa = document.getElementById('btn-reabrir-conversa');
+const elMensagens = document.getElementById('chat-mensagens');
+const elImagensPedido = document.getElementById('pedido-imagens');
+const form = document.getElementById('chat-form');
+const textarea = document.getElementById('chat-texto');
+const feedback = document.getElementById('chat-feedback');
+const inputImagem = document.getElementById('chat-imagem');
+const elImagemNome = document.getElementById('chat-imagem-nome');
+const btnRemoverImagem = document.getElementById('chat-imagem-remover');
+
+let imagemSelecionada = null; // data URL da imagem anexada à próxima mensagem
+
+// Reduz a imagem para no máximo 1600px no lado maior e converte para JPEG a 80% de qualidade.
+function comprimirImagem(ficheiro, ladoMaximo = 1600, qualidade = 0.8) {
+  return new Promise((resolve, reject) => {
+    const leitor = new FileReader();
+    leitor.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > ladoMaximo || height > ladoMaximo) {
+          if (width > height) {
+            height = Math.round(height * (ladoMaximo / width));
+            width = ladoMaximo;
+          } else {
+            width = Math.round(width * (ladoMaximo / height));
+            height = ladoMaximo;
+          }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', qualidade));
+      };
+      img.onerror = reject;
+      img.src = leitor.result;
+    };
+    leitor.onerror = reject;
+    leitor.readAsDataURL(ficheiro);
+  });
+}
+
+inputImagem.addEventListener('change', async () => {
+  const ficheiro = inputImagem.files[0];
+  if (!ficheiro) return;
+  imagemSelecionada = await comprimirImagem(ficheiro);
+  elImagemNome.textContent = ficheiro.name;
+  btnRemoverImagem.hidden = false;
+});
+
+btnRemoverImagem.addEventListener('click', () => {
+  imagemSelecionada = null;
+  inputImagem.value = '';
+  elImagemNome.textContent = '';
+  btnRemoverImagem.hidden = true;
+});
+
+const ROTULOS_STATUS = {
+  nao_respondido: 'Ainda não respondido',
+  em_andamento: 'Em andamento',
+  concluido: 'Concluído',
+};
+
+let ultimaContagemMensagens = -1;
+
+function formatarData(iso) {
+  if (!iso) return '';
+  return new Date(iso).toLocaleDateString('pt-PT', { day: '2-digit', month: 'long', year: 'numeric' });
+}
+
+function renderizarPedido(pedido) {
+  elTitulo.textContent = `${pedido.tipoEvento} — ${pedido.nome}`;
+  elStatus.textContent = ROTULOS_STATUS[pedido.status] || pedido.status;
+  elStatus.dataset.status = pedido.status;
+  elData.textContent = `Pedido feito a ${formatarData(pedido.createdAt)}`;
+
+  if (pedido.imagensInspiracao?.length) {
+    elImagensPedido.hidden = false;
+    elImagensPedido.innerHTML = pedido.imagensInspiracao
+      .map((src) => `<img src="${src}" alt="Imagem de inspiração enviada" onclick="window.open(this.src, '_blank')">`)
+      .join('');
+  }
+
+  if (pedido.fechado) {
+    btnFecharConversa.hidden = true;
+    avisoFechada.hidden = false;
+    form.hidden = true;
+  } else {
+    btnFecharConversa.hidden = false;
+    avisoFechada.hidden = true;
+    form.hidden = false;
+  }
+
+  // Só volta a desenhar as mensagens se o número mudou, para não interromper quem está a escrever
+  if (pedido.mensagens.length === ultimaContagemMensagens) return;
+  ultimaContagemMensagens = pedido.mensagens.length;
+
+  if (pedido.mensagens.length === 0) {
+    elMensagens.innerHTML = '<p class="chat-vazio">Ainda não há mensagens. Escreva a primeira!</p>';
+  } else {
+    elMensagens.innerHTML = pedido.mensagens
+      .map((msg) => {
+        const classe = msg.autor === 'admin' ? 'msg-admin' : 'msg-cliente';
+        const hora = new Date(msg.criadoEm).toLocaleString('pt-PT', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+        const autor = msg.autor === 'admin' ? 'Equipa DecoraçãoCheio' : 'Você';
+        const imagemHtml = msg.imagem ? `<img class="msg-imagem" src="${msg.imagem}" alt="Imagem anexada" onclick="window.open(this.src, '_blank')">` : '';
+        return `<div class="msg ${classe}">${imagemHtml}${escaparHtml(msg.texto)}<span class="msg-meta">${hora}</span><span class="msg-autor">${autor}</span></div>`;
+      })
+      .join('');
+  }
+  elMensagens.scrollTop = elMensagens.scrollHeight;
+}
+
+function escaparHtml(texto) {
+  const div = document.createElement('div');
+  div.textContent = texto;
+  return div.innerHTML;
+}
+
+async function carregarPedido() {
+  try {
+    const resposta = await fetch(`/api/quotes/${idPedido}?viewer=cliente`);
+    if (!resposta.ok) throw new Error('não encontrado');
+    const pedido = await resposta.json();
+
+    elCarregamento.hidden = true;
+    elConteudo.hidden = false;
+    renderizarPedido(pedido);
+  } catch (erro) {
+    elCarregamento.hidden = true;
+    elErro.hidden = false;
+  }
+}
+
+form?.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const texto = textarea.value.trim();
+  if (!texto && !imagemSelecionada) return;
+
+  feedback.textContent = '';
+  feedback.className = 'form-feedback';
+
+  try {
+    const resposta = await fetch(`/api/quotes/${idPedido}/messages/cliente`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ texto, imagem: imagemSelecionada }),
+    });
+    const pedido = await resposta.json();
+    if (!resposta.ok) throw new Error(pedido.erro || 'Não foi possível enviar.');
+
+    textarea.value = '';
+    imagemSelecionada = null;
+    inputImagem.value = '';
+    elImagemNome.textContent = '';
+    btnRemoverImagem.hidden = true;
+    renderizarPedido(pedido);
+  } catch (erro) {
+    feedback.textContent = erro.message;
+    feedback.classList.add('erro');
+  }
+});
+
+btnFecharConversa?.addEventListener('click', async () => {
+  try {
+    const resposta = await fetch(`/api/quotes/${idPedido}/fechar`, { method: 'PATCH' });
+    const pedido = await resposta.json();
+    if (resposta.ok) renderizarPedido(pedido);
+  } catch (erro) {
+    // se falhar, o botão continua visível e a pessoa pode tentar de novo
+  }
+});
+
+btnReabrirConversa?.addEventListener('click', async () => {
+  try {
+    const resposta = await fetch(`/api/quotes/${idPedido}/reabrir`, { method: 'PATCH' });
+    const pedido = await resposta.json();
+    if (resposta.ok) renderizarPedido(pedido);
+  } catch (erro) {
+    // se falhar, o aviso continua visível e a pessoa pode tentar de novo
+  }
+});
+
+async function mostrarLinkOrcamentosSeAutenticado() {
+  try {
+    const resposta = await fetch('/api/auth/me', { credentials: 'include' });
+    if (resposta.ok) document.getElementById('link-orcamentos').hidden = false;
+  } catch (erro) {
+    // sem sessão — não mostra o link
+  }
+}
+
+if (!idPedido) {
+  elCarregamento.hidden = true;
+  elErro.hidden = false;
+} else {
+  carregarPedido();
+  mostrarLinkOrcamentosSeAutenticado();
+  setInterval(carregarPedido, 5000); // faz "polling" — verifica novas mensagens a cada 5 segundos
+}
+</script>
 </body>
 </html>

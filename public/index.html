@@ -8,9 +8,624 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css">
-<link rel="stylesheet" href="css/eventos.css">
-<link rel="stylesheet" href="css/reviews.css">
+<style>
+/* ---------- Tokens ---------- */
+:root {
+  --bg: #FAF6EF;
+  --bg-alt: #F1E9DC;
+  --ink: #322D28;
+  --taupe: #8C8175;
+  --gold: #B08B4F;
+  --wine: #6B2A34;
+
+  --font-display: 'Fraunces', serif;
+  --font-body: 'Work Sans', sans-serif;
+
+  --wrap: 1120px;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.55;
+}
+
+.wrap {
+  max-width: var(--wrap);
+  margin: 0 auto;
+  padding: 0 28px;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  color: var(--ink);
+  margin: 0 0 0.4em;
+}
+
+h1 { font-size: clamp(2.4rem, 5vw, 3.8rem); line-height: 1.08; font-weight: 500; }
+h2 { font-size: clamp(1.7rem, 3vw, 2.4rem); }
+h3 { font-size: 1.15rem; }
+
+p { margin: 0 0 1em; color: var(--ink); }
+
+a { color: inherit; }
+
+.eyebrow {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold);
+  font-weight: 600;
+  margin-bottom: 0.9em;
+}
+
+/* ---------- Buttons ---------- */
+.btn {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 0.9em 1.8em;
+  border-radius: 2px;
+  text-decoration: none;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.btn-primary {
+  background: var(--wine);
+  color: var(--bg);
+}
+.btn-primary:hover { background: #591f28; }
+
+/* ---------- Header ---------- */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(250, 246, 239, 0.92);
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid rgba(50, 45, 40, 0.08);
+}
+
+.header-inner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 16px;
+  padding-bottom: 16px;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  letter-spacing: 0.02em;
+  color: var(--ink);
+}
+
+.brand-word { font-weight: 500; }
+.brand-heart { width: 20px; height: 18px; object-fit: contain; }
+.brand-small { font-size: 1.05rem; }
+
+.site-nav {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  font-size: 0.92rem;
+}
+
+.site-nav a { text-decoration: none; color: var(--ink); }
+.site-nav a:hover { color: var(--wine); }
+
+.nav-cta {
+  background: var(--ink);
+  color: var(--bg) !important;
+  padding: 0.55em 1.3em;
+  border-radius: 2px;
+  font-weight: 600;
+}
+.nav-cta:hover { background: var(--wine) !important; }
+
+/* ---------- Menu hambúrguer (só aparece em mobile) ---------- */
+.nav-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.nav-toggle span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: var(--ink);
+  border-radius: 2px;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+.nav-toggle[aria-expanded="true"] span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.nav-toggle[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+.nav-toggle[aria-expanded="true"] span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+/* ---------- Hero ---------- */
+.hero {
+  position: relative;
+  overflow: hidden;
+  padding: 90px 0 110px;
+}
+
+.hero-motif {
+  position: absolute;
+  top: -60px;
+  right: -140px;
+  width: 620px;
+  height: 580px;
+  color: var(--gold);
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.hero-inner { position: relative; max-width: 680px; }
+
+.hero-lede {
+  font-size: 1.1rem;
+  color: var(--ink);
+  max-width: 540px;
+}
+
+/* ---------- Serviços ---------- */
+.servicos { padding: 90px 0; background: var(--bg-alt); }
+
+.servicos-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  margin-top: 40px;
+}
+
+.servico-card {
+  background: var(--bg);
+  padding: 28px 24px;
+  border-top: 2px solid var(--gold);
+}
+
+.servico-card p { color: var(--taupe); font-size: 0.95rem; margin-bottom: 0; }
+
+/* ---------- Como funciona ---------- */
+.como-funciona { padding: 90px 0; }
+
+.passos {
+  list-style: none;
+  margin: 40px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 40px;
+}
+
+.passos li { border-left: 1px solid rgba(50,45,40,0.15); padding-left: 24px; }
+
+.passo-num {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  color: var(--gold);
+  margin-bottom: 0.3em;
+}
+
+.passos p { color: var(--taupe); font-size: 0.95rem; }
+
+/* ---------- Orçamento (form) ---------- */
+.orcamento { padding: 90px 0 120px; background: var(--bg-alt); }
+
+.orcamento-inner {
+  display: grid;
+  grid-template-columns: 0.9fr 1.3fr;
+  gap: 64px;
+  align-items: start;
+}
+
+.orcamento-intro p:not(.eyebrow) { color: var(--taupe); max-width: 380px; }
+
+.orcamento-gate {
+  background: var(--bg);
+  padding: 36px;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.orcamento-gate p {
+  color: var(--taupe);
+  max-width: 420px;
+  margin: 0 auto 20px;
+}
+
+.quote-form {
+  background: var(--bg);
+  padding: 36px;
+  border-radius: 4px;
+}
+
+.form-row { margin-bottom: 18px; }
+
+.form-row-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--ink);
+}
+
+.opcional { font-weight: 400; color: var(--taupe); }
+
+.imagens-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.imagem-preview-item {
+  position: relative;
+  width: 76px;
+  height: 76px;
+}
+
+.imagem-preview-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid rgba(50,45,40,0.15);
+}
+
+.imagem-preview-remover {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: none;
+  background: var(--wine);
+  color: var(--bg);
+  font-size: 0.8rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.imagem-preview-remover:hover { background: #4d1a21; }
+
+input[type="file"] {
+  padding: 10px 0;
+  border: none;
+  font-size: 0.85rem;
+}
+
+input, select, textarea {
+  width: 100%;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  padding: 0.7em 0.8em;
+  border: 1px solid rgba(50,45,40,0.25);
+  border-radius: 2px;
+  background: var(--bg);
+  color: var(--ink);
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: 2px solid var(--gold);
+  outline-offset: 1px;
+  border-color: var(--gold);
+}
+
+textarea { resize: vertical; }
+
+.btn-submit { width: 100%; margin-top: 8px; }
+
+.form-feedback {
+  margin: 14px 0 0;
+  font-size: 0.9rem;
+  min-height: 1.2em;
+}
+
+.form-feedback.sucesso { color: #2E6B4F; }
+.form-feedback.erro { color: var(--wine); }
+
+/* ---------- Footer ---------- */
+.site-footer {
+  padding: 40px 0;
+  border-top: 1px solid rgba(50,45,40,0.1);
+}
+
+.footer-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: var(--taupe);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 900px) {
+  .servicos-grid { grid-template-columns: repeat(2, 1fr); }
+  .passos { grid-template-columns: 1fr; gap: 28px; }
+  .orcamento-inner { grid-template-columns: 1fr; }
+  .hero-motif { opacity: 0.22; right: -220px; }
+}
+
+@media (max-width: 760px) {
+  .nav-toggle { display: flex; }
+
+  .site-nav {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 2px;
+    font-size: 0.92rem;
+    background: var(--bg);
+    border-bottom: 1px solid rgba(50, 45, 40, 0.08);
+    padding: 0 20px;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transition: max-height 0.25s ease, opacity 0.2s ease, padding 0.25s ease;
+  }
+
+  .site-nav.nav-aberto {
+    max-height: 60vh;
+    opacity: 1;
+    pointer-events: auto;
+    padding: 8px 20px 18px;
+  }
+
+  .site-nav a,
+  .site-nav span,
+  .site-nav button {
+    width: 100%;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(50, 45, 40, 0.06);
+  }
+
+  .site-nav .nav-cta {
+    text-align: center;
+    margin-top: 6px;
+    border-bottom: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .servicos-grid { grid-template-columns: 1fr; }
+  .form-row-split { grid-template-columns: 1fr; }
+  .footer-inner { flex-direction: column; gap: 10px; text-align: center; }
+  .hero { padding: 60px 0 80px; }
+}
+</style>
+<style>
+/* ---------- Admin: gestão de categorias ---------- */
+.nova-categoria-form {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.nova-categoria-form input {
+  flex: 1;
+  max-width: 320px;
+}
+
+.categoria-bloco {
+  background: var(--bg-alt);
+  border-radius: 6px;
+  padding: 22px 24px;
+  margin-bottom: 20px;
+}
+
+.categoria-bloco-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.categoria-bloco-header h3 { margin: 0; }
+
+.categoria-apagar {
+  font-size: 0.82rem;
+  color: var(--taupe);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-body);
+}
+.categoria-apagar:hover { color: var(--wine); }
+
+.categoria-fotos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.foto-item {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.foto-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.foto-apagar {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(50,45,40,0.75);
+  color: #fff;
+  cursor: pointer;
+  font-size: 0.85rem;
+  line-height: 1;
+}
+.foto-apagar:hover { background: var(--wine); }
+
+.categoria-sem-fotos {
+  color: var(--taupe);
+  font-size: 0.88rem;
+  font-style: italic;
+  margin-bottom: 16px;
+}
+
+.upload-foto label {
+  display: inline-block;
+  font-size: 0.85rem;
+  padding: 0.6em 1.2em;
+  background: var(--bg);
+  border: 1px solid rgba(50,45,40,0.2);
+  border-radius: 2px;
+  cursor: pointer;
+  margin: 0;
+}
+.upload-foto label:hover { border-color: var(--gold); }
+.upload-foto input[type="file"] { display: none; }
+.upload-foto .upload-estado { font-size: 0.82rem; color: var(--taupe); margin-left: 10px; }
+
+/* ---------- Página principal: secção "Os nossos eventos" ---------- */
+.eventos { padding: 90px 0; background: var(--bg-alt); }
+
+.eventos-abas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 32px 0;
+}
+
+.eventos-aba {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.6em 1.3em;
+  border-radius: 999px;
+  border: 1px solid rgba(50,45,40,0.2);
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.eventos-aba.ativa {
+  background: var(--wine);
+  border-color: var(--wine);
+  color: var(--bg);
+}
+
+.eventos-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.eventos-grid .foto-item {
+  aspect-ratio: 4/3;
+  border-radius: 6px;
+}
+
+.eventos-vazio {
+  color: var(--taupe);
+  font-style: italic;
+}
+
+@media (max-width: 900px) {
+  .eventos-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 600px) {
+  .eventos-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .categoria-fotos-grid { grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); }
+}
+</style>
+<style>
+.reviews { padding: 90px 0; background: var(--bg); }
+
+.reviews-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 22px;
+  margin-top: 40px;
+}
+
+.review-card {
+  background: var(--bg-alt);
+  border-radius: 10px;
+  padding: 28px 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.review-estrelas { color: var(--gold); font-size: 1.05rem; letter-spacing: 2px; }
+.review-estrelas .vazia { color: rgba(140,129,117,0.3); }
+
+.review-texto {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  line-height: 1.55;
+  color: var(--ink);
+  flex: 1;
+}
+.review-texto::before { content: '“'; }
+.review-texto::after { content: '”'; }
+
+.review-autor { font-weight: 600; font-size: 0.92rem; color: var(--ink); }
+.review-tipo-evento { color: var(--taupe); font-size: 0.82rem; }
+
+.reviews-vazio { color: var(--taupe); }
+</style>
 <link rel="icon" type="image/x-icon" href="/favicon.ico">
 <link rel="apple-touch-icon" href="/img/logo512.png">
 </head>
@@ -232,10 +847,319 @@
   </defs>
 </svg>
 
-<script src="js/nav-toggle.js"></script>
-<script src="js/main.js"></script>
-<script src="js/auth-status.js"></script>
-<script src="js/eventos.js"></script>
-<script src="js/reviews.js"></script>
+<script>
+// Menu hambúrguer, só usado em ecrãs pequenos (o CSS trata de o esconder em desktop).
+document.querySelectorAll('.nav-toggle').forEach((botao) => {
+  const nav = botao.parentElement.querySelector('.site-nav');
+  if (!nav) return;
+
+  botao.addEventListener('click', () => {
+    const aberto = nav.classList.toggle('nav-aberto');
+    botao.setAttribute('aria-expanded', aberto ? 'true' : 'false');
+  });
+
+  // Fecha o menu automaticamente quando se escolhe uma opção
+  nav.querySelectorAll('a, button').forEach((item) => {
+    item.addEventListener('click', () => {
+      nav.classList.remove('nav-aberto');
+      botao.setAttribute('aria-expanded', 'false');
+    });
+  });
+});
+</script>
+<script>
+document.getElementById('year').textContent = new Date().getFullYear();
+
+const form = document.getElementById('quote-form');
+const feedback = document.getElementById('form-feedback');
+const elLoading = document.getElementById('orcamento-loading');
+const elGate = document.getElementById('orcamento-gate');
+const inputImagens = document.getElementById('imagens');
+const previewImagens = document.getElementById('imagens-preview');
+
+const MAX_IMAGENS = 5;
+let imagensSelecionadas = []; // array de data URLs (já comprimidas)
+
+// Reduz a imagem para no máximo 1600px no lado maior e converte para JPEG a 80% de
+// qualidade — mantém as fotos de inspiração leves antes de irem em base64 no pedido.
+function comprimirImagem(ficheiro, ladoMaximo = 1600, qualidade = 0.8) {
+  return new Promise((resolve, reject) => {
+    const leitor = new FileReader();
+    leitor.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > ladoMaximo || height > ladoMaximo) {
+          if (width > height) {
+            height = Math.round(height * (ladoMaximo / width));
+            width = ladoMaximo;
+          } else {
+            width = Math.round(width * (ladoMaximo / height));
+            height = ladoMaximo;
+          }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', qualidade));
+      };
+      img.onerror = reject;
+      img.src = leitor.result;
+    };
+    leitor.onerror = reject;
+    leitor.readAsDataURL(ficheiro);
+  });
+}
+
+function renderizarPreviewImagens() {
+  previewImagens.innerHTML = imagensSelecionadas
+    .map(
+      (dataUrl, indice) => `
+      <div class="imagem-preview-item">
+        <img src="${dataUrl}" alt="Pré-visualização ${indice + 1}">
+        <button type="button" class="imagem-preview-remover" data-indice="${indice}" aria-label="Remover imagem">&times;</button>
+      </div>
+    `
+    )
+    .join('');
+}
+
+inputImagens.addEventListener('change', async () => {
+  const ficheiros = Array.from(inputImagens.files);
+  const espacoDisponivel = MAX_IMAGENS - imagensSelecionadas.length;
+
+  if (ficheiros.length > espacoDisponivel) {
+    feedback.textContent = `Só pode escolher até ${MAX_IMAGENS} imagens no total.`;
+    feedback.className = 'form-feedback erro';
+  }
+
+  const aProcessar = ficheiros.slice(0, espacoDisponivel);
+  for (const ficheiro of aProcessar) {
+    try {
+      const dataUrl = await comprimirImagem(ficheiro);
+      imagensSelecionadas.push(dataUrl);
+    } catch (erro) {
+      // se uma imagem falhar a processar, ignora-a e segue com as restantes
+    }
+  }
+
+  inputImagens.value = '';
+  renderizarPreviewImagens();
+});
+
+previewImagens.addEventListener('click', (event) => {
+  const botao = event.target.closest('.imagem-preview-remover');
+  if (!botao) return;
+  imagensSelecionadas.splice(Number(botao.dataset.indice), 1);
+  renderizarPreviewImagens();
+});
+
+// É preciso ter sessão iniciada para pedir orçamento — assim a pessoa consegue
+// acompanhar a conversa depois em "Os meus orçamentos", sem depender só do link.
+(async function verificarSessaoOrcamento() {
+  try {
+    const resposta = await fetch('/api/auth/me', { credentials: 'include' });
+    elLoading.hidden = true;
+
+    if (!resposta.ok) {
+      elGate.hidden = false;
+      return;
+    }
+
+    const { user } = await resposta.json();
+    form.hidden = false;
+    if (user?.nome) form.nome.value = user.nome;
+    if (user?.email) form.email.value = user.email;
+  } catch (erro) {
+    elLoading.hidden = true;
+    elGate.hidden = false;
+  }
+})();
+
+form.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  feedback.textContent = '';
+  feedback.className = 'form-feedback';
+
+  const dados = {
+    nome: form.nome.value.trim(),
+    nomeFestejado: form.nomeFestejado.value.trim(),
+    email: form.email.value.trim(),
+    telefone: form.telefone.value.trim(),
+    tipoEvento: form.tipoEvento.value,
+    dataEvento: form.dataEvento.value || undefined,
+    localEvento: form.localEvento.value.trim(),
+    numeroConvidados: form.numeroConvidados.value || undefined,
+    mensagem: form.mensagem.value.trim(),
+    imagens: imagensSelecionadas,
+  };
+
+  const botao = form.querySelector('.btn-submit');
+  botao.disabled = true;
+  botao.textContent = 'A enviar...';
+
+  try {
+    const resposta = await fetch('/api/quotes', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(dados),
+    });
+
+    const resultado = await resposta.json();
+
+    if (!resposta.ok) {
+      throw new Error(resultado.erro || 'Algo correu mal.');
+    }
+
+    feedback.textContent = 'Pedido enviado! A abrir a sua conversa...';
+    feedback.classList.add('sucesso');
+    form.reset();
+    imagensSelecionadas = [];
+    renderizarPreviewImagens();
+
+    const idPedido = resultado.pedido._id;
+    setTimeout(() => {
+      window.location.href = `/pedido.html?id=${idPedido}`;
+    }, 900);
+  } catch (erro) {
+    feedback.textContent = erro.message || 'Não foi possível enviar o pedido. Tente novamente.';
+    feedback.classList.add('erro');
+  } finally {
+    botao.disabled = false;
+    botao.textContent = 'Enviar pedido';
+  }
+});
+</script>
+<script>
+// Verifica se a pessoa tem sessão iniciada e ajusta o link "Entrar" do menu principal.
+// Usado em páginas públicas (não no painel de admin, que tem o seu próprio login).
+(async function atualizarEstadoConta() {
+  const link = document.getElementById('nav-conta');
+  if (!link) return;
+
+  try {
+    const resposta = await fetch('/api/auth/me', { credentials: 'include' });
+    if (!resposta.ok) return; // não tem sessão — mantém "Entrar"
+
+    const { user } = await resposta.json();
+    link.textContent = 'Conta/Orçamentos';
+    link.href = '/orcamentos.html';
+  } catch (erro) {
+    // sem sessão ou sem rede — mantém o link "Entrar" tal como está
+  }
+})();
+</script>
+<script>
+const elAbas = document.getElementById('eventos-abas');
+const elGrid = document.getElementById('eventos-grid');
+
+let categorias = [];
+let categoriaAtiva = null;
+
+function escaparHtml(texto) {
+  const div = document.createElement('div');
+  div.textContent = texto || '';
+  return div.innerHTML;
+}
+
+function renderizarAbas() {
+  elAbas.innerHTML = categorias.map((cat) => `
+    <button class="eventos-aba ${cat._id === categoriaAtiva ? 'ativa' : ''}" data-id="${cat._id}">
+      ${escaparHtml(cat.nome)}
+    </button>
+  `).join('');
+}
+
+function renderizarGrid() {
+  const categoria = categorias.find((c) => c._id === categoriaAtiva);
+
+  if (!categoria || categoria.fotos.length === 0) {
+    elGrid.innerHTML = '<p class="eventos-vazio">Ainda sem fotos nesta categoria.</p>';
+    return;
+  }
+
+  elGrid.innerHTML = categoria.fotos.map((foto) => `
+    <div class="foto-item">
+      <img src="${foto.dataUrl}" alt="${escaparHtml(foto.legenda) || escaparHtml(categoria.nome)}" loading="lazy">
+    </div>
+  `).join('');
+}
+
+elAbas.addEventListener('click', (event) => {
+  const id = event.target.dataset.id;
+  if (!id) return;
+  categoriaAtiva = id;
+  renderizarAbas();
+  renderizarGrid();
+});
+
+async function carregarEventos() {
+  try {
+    const resposta = await fetch('/api/categorias');
+    if (!resposta.ok) return;
+
+    categorias = await resposta.json();
+    if (categorias.length === 0) {
+      elGrid.innerHTML = '<p class="eventos-vazio">Em breve, fotos dos nossos eventos.</p>';
+      return;
+    }
+
+    categoriaAtiva = categorias[0]._id;
+    renderizarAbas();
+    renderizarGrid();
+  } catch (erro) {
+    // secção fica simplesmente vazia se algo correr mal
+  }
+}
+
+carregarEventos();
+</script>
+<script>
+const elGrid = document.getElementById('reviews-grid');
+
+function escaparHtml(texto) {
+  const div = document.createElement('div');
+  div.textContent = texto || '';
+  return div.innerHTML;
+}
+
+function renderizarEstrelas(nota) {
+  let html = '';
+  for (let i = 1; i <= 5; i++) {
+    html += i <= nota ? '★' : '<span class="vazia">★</span>';
+  }
+  return html;
+}
+
+async function carregarReviews() {
+  try {
+    const resposta = await fetch('/api/reviews');
+    if (!resposta.ok) return;
+
+    const reviews = await resposta.json();
+    if (reviews.length === 0) {
+      elGrid.innerHTML = '<p class="reviews-vazio">Em breve, testemunhos de quem já celebrou connosco.</p>';
+      return;
+    }
+
+    elGrid.innerHTML = reviews.map((review) => `
+      <article class="review-card">
+        <div class="review-estrelas">${renderizarEstrelas(review.classificacao)}</div>
+        <p class="review-texto">${escaparHtml(review.texto)}</p>
+        <div>
+          <div class="review-autor">${escaparHtml(review.nomeCliente)}</div>
+          ${review.tipoEvento ? `<div class="review-tipo-evento">${escaparHtml(review.tipoEvento)}</div>` : ''}
+        </div>
+      </article>
+    `).join('');
+  } catch (erro) {
+    // secção fica simplesmente vazia se algo correr mal
+  }
+}
+
+carregarReviews();
+</script>
 </body>
 </html>
