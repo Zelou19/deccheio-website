@@ -177,15 +177,9 @@
           </div>
         </div>
 
-        <div class="form-row form-row-split">
-          <div>
-            <label for="numeroConvidados">Nº de convidados <span class="opcional">(opcional)</span></label>
-            <input type="number" id="numeroConvidados" name="numeroConvidados" min="1">
-          </div>
-          <div>
-            <label for="orcamentoAproximado">Orçamento aproximado <span class="opcional">(opcional)</span></label>
-            <input type="text" id="orcamentoAproximado" name="orcamentoAproximado" placeholder="ex: 500€–1000€">
-          </div>
+        <div class="form-row">
+          <label for="numeroConvidados">Nº de convidados <span class="opcional">(opcional)</span></label>
+          <input type="number" id="numeroConvidados" name="numeroConvidados" min="1">
         </div>
 
         <div class="form-row">
@@ -200,8 +194,8 @@
         </div>
 
         <div class="form-row">
-          <label for="mensagem">A sua ideia <span class="opcional">(opcional)</span></label>
-          <textarea id="mensagem" name="mensagem" rows="4" placeholder="Conte-nos o que imagina para o seu evento..."></textarea>
+          <label for="mensagem">A sua ideia</label>
+          <textarea id="mensagem" name="mensagem" rows="4" placeholder="Conte-nos o que imagina para o seu evento..." required></textarea>
         </div>
 
         <button type="submit" class="btn btn-primary btn-submit">Enviar pedido</button>
