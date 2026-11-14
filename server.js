@@ -1984,6 +1984,75 @@ app.use('/api/categorias', categoriasRouter);
 app.use('/api/calendarios', calendariosRouter);
 app.use('/api/reviews', reviewsRouter);
 
+// ---------- robots.txt, sitemap.xml e página 404 ----------
+
+// Endereço público do site (para o sitemap). Usa SITE_URL / o do Render e, em último caso, o do pedido.
+function enderecoDoSite(req) {
+  const fixo = (process.env.SITE_URL || process.env.RENDER_EXTERNAL_URL || '').replace(/\/$/, '');
+  if (fixo) return fixo;
+  const proto = (req.get('x-forwarded-proto') || req.protocol).split(',')[0].trim() === 'http' ? 'http' : 'https';
+  const host = /^[a-z0-9.\-]+(:\d+)?$/i.test(req.get('host') || '') ? req.get('host') : 'localhost';
+  return `${proto}://${host}`;
+}
+
+app.get('/robots.txt', (req, res) => {
+  res.type('text/plain').send([
+    'User-agent: *',
+    'Allow: /',
+    'Disallow: /admin/',
+    'Disallow: /api/',
+    'Disallow: /login.html',
+    'Disallow: /orcamentos.html',
+    'Disallow: /pedido.html',
+    '',
+    `Sitemap: ${enderecoDoSite(req)}/sitemap.xml`,
+    '',
+  ].join('\n'));
+});
+
+app.get('/sitemap.xml', (req, res) => {
+  const base = enderecoDoSite(req);
+  const paginas = ['/', '/legal.html'];
+  res.type('application/xml').send(
+    `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
+    paginas.map((pagina) => `  <url><loc>${base}${pagina}</loc></url>`).join('\n') +
+    `\n</urlset>\n`
+  );
+});
+
+// Página 404 (tem de ficar depois de todas as rotas). Para /api devolve JSON.
+const PAGINA_404 = `<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Página não encontrada — De Cheio</title>
+<style>
+@font-face { font-family: 'Fraunces'; font-weight: 100 900; font-display: swap; src: url(/fonts/fraunces-opsz.woff2) format('woff2'); }
+@font-face { font-family: 'Work Sans'; font-weight: 100 900; font-display: swap; src: url(/fonts/work-sans.woff2) format('woff2'); }
+body { margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #FAF6EF; color: #322D28; font-family: 'Work Sans', sans-serif; text-align: center; padding: 24px; box-sizing: border-box; }
+h1 { font-family: 'Fraunces', serif; font-weight: 500; font-size: clamp(2rem, 6vw, 3rem); margin: 0 0 10px; }
+p { margin: 0 0 24px; color: #6b625a; }
+a { display: inline-block; background: #6B2A34; color: #fff; text-decoration: none; padding: 0.8em 1.6em; border-radius: 4px; font-weight: 600; }
+img { width: 90px; height: auto; opacity: 0.6; margin-bottom: 18px; }
+</style>
+</head>
+<body>
+<main>
+  <img src="/img/logo512.png" alt="">
+  <h1>Página não encontrada</h1>
+  <p>O endereço que abriu não existe ou foi mudado.</p>
+  <a href="/">Voltar ao início</a>
+</main>
+</body>
+</html>`;
+
+app.use((req, res) => {
+  if (req.path.startsWith('/api/')) return res.status(404).json({ erro: 'Não encontrado.' });
+  res.status(404).type('html').send(PAGINA_404);
+});
+
 // Cria a conta do dono automaticamente na primeira vez que o servidor liga
 // (só corre se ainda não existir nenhum utilizador admin na base de dados).
 // A palavra-passe vem de OWNER_PASSWORD (Render → Environment). Se não estiver definida, gera-se

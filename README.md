@@ -9,10 +9,14 @@ e criador de orçamentos. Node.js + Express + MongoDB.
 server.js        servidor completo (API, base de dados, emails) — está dividido em blocos "===== pasta/ficheiro"
 seed-fotos.json  30 fotos iniciais do catálogo (só é usado uma vez; depois do 1.º arranque pode apagar-se)
 package.json     dependências
-public/          o site: 4 páginas públicas, admin/ (painel, chat, orçamentos) e img/
+public/          o site: páginas públicas (início, entrar, os meus orçamentos, pedido, legal.html), admin/ (painel, chat, orçamentos), img/ e fonts/
 ```
 
 Cada página em `public/` já traz o seu CSS e JavaScript lá dentro (não há ficheiros .css/.js separados).
+
+`public/legal.html` tem a Política de Privacidade, os Termos e Condições e as Informações legais (os campos a amarelo têm de ser preenchidos com os dados da empresa). O servidor gera sozinho `/robots.txt`, `/sitemap.xml` e a página 404.
+
+Os tipos de letra (Fraunces e Work Sans, licença SIL Open Font License 1.1) estão em `public/fonts/` e são servidos pelo próprio site, para não enviar o IP dos visitantes à Google.
 
 ## Variáveis de ambiente (Render → Environment)
 
@@ -25,7 +29,7 @@ Cada página em `public/` já traz o seu CSS e JavaScript lá dentro (não há f
 | `RESEND_API_KEY` | Emails de notificação (Resend). Sem ela o site funciona, só não envia emails |
 | `EMAIL_EQUIPA` | Quem recebe os avisos (pedido novo / mensagem de cliente). Vários separados por vírgula |
 | `EMAIL_FROM` | Remetente. Sem domínio verificado no Resend, deixa o valor por omissão `DecoraçãoCheio <onboarding@resend.dev>` |
-| `SITE_URL` | Endereço do site, para os links dos emails (no Render usa `RENDER_EXTERNAL_URL` se faltar) |
+| `SITE_URL` | Endereço do site, para os links dos emails e o sitemap (no Render usa `RENDER_EXTERNAL_URL` se faltar) |
 | `EMAIL_CLIENTES` | `true` para avisar também os clientes quando a equipa responde (só depois de verificar um domínio no Resend) |
 
 ## Correr localmente
