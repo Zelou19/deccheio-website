@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Privacidade e Termos — De Cheio</title>
+<meta name="description" content="Política de Privacidade, Termos e Condições e informações legais da DecoraçãoCheio.">
+<style>
+/* ---------- Tipos de letra (alojados no próprio site — não se pede nada à Google) ---------- */
+@font-face {
+  font-family: 'Fraunces';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url(/fonts/fraunces-opsz.woff2) format('woff2-variations'), url(/fonts/fraunces-opsz.woff2) format('woff2');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+@font-face {
+  font-family: 'Work Sans';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url(/fonts/work-sans.woff2) format('woff2-variations'), url(/fonts/work-sans.woff2) format('woff2');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+
+/* ---------- Tokens ---------- */
+:root {
+  --bg: #FAF6EF;
+  --bg-alt: #F1E9DC;
+  --ink: #322D28;
+  --taupe: #8C8175;
+  --gold: #B08B4F;
+  --wine: #6B2A34;
+
+  --font-display: 'Fraunces', serif;
+  --font-body: 'Work Sans', sans-serif;
+
+  --wrap: 1120px;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.55;
+}
+
+.wrap {
+  max-width: var(--wrap);
+  margin: 0 auto;
+  padding: 0 28px;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  color: var(--ink);
+  margin: 0 0 0.4em;
+}
+
+h1 { font-size: clamp(2.4rem, 5vw, 3.8rem); line-height: 1.08; font-weight: 500; }
+h2 { font-size: clamp(1.7rem, 3vw, 2.4rem); }
+h3 { font-size: 1.15rem; }
+
+p { margin: 0 0 1em; color: var(--ink); }
+
+a { color: inherit; }
+
+.eyebrow {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold);
+  font-weight: 600;
+  margin-bottom: 0.9em;
+}
+
+/* ---------- Buttons ---------- */
+.btn {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 0.9em 1.8em;
+  border-radius: 2px;
+  text-decoration: none;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.btn-primary {
+  background: var(--wine);
+  color: var(--bg);
+}
+.btn-primary:hover { background: #591f28; }
+
+/* ---------- Header ---------- */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(250, 246, 239, 0.92);
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid rgba(50, 45, 40, 0.08);
+}
+
+.header-inner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 16px;
+  padding-bottom: 16px;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  letter-spacing: 0.02em;
+  color: var(--ink);
+}
+
+.brand-word { font-weight: 500; }
+.brand-heart { width: 20px; height: 18px; object-fit: contain; }
+.brand-small { font-size: 1.05rem; }
+
+.site-nav {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  font-size: 0.92rem;
+}
+
+.site-nav a { text-decoration: none; color: var(--ink); }
+.site-nav a:hover { color: var(--wine); }
+
+.nav-cta {
+  background: var(--ink);
+  color: var(--bg) !important;
+  padding: 0.55em 1.3em;
+  border-radius: 2px;
+  font-weight: 600;
+}
+.nav-cta:hover { background: var(--wine) !important; }
+
+/* ---------- Menu hambúrguer (só aparece em mobile) ---------- */
+.nav-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.nav-toggle span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: var(--ink);
+  border-radius: 2px;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+.nav-toggle[aria-expanded="true"] span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.nav-toggle[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+.nav-toggle[aria-expanded="true"] span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+/* ---------- Hero ---------- */
+.hero {
+  position: relative;
+  overflow: hidden;
+  padding: 90px 0 110px;
+}
+
+.hero-motif {
+  position: absolute;
+  top: -60px;
+  right: -140px;
+  width: 620px;
+  height: 580px;
+  color: var(--gold);
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.hero-inner { position: relative; max-width: 680px; }
+
+.hero-lede {
+  font-size: 1.1rem;
+  color: var(--ink);
+  max-width: 540px;
+}
+
+/* ---------- Serviços ---------- */
+.servicos { padding: 90px 0; background: var(--bg-alt); }
+
+.servicos-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  margin-top: 40px;
+}
+
+.servico-card {
+  background: var(--bg);
+  padding: 28px 24px;
+  border-top: 2px solid var(--gold);
+}
+
+.servico-card p { color: var(--taupe); font-size: 0.95rem; margin-bottom: 0; }
+
+/* ---------- Como funciona ---------- */
+.como-funciona { padding: 90px 0; }
+
+.passos {
+  list-style: none;
+  margin: 40px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 40px;
+}
+
+.passos li { border-left: 1px solid rgba(50,45,40,0.15); padding-left: 24px; }
+
+.passo-num {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  color: var(--gold);
+  margin-bottom: 0.3em;
+}
+
+.passos p { color: var(--taupe); font-size: 0.95rem; }
+
+/* ---------- Orçamento (form) ---------- */
+.orcamento { padding: 90px 0 120px; background: var(--bg-alt); }
+
+.orcamento-inner {
+  display: grid;
+  grid-template-columns: 0.9fr 1.3fr;
+  gap: 64px;
+  align-items: start;
+}
+
+.orcamento-intro p:not(.eyebrow) { color: var(--taupe); max-width: 380px; }
+
+.orcamento-gate {
+  background: var(--bg);
+  padding: 36px;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.orcamento-gate p {
+  color: var(--taupe);
+  max-width: 420px;
+  margin: 0 auto 20px;
+}
+
+.quote-form {
+  background: var(--bg);
+  padding: 36px;
+  border-radius: 4px;
+}
+
+.form-row { margin-bottom: 18px; }
+
+.form-row-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--ink);
+}
+
+.opcional { font-weight: 400; color: var(--taupe); }
+
+.imagens-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.imagem-preview-item {
+  position: relative;
+  width: 76px;
+  height: 76px;
+}
+
+.imagem-preview-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid rgba(50,45,40,0.15);
+}
+
+.imagem-preview-remover {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: none;
+  background: var(--wine);
+  color: var(--bg);
+  font-size: 0.8rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.imagem-preview-remover:hover { background: #4d1a21; }
+
+input[type="file"] {
+  padding: 10px 0;
+  border: none;
+  font-size: 0.85rem;
+}
+
+input, select, textarea {
+  width: 100%;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  padding: 0.7em 0.8em;
+  border: 1px solid rgba(50,45,40,0.25);
+  border-radius: 2px;
+  background: var(--bg);
+  color: var(--ink);
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: 2px solid var(--gold);
+  outline-offset: 1px;
+  border-color: var(--gold);
+}
+
+textarea { resize: vertical; }
+
+.btn-submit { width: 100%; margin-top: 8px; }
+
+.form-feedback {
+  margin: 14px 0 0;
+  font-size: 0.9rem;
+  min-height: 1.2em;
+}
+
+.form-feedback.sucesso { color: #2E6B4F; }
+.form-feedback.erro { color: var(--wine); }
+
+/* ---------- Footer ---------- */
+.site-footer {
+  padding: 40px 0;
+  border-top: 1px solid rgba(50,45,40,0.1);
+}
+
+.footer-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: var(--taupe);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 900px) {
+  .servicos-grid { grid-template-columns: repeat(2, 1fr); }
+  .passos { grid-template-columns: 1fr; gap: 28px; }
+  .orcamento-inner { grid-template-columns: 1fr; }
+  .hero-motif { opacity: 0.22; right: -220px; }
+}
+
+@media (max-width: 760px) {
+  .nav-toggle { display: flex; }
+
+  .site-nav {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 2px;
+    font-size: 0.92rem;
+    background: var(--bg);
+    border-bottom: 1px solid rgba(50, 45, 40, 0.08);
+    padding: 0 20px;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transition: max-height 0.25s ease, opacity 0.2s ease, padding 0.25s ease;
+  }
+
+  .site-nav.nav-aberto {
+    max-height: 60vh;
+    opacity: 1;
+    pointer-events: auto;
+    padding: 8px 20px 18px;
+  }
+
+  .site-nav a,
+  .site-nav span,
+  .site-nav button {
+    width: 100%;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(50, 45, 40, 0.06);
+  }
+
+  .site-nav .nav-cta {
+    text-align: center;
+    margin-top: 6px;
+    border-bottom: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .servicos-grid { grid-template-columns: 1fr; }
+  .form-row-split { grid-template-columns: 1fr; }
+  .footer-inner { flex-direction: column; gap: 10px; text-align: center; }
+  .hero { padding: 60px 0 80px; }
+}
+
+/* Rodapé: contactos e ligações legais */
+.footer-inner p { margin: 0; }
+.footer-inner p a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.footer-inner p a:hover { color: var(--gold); }
+.footer-contactos, .footer-legal { line-height: 1.7; }
+.footer-inner { flex-direction: column; gap: 8px; text-align: center; }
+.footer-contactos a[href^="tel"] { white-space: nowrap; }
+/* ---------- Página legal ---------- */
+.legal { max-width: 780px; margin: 0 auto; padding: 36px 0 72px; }
+.legal-nav { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; position: sticky; top: 0; z-index: 5; background: var(--bg); padding: 12px 0; }
+.legal-nav a { padding: 0.5em 1.1em; border: 1px solid rgba(50,45,40,0.18); border-radius: 999px; color: var(--ink); text-decoration: none; font-size: 0.92rem; font-weight: 500; }
+.legal-nav a:hover { border-color: var(--gold); color: var(--wine); }
+.legal section { scroll-margin-top: 70px; padding-bottom: 28px; }
+.legal h1 { font-size: clamp(2rem, 4.5vw, 2.8rem); margin: 18px 0 6px; }
+.legal h2 { font-size: 1.25rem; margin: 30px 0 8px; color: var(--wine); }
+.legal p, .legal li { font-size: 0.97rem; line-height: 1.65; }
+.legal ul { padding-left: 1.2em; }
+.legal li { margin-bottom: 6px; }
+.legal a { color: var(--wine); }
+.legal-data { color: var(--taupe); font-size: 0.88rem; margin: 0 0 18px; }
+.legal hr { border: none; border-top: 1px solid rgba(50,45,40,0.15); margin: 36px 0; }
+.legal-tabela { overflow-x: auto; margin: 12px 0 18px; }
+.legal-tabela table { border-collapse: collapse; width: 100%; font-size: 0.88rem; min-width: 640px; }
+.legal-tabela th, .legal-tabela td { text-align: left; vertical-align: top; padding: 9px 10px; border-bottom: 1px solid rgba(50,45,40,0.12); }
+.legal-tabela th { background: var(--bg-alt); font-weight: 600; }
+.legal-caixa { background: var(--bg-alt); border-radius: 10px; padding: 14px 18px; margin: 12px 0 18px; }
+.legal-caixa p { margin: 3px 0; }
+mark.preencher { background: #fff1a8; color: #5a4a00; padding: 0 4px; border-radius: 3px; }
+.legal-rodape { text-align: center; color: var(--taupe); font-size: 0.85rem; padding: 26px 0 40px; border-top: 1px solid rgba(50,45,40,0.1); }
+.legal-rodape a { color: inherit; }
+</style>
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/img/logo512.png">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a href="/" class="brand">
+      <span class="brand-word">De</span>
+      <img class="brand-heart" src="/img/fingerprint-heart.png" alt="" aria-hidden="true">
+      <span class="brand-word">Cheio</span>
+    </a>
+  </div>
+</header>
+
+<main class="wrap legal">
+  <nav class="legal-nav" aria-label="Documentos legais">
+    <a href="#privacidade">Política de Privacidade</a>
+    <a href="#termos">Termos e Condições</a>
+    <a href="#informacoes">Informações legais</a>
+  </nav>
+
+  <!-- =============================== POLÍTICA DE PRIVACIDADE =============================== -->
+  <section id="privacidade">
+    <h1>Política de Privacidade</h1>
+    <p class="legal-data">Última atualização: 14 de novembro de 2026</p>
+    <p>Esta política explica que dados pessoais recolhemos através deste site, porquê, durante quanto tempo os guardamos e quais são os seus direitos, de acordo com o Regulamento Geral sobre a Proteção de Dados (RGPD) e a legislação portuguesa aplicável.</p>
+
+    <h2>1. Quem é o responsável pelos seus dados</h2>
+    <div class="legal-caixa">
+      <p><strong>DecoraçãoCheio (De Cheio)</strong>, de Filipa Couceiro <mark class="preencher">[confirmar designação legal]</mark></p>
+      <p>NIF: <mark class="preencher">[NIF]</mark></p>
+      <p>Morada: <mark class="preencher">[MORADA]</mark></p>
+      <p>Email: <a href="mailto:decoracao.fcheio@gmail.com">decoracao.fcheio@gmail.com</a> · Telefone: 936 814 781</p>
+    </div>
+
+    <h2>2. Que dados recolhemos, para quê e com que fundamento</h2>
+    <div class="legal-tabela"><table>
+      <thead><tr><th>Situação</th><th>Dados</th><th>Para quê</th><th>Fundamento (RGPD)</th></tr></thead>
+      <tbody>
+        <tr><td>Criar conta e iniciar sessão</td><td>Nome, email e palavra-passe (guardada cifrada, nunca em texto). Com o login Google: nome e email da conta Google</td><td>Permitir-lhe pedir orçamentos e acompanhar as conversas</td><td>Diligências pré-contratuais a seu pedido — art. 6.º, n.º 1, al. b)</td></tr>
+        <tr><td>Pedido de orçamento</td><td>Nome, nome do festejado, email, telefone, tipo de evento, data, local, número de convidados, descrição da ideia e imagens de inspiração</td><td>Analisar o pedido, contactá-lo e preparar a proposta</td><td>Diligências pré-contratuais — al. b)</td></tr>
+        <tr><td>Conversa com a equipa</td><td>Mensagens e imagens que envia e as nossas respostas</td><td>Esclarecer dúvidas e ajustar a proposta</td><td>Diligências pré-contratuais — al. b)</td></tr>
+        <tr><td>Propostas de orçamento</td><td>Dados do evento, itens, valores e notas</td><td>Elaborar, enviar e guardar a proposta</td><td>Diligências pré-contratuais e execução do contrato — al. b)</td></tr>
+        <tr><td>Avisos por email</td><td>Email e um resumo do pedido ou da mensagem</td><td>Avisar a nossa equipa de novos pedidos e mensagens e, quando ativado, avisá-lo de que respondemos</td><td>Al. b) e interesse legítimo em responder com rapidez — al. f)</td></tr>
+        <tr><td>Segurança e funcionamento do site</td><td>Cookies de sessão, endereço IP e registos técnicos do servidor</td><td>Manter a sessão iniciada e proteger o site contra abusos</td><td>Interesse legítimo — al. f)</td></tr>
+        <tr><td>Avaliações no site</td><td>Nome e texto do testemunho</td><td>Mostrar a opinião de clientes</td><td>Consentimento — al. a). Só publicamos com a sua autorização, que pode retirar quando quiser</td></tr>
+        <tr><td>Faturação</td><td>Nome, NIF e morada</td><td>Emitir faturas e cumprir obrigações fiscais e contabilísticas</td><td>Obrigação legal — al. c)</td></tr>
+      </tbody>
+    </table></div>
+    <p>Os dados pedidos nos formulários como obrigatórios são necessários para tratarmos o seu pedido; sem eles não conseguimos responder-lhe. Pedimos que <strong>não nos envie dados sensíveis</strong> (por exemplo, de saúde) nas mensagens, salvo se forem indispensáveis ao serviço.</p>
+    <p>Não tomamos decisões automatizadas, não fazemos perfis, não vendemos os seus dados e não os usamos para publicidade. Não enviamos newsletters; se isso mudar, pediremos primeiro o seu consentimento.</p>
+
+    <h2>3. Quem tem acesso aos dados</h2>
+    <p>Têm acesso a equipa da DecoraçãoCheio (com autenticação e acesso restrito) e os prestadores de serviços que usamos para o site funcionar e que tratam os dados em nosso nome:</p>
+    <ul>
+      <li><strong>Render</strong> — alojamento do site;</li>
+      <li><strong>MongoDB Atlas</strong> — base de dados onde ficam as contas, pedidos, conversas e propostas;</li>
+      <li><strong>Resend</strong> — envio dos emails de aviso;</li>
+      <li><strong>Google</strong> — apenas no início de sessão com Google (as páginas onde pode iniciar sessão carregam um script da Google; os tipos de letra do site são servidos por nós, não pela Google).</li>
+    </ul>
+    <p>Alguns destes prestadores podem tratar dados fora do Espaço Económico Europeu. Nesse caso, exigimos garantias adequadas, como cláusulas contratuais-tipo aprovadas pela Comissão Europeia ou decisões de adequação. Só divulgamos dados a terceiros para outros fins se a lei ou uma autoridade o exigir.</p>
+
+    <h2 id="cookies">4. Cookies</h2>
+    <ul>
+      <li><strong>token</strong> — mantém a sua sessão de cliente iniciada. Dura até 30 dias. É estritamente necessário.</li>
+      <li><strong>admin_token</strong> — usado apenas pela nossa equipa, na área de gestão.</li>
+    </ul>
+    <p>Não usamos cookies de análise, de publicidade nem de redes sociais. Como só usamos cookies estritamente necessários, não precisamos do seu consentimento para eles. Nas páginas onde pode iniciar sessão, o botão "Continuar com Google" é carregado a partir da Google: o seu navegador comunica com servidores da Google, que recebem o seu endereço IP. Nas restantes páginas não carregamos conteúdos de terceiros.</p>
+
+    <h2>5. Durante quanto tempo guardamos os dados</h2>
+    <ul>
+      <li><strong>Pedidos, conversas e propostas:</strong> enquanto tratamos o pedido e, depois, até 3 anos após o último contacto, para podermos esclarecer eventuais reclamações;</li>
+      <li><strong>Conta:</strong> até pedir a sua eliminação;</li>
+      <li><strong>Dados de faturação:</strong> durante os prazos fiscais e contabilísticos previstos na lei (em regra, 10 anos);</li>
+      <li><strong>Avaliações:</strong> até retirar o consentimento;</li>
+      <li><strong>Registos técnicos do servidor:</strong> apenas o tempo necessário, em regra por períodos curtos.</li>
+    </ul>
+
+    <h2>6. Os seus direitos</h2>
+    <p>Pode, a qualquer momento, pedir-nos: o <strong>acesso</strong> aos seus dados; a sua <strong>retificação</strong>; o seu <strong>apagamento</strong>; a <strong>limitação</strong> do tratamento; a sua <strong>portabilidade</strong>; e opor-se ao tratamento baseado em interesse legítimo. Quando o tratamento se baseia no seu consentimento, pode <strong>retirá-lo</strong> sem afetar o que foi feito antes.</p>
+    <p>Para exercer estes direitos, escreva para <a href="mailto:decoracao.fcheio@gmail.com">decoracao.fcheio@gmail.com</a>. Respondemos no prazo máximo de um mês e podemos pedir-lhe que confirme a sua identidade. Se considerar que o tratamento não cumpre a lei, tem o direito de apresentar reclamação à <strong>Comissão Nacional de Proteção de Dados</strong> (<a href="https://www.cnpd.pt" target="_blank" rel="noopener">www.cnpd.pt</a>).</p>
+
+    <h2>7. Segurança</h2>
+    <p>As palavras-passe são guardadas cifradas, a ligação ao site é protegida por HTTPS e o acesso à área de gestão é restrito à equipa e exige autenticação. Nenhum sistema é totalmente seguro; se houver uma violação de dados que o afete, informamo-lo e à autoridade de controlo nos termos da lei.</p>
+
+    <h2>8. Menores</h2>
+    <p>O site destina-se a maiores de 18 anos. Não recolhemos intencionalmente dados de menores.</p>
+
+    <h2>9. Alterações a esta política</h2>
+    <p>Podemos atualizar esta política. A data no topo indica a última versão. Se a alteração for importante, avisamos no site.</p>
+  </section>
+
+  <hr>
+
+  <!-- =============================== TERMOS E CONDIÇÕES =============================== -->
+  <section id="termos">
+    <h1>Termos e Condições</h1>
+    <p class="legal-data">Última atualização: 14 de novembro de 2026</p>
+    <p>Ao criar uma conta, pedir um orçamento ou usar este site, aceita estes Termos e Condições. Se não concordar, não utilize o site.</p>
+
+    <h2>1. Quem somos e o que fazemos</h2>
+    <p>A <strong>DecoraçãoCheio (De Cheio)</strong>, de Filipa Couceiro, presta serviços de decoração e organização de eventos (casamentos, aniversários, batizados e eventos corporativos). Este site permite pedir orçamentos, falar com a nossa equipa e consultar as propostas preparadas para si. Contactos: <a href="mailto:decoracao.fcheio@gmail.com">decoracao.fcheio@gmail.com</a> · 936 814 781. Identificação completa na <a href="#privacidade">Política de Privacidade</a>.</p>
+
+    <h2>2. A sua conta</h2>
+    <ul>
+      <li>Tem de ter pelo menos 18 anos e dar informação verdadeira e atualizada.</li>
+      <li>É responsável por guardar a sua palavra-passe e por tudo o que for feito na sua conta. Se suspeitar de uso indevido, avise-nos.</li>
+      <li>Podemos suspender ou eliminar contas que usem o site de forma abusiva ou que violem estes Termos.</li>
+    </ul>
+
+    <h2>3. Utilização do site</h2>
+    <p>Comprometa-se a não usar o site para fins ilícitos; a não enviar conteúdos ilegais, ofensivos ou que violem direitos de terceiros; a não enviar pedidos falsos ou mensagens indesejadas em massa; e a não tentar aceder a áreas restritas nem prejudicar o funcionamento do site.</p>
+
+    <h2>4. Pedido de orçamento</h2>
+    <p>Pedir um orçamento é <strong>gratuito e sem compromisso</strong> e não constitui um contrato. Só existe contrato quando a proposta é aprovada por si e é pago o sinal de adjudicação (ver ponto 6). Podemos não ter a data pretendida disponível ou recusar um pedido.</p>
+
+    <h2>5. Propostas</h2>
+    <ul>
+      <li>As propostas são personalizadas e podem ser ajustadas em conversa consigo.</li>
+      <li><strong>Validade:</strong> a proposta só pode ser validada se for respondida até 5 dias após o envio. Depois disso fica sem efeito e a data volta a ficar disponível na agenda.</li>
+      <li>O orçamento é discriminado para que possa escolher os elementos que mais lhe convêm. Se escolher apenas alguns, o valor base de recursos humanos e deslocações mantém-se.</li>
+      <li>Os valores são indicados em euros em cada proposta.</li>
+      <li>As fotografias apresentadas são ilustrativas e servem de inspiração. As flores e os materiais podem variar consoante a época e a disponibilidade; qualquer alteração relevante ser-lhe-á comunicada.</li>
+    </ul>
+
+    <h2>6. Reserva e pagamento</h2>
+    <ul>
+      <li>A data só fica reservada após a sua aprovação da proposta e o pagamento do sinal de adjudicação, de <strong>300 €</strong>, no ato da reserva.</li>
+      <li>O restante é pago na semana anterior ao evento, em numerário ou por transferência bancária.</li>
+      <li>Deve fornecer-nos os dados necessários para a faturação.</li>
+    </ul>
+
+    <h2>7. Informação a fornecer por si</h2>
+    <p>A ementa e o seating plan devem ser partilhados com a nossa equipa impreterivelmente até 15 dias antes do evento. É também responsável por garantir que a equipa tem acesso ao espaço nos horários combinados.</p>
+
+    <h2>8. Presença da equipa no evento</h2>
+    <p>O valor base contempla reuniões, visitas técnicas, pré-montagem, montagem e desmontagem/recolha dos cenários e as deslocações da equipa. A equipa permanece no local apenas parcialmente (montagens, até ao final da cerimónia e na altura do corte do bolo). Se quiser acompanhamento total, peça-nos um orçamento.</p>
+
+    <h2>9. Material em aluguer</h2>
+    <p>Todo o material usado na decoração é fornecido em regime de aluguer. Qualquer dano verificado na recolha será cobrado pelo valor do material.</p>
+
+    <h2>10. Desistência</h2>
+    <p>Se desistir do evento depois de reservar a data, os valores já pagos não serão devolvidos, sem prejuízo dos direitos que a lei reconhece ao consumidor.</p>
+
+    <h2>11. Conteúdos que nos envia</h2>
+    <p>Ao enviar mensagens e imagens (por exemplo, imagens de inspiração), garante que tem direito de o fazer e autoriza-nos a usá-las apenas para preparar e executar o serviço. Continua a ser o titular desses conteúdos.</p>
+
+    <h2>12. Propriedade intelectual</h2>
+    <p>O nome, o logótipo, os textos, o design do site e as propostas pertencem à DecoraçãoCheio ou são usados com autorização. Não os pode copiar nem reutilizar sem a nossa autorização escrita. As propostas são para uso exclusivo do cliente a quem se destinam.</p>
+
+    <h2>13. Responsabilidade</h2>
+    <p>Esforçamo-nos por manter o site disponível, mas não garantimos que funcione sem interrupções nem respondemos por falhas de terceiros ou da internet. Não respondemos por incumprimentos causados por força maior. Nada nestes Termos exclui ou limita responsabilidade que a lei não permita excluir ou limitar.</p>
+
+    <h2>14. Reclamações</h2>
+    <p>Se tiver alguma questão ou reclamação, contacte-nos primeiro por email ou telefone. Pode também recorrer ao <a href="https://www.livroreclamacoes.pt" target="_blank" rel="noopener">Livro de Reclamações Eletrónico</a> e, em caso de litígio de consumo, a uma entidade de resolução alternativa de litígios (<a href="https://www.consumidor.gov.pt" target="_blank" rel="noopener">www.consumidor.gov.pt</a>).</p>
+
+    <h2>15. Lei aplicável e foro</h2>
+    <p>Aplica-se a lei portuguesa. Nos litígios com consumidores, aplicam-se as regras imperativas de competência dos tribunais previstas na lei.</p>
+
+    <h2>16. Alterações</h2>
+    <p>Podemos atualizar estes Termos. A nova versão aplica-se aos pedidos feitos depois da data indicada no topo, sem afetar o que já tiver sido acordado consigo.</p>
+  </section>
+
+
+  <hr>
+
+  <!-- =============================== INFORMAÇÕES LEGAIS =============================== -->
+  <section id="informacoes">
+    <h1>Informações legais</h1>
+    <p class="legal-data">Última atualização: 14 de novembro de 2026</p>
+
+    <h2>Prestador de serviços</h2>
+    <div class="legal-caixa">
+      <p><strong>DecoraçãoCheio (De Cheio)</strong>, de Filipa Couceiro <mark class="preencher">[confirmar designação legal]</mark></p>
+      <p>NIF: <mark class="preencher">[NIF]</mark></p>
+      <p>Sede / morada: <mark class="preencher">[MORADA]</mark></p>
+      <p>Registo comercial: <mark class="preencher">[n.º de matrícula, se aplicável]</mark></p>
+      <p>Atividade: decoração e organização de eventos</p>
+      <p>Email: <a href="mailto:decoracao.fcheio@gmail.com">decoracao.fcheio@gmail.com</a> · Telefone: 936 814 781</p>
+    </div>
+
+    <h2>Preços</h2>
+    <p>Os preços constantes das propostas são expressos em euros <mark class="preencher">[confirmar: incluem IVA à taxa legal em vigor]</mark>.</p>
+
+    <h2>Livro de Reclamações</h2>
+    <p>Pode apresentar uma reclamação no <a href="https://www.livroreclamacoes.pt" target="_blank" rel="noopener">Livro de Reclamações Eletrónico</a>.</p>
+
+    <h2>Resolução alternativa de litígios de consumo</h2>
+    <p>Nos termos da Lei n.º 144/2015, informa-se que o consumidor pode recorrer a uma entidade de Resolução Alternativa de Litígios (RAL) de consumo. A lista das entidades está disponível em <a href="https://www.consumidor.gov.pt" target="_blank" rel="noopener">www.consumidor.gov.pt</a>. A DecoraçãoCheio <mark class="preencher">[não está vinculada / está vinculada a: indicar entidade]</mark> a qualquer entidade de RAL por adesão.</p>
+
+    <h2>Proteção de dados e cookies</h2>
+    <p>Veja a nossa <a href="#privacidade">Política de Privacidade</a>. O site usa apenas cookies estritamente necessários ao seu funcionamento.</p>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-inner">
+    <a href="/" class="brand brand-small">De <svg class="brand-heart" viewBox="0 0 24 22" aria-hidden="true"><path d="M12 21 C 4 14, 1 10, 1 6.5 C 1 3.5, 3.3 1.5, 6 1.5 C 8.5 1.5, 10.5 3, 12 5.2 C 13.5 3, 15.5 1.5, 18 1.5 C 20.7 1.5, 23 3.5, 23 6.5 C 23 10, 20 14, 12 21 Z" fill="currentColor"/></svg> Cheio</a>
+    <p>&copy; <span id="year"></span> DecoraçãoCheio — Decoração &amp; Organização de Eventos</p>
+    <p class="footer-contactos"><a href="mailto:decoracao.fcheio@gmail.com">decoracao.fcheio@gmail.com</a> · <a href="tel:+351936814781">936 814 781</a> · <a href="https://www.instagram.com/de_coracaocheio" target="_blank" rel="noopener">@de_coracaocheio</a></p>
+    <p class="footer-legal"><a href="/legal.html#privacidade">Política de Privacidade</a> · <a href="/legal.html#termos">Termos e Condições</a> · <a href="/legal.html#informacoes">Informações legais</a> · <a href="https://www.livroreclamacoes.pt" target="_blank" rel="noopener">Livro de Reclamações</a></p>
+  </div>
+</footer>
+
+<script>
+document.getElementById('year').textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
