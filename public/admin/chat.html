@@ -1022,14 +1022,45 @@ textarea { resize: vertical; }
 .msg-admin .msg-avatar { background: var(--wine); color: #E3C98F; }
 .msg-avatar svg { width: 18px; height: 16px; }
 .msg-corpo { display: flex; flex-direction: column; gap: 4px; min-width: 0; overflow-wrap: anywhere; }
-.msg-dir .msg-corpo { align-items: flex-end; text-align: right; }
+.msg-dir .msg-corpo { align-items: flex-start; text-align: left; }
 .msg-topo { font-size: 0.8rem; color: #6F655A; }
 .msg-topo b { color: var(--ink); font-weight: 600; }
 .msg-admin .msg-topo b { color: var(--wine); }
 .msg-texto { white-space: pre-wrap; }
+@media (max-width: 640px) {
+  .chat-mensagens .msg { gap: 10px; max-width: 94%; }
+  .chat-mensagens .msg-dir { padding: 12px 14px; }
+  .msg-avatar { width: 32px; height: 32px; }
+  .chat-mensagens { padding-right: 0; }
+}
 @media (min-width: 860px) {
   .chat-mensagens .msg { max-width: 72%; font-size: 1rem; }
   .chat-mensagens .msg-dir { padding: 16px 20px; }
+}
+</style>
+<style>
+/* ---------- Telemóvel: nada deve passar da largura do ecrã ---------- */
+.wrap p, .review-texto, .review-admin-texto, .review-admin-autor, .msg-texto { overflow-wrap: anywhere; }
+.review-admin-item > div { min-width: 0; }
+@media (max-width: 640px) {
+  .admin-header { flex-wrap: wrap; gap: 12px; }
+  .admin-header > div { flex-wrap: wrap; gap: 4px 16px !important; }
+  .admin-sair { padding: 8px 0; }
+  .pedido-cabecalho { flex-wrap: wrap; gap: 12px; margin-bottom: 14px; }
+  #pedido-info-vista { margin-top: 0 !important; }
+  .wrap [style*="display:flex"] { flex-wrap: wrap; }
+  .wrap [style*="display: flex"] { flex-wrap: wrap; }
+  .pedido-resumo > * { max-width: 100%; }
+  .status-select { max-width: 100%; }
+  .btn-toggle-fechar { white-space: normal; text-align: center; }
+  .review-admin-item { flex-wrap: wrap; gap: 10px; }
+}
+</style>
+<style>
+/* ---------- Telemóvel: margem lateral nas páginas centradas ---------- */
+@media (max-width: 880px) {
+  main.wrap { padding-left: 22px; padding-right: 22px; }
+  .pedido-card-actions { flex-wrap: wrap; }
 }
 </style>
 </head>

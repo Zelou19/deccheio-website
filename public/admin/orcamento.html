@@ -1190,6 +1190,30 @@ textarea { resize: vertical; }
 </style>
 <link rel="icon" type="image/x-icon" href="/favicon.ico">
 <link rel="apple-touch-icon" href="/img/logo512.png">
+<style>
+/* ---------- Telemóvel: nada deve passar da largura do ecrã ---------- */
+.wrap p, .review-texto, .review-admin-texto, .review-admin-autor, .msg-texto { overflow-wrap: anywhere; }
+.review-admin-item > div { min-width: 0; }
+@media (max-width: 640px) {
+  .admin-header { flex-wrap: wrap; gap: 12px; }
+  .admin-header > div { flex-wrap: wrap; gap: 4px 16px !important; }
+  .admin-sair { padding: 8px 0; }
+  .pedido-cabecalho { flex-wrap: wrap; gap: 12px; }
+  .wrap [style*="display:flex"] { flex-wrap: wrap; }
+  .wrap [style*="display: flex"] { flex-wrap: wrap; }
+  .pedido-resumo > * { max-width: 100%; }
+  .status-select { max-width: 100%; }
+  .btn-toggle-fechar { white-space: normal; text-align: center; }
+  .review-admin-item { flex-wrap: wrap; gap: 10px; }
+}
+</style>
+<style>
+/* ---------- Telemóvel: margem lateral nas páginas centradas ---------- */
+@media (max-width: 880px) {
+  main.wrap { padding-left: 22px; padding-right: 22px; }
+  .pedido-card-actions { flex-wrap: wrap; }
+}
+</style>
 </head>
 <body>
 
