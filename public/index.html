@@ -30,6 +30,15 @@
   unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
 }
 
+@font-face {
+  font-family: 'Jost';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url(/fonts/jost.woff2) format('woff2-variations'), url(/fonts/jost.woff2) format('woff2');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+
 /* ---------- Tokens ---------- */
 :root {
   --bg: #FAF6EF;
@@ -207,7 +216,7 @@ a { color: inherit; }
   left: 50%;
   width: 560px;
   transform: translate(-50%, -50%);
-  opacity: 0.34;
+  opacity: 0.5; /* coração dourado */
   pointer-events: none;
   /* a imagem vem cortada em cima: esbate a borda de cima para não se ver uma linha reta */
   -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 16%);
@@ -215,6 +224,14 @@ a { color: inherit; }
 }
 
 .hero .hero-inner { position: relative; z-index: 1; }
+
+/* título do hero no tipo de letra Jost (como em "Aniversários") */
+.hero h1 {
+  font-family: 'Jost', var(--font-body);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1.12;
+}
 
 .hero-inner { position: relative; max-width: 680px; }
 
@@ -413,7 +430,7 @@ textarea { resize: vertical; }
 }
 
 @media (max-width: 600px) {
-  .hero-fundo { top: 54%; width: 92%; opacity: 0.32; }
+  .hero-fundo { top: 54%; width: 92%; opacity: 0.45; }
 }
 
 @media (max-width: 760px) {
