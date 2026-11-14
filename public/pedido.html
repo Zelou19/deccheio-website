@@ -861,6 +861,58 @@ textarea { resize: vertical; }
 </style>
 <link rel="icon" type="image/x-icon" href="/favicon.ico">
 <link rel="apple-touch-icon" href="/img/logo512.png">
+<style>
+/* ---------- Mensagens: avatar + duas bandas (a "minha" à direita, a outra à esquerda) ---------- */
+.chat-mensagens .msg {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  max-width: 86%;
+  padding: 0;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  color: var(--ink);
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+.chat-mensagens .msg-esq { align-self: flex-start; }
+.chat-mensagens .msg-dir {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+  background: #FFFDF9;
+  border-right: 3px solid var(--wine);
+  border-radius: 12px 0 0 12px;
+  padding: 14px 16px;
+  box-shadow: 0 1px 6px rgba(50, 45, 40, 0.06);
+}
+.msg-avatar {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #E4D8C4;
+  color: var(--ink);
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+.msg-admin .msg-avatar { background: var(--wine); color: #E3C98F; }
+.msg-avatar svg { width: 18px; height: 16px; }
+.msg-corpo { display: flex; flex-direction: column; gap: 4px; min-width: 0; overflow-wrap: anywhere; }
+.msg-dir .msg-corpo { align-items: flex-end; text-align: right; }
+.msg-topo { font-size: 0.8rem; color: #6F655A; }
+.msg-topo b { color: var(--ink); font-weight: 600; }
+.msg-admin .msg-topo b { color: var(--wine); }
+.msg-texto { white-space: pre-wrap; }
+@media (min-width: 860px) {
+  .chat-mensagens .msg { max-width: 72%; font-size: 1rem; }
+  .chat-mensagens .msg-dir { padding: 16px 20px; }
+}
+</style>
 </head>
 <body>
 
@@ -1048,11 +1100,12 @@ function renderizarPedido(pedido) {
   } else {
     elMensagens.innerHTML = pedido.mensagens
       .map((msg) => {
-        const classe = msg.autor === 'admin' ? 'msg-admin' : 'msg-cliente';
+        const classe = msg.autor === 'admin' ? 'msg-admin msg-esq' : 'msg-cliente msg-dir';
         const hora = new Date(msg.criadoEm).toLocaleString('pt-PT', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
         const autor = msg.autor === 'admin' ? 'Equipa DecoraçãoCheio' : 'Você';
         const imagemHtml = msg.imagem ? `<img class="msg-imagem" src="${msg.imagem}" alt="Imagem anexada" onclick="window.open(this.src, '_blank')">` : '';
-        return `<div class="msg ${classe}">${imagemHtml}${escaparHtml(msg.texto)}<span class="msg-meta">${hora}</span><span class="msg-autor">${autor}</span></div>`;
+        const avatar = msg.autor === 'admin' ? '<svg viewBox="0 0 24 22" aria-hidden="true"><path d="M12 21 C 4 14, 1 10, 1 6.5 C 1 3.5, 3.3 1.5, 6 1.5 C 8.5 1.5, 10.5 3, 12 5.2 C 13.5 3, 15.5 1.5, 18 1.5 C 20.7 1.5, 23 3.5, 23 6.5 C 23 10, 20 14, 12 21 Z" fill="currentColor"/></svg>' : 'V';
+        return `<div class="msg ${classe}"><div class="msg-avatar">${avatar}</div><div class="msg-corpo"><div class="msg-topo"><b>${autor}</b> · ${hora}</div>${imagemHtml}<div class="msg-texto">${escaparHtml(msg.texto)}</div></div></div>`;
       })
       .join('');
   }
