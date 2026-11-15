@@ -208,20 +208,24 @@ a { color: inherit; }
 .hero {
   position: relative;
   overflow: hidden;
-  padding: 90px 0 110px;
+  padding: 70px 0 90px;
+  min-height: 540px;
+  display: flex;
+  align-items: center;
 }
+.hero > .hero-inner { width: 100%; }
 
 .hero-fundo {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 560px;
-  transform: translate(-50%, -50%);
+  height: calc(100% - 40px); /* o coração cabe sempre inteiro no topo da página */
+  width: auto;
+  max-width: 92%;
+  object-fit: contain;
+  transform: translate(-47.6%, -50%); /* a imagem tem mais margem à direita: compensa para o coração ficar mesmo ao centro */
   opacity: 0.5; /* coração dourado */
   pointer-events: none;
-  /* a imagem vem cortada em cima: esbate a borda de cima para não se ver uma linha reta */
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 16%);
-  mask-image: linear-gradient(to bottom, transparent 0, #000 16%);
 }
 
 .hero .hero-inner { position: relative; z-index: 1; }
@@ -232,17 +236,33 @@ a { color: inherit; }
   font-weight: 600;
   letter-spacing: 0.02em;
   line-height: 1.15;
-  font-size: clamp(1.8rem, 3.8vw, 2.8rem);
+  font-size: clamp(1.3rem, 2.5vw, 1.9rem);
 }
 
-.hero-inner { position: relative; max-width: 760px; margin-left: auto; margin-right: auto; text-align: center; }
+.hero-inner { position: relative; max-width: 680px; }
+.hero .eyebrow { text-align: left; margin-bottom: 1.6em; position: relative; top: -34px; left: 0; }
+@media (max-width: 900px) { .hero .eyebrow { top: -14px; left: 0; } }
+
+/* botão no canto direito do hero, uns pixels acima da mudança de cor */
+.hero-cta {
+  position: absolute;
+  z-index: 2;
+  bottom: 22px;
+  right: max(28px, calc((100% - var(--wrap)) / 2 + 28px));
+  font-size: 0.8rem;
+  padding: 0.6em 1.2em;
+}
+
+/* no PC: botão centrado por baixo do coração */
+@media (min-width: 601px) {
+  .hero-fundo { top: calc(50% - 28px); height: calc(100% - 100px); }
+  .hero-cta { left: 50%; right: auto; transform: translateX(-50%); bottom: 20px; }
+}
 
 .hero-lede {
-  font-size: 1.1rem;
+  font-size: 0.95rem;
   color: var(--ink);
   max-width: 540px;
-  margin-left: auto;
-  margin-right: auto;
 }
 
 /* ---------- Serviços ---------- */
@@ -434,7 +454,7 @@ textarea { resize: vertical; }
 }
 
 @media (max-width: 600px) {
-  .hero-fundo { top: 54%; width: 92%; opacity: 0.45; }
+  .hero-fundo { top: 50%; width: 92%; height: auto; opacity: 0.45; }
 }
 
 @media (max-width: 760px) {
@@ -485,7 +505,10 @@ textarea { resize: vertical; }
   .servicos-grid { grid-template-columns: 1fr; }
   .form-row-split { grid-template-columns: 1fr; }
   .footer-inner { flex-direction: column; gap: 10px; text-align: center; }
-  .hero { padding: 60px 0 80px; }
+  .hero { padding: 60px 0 80px; min-height: 0; }
+  .hero h1 { font-size: 1.15rem; }
+  .hero-lede { font-size: 0.85rem; }
+  .hero-cta { font-size: 0.8rem; padding: 0.6em 1.2em; right: 20px; bottom: 16px; }
 }
 
 /* Rodapé: contactos e ligações legais */
@@ -733,10 +756,9 @@ textarea { resize: vertical; }
     <img class="hero-fundo" src="/img/fingerprint-heart-512.png" alt="" aria-hidden="true">
     <div class="wrap hero-inner">
       <p class="eyebrow">Decoração &amp; organização de eventos</p>
-      <h1>Preenchemos cada espaço com amor, dedicação e profissionalismo.</h1>
-      <p class="hero-lede">Cada evento é um capítulo único e irrepetível, pensado e criado à expectativa e necessidades do cliente.</p>
-      <a href="#orcamento" class="btn btn-primary">Pedir orçamento</a>
+      <h1>Cada evento é um capítulo único e irrepetível, pensado e criado à expectativa e necessidades do cliente, com a nossa impressão digital.</h1>
     </div>
+    <a href="#orcamento" class="btn btn-primary hero-cta">Pedir orçamento</a>
   </section>
 
   <!-- SERVIÇOS -->
@@ -747,7 +769,7 @@ textarea { resize: vertical; }
       <div class="servicos-grid">
         <article class="servico-card">
           <h3>Casamentos</h3>
-          <p>Do primeiro esboço ao último brinde — decoração de cerimónia, receção e todos os pequenos detalhes entre as duas.</p>
+          <p>Da cerimónia ao último brinde — organização, preparação e decoração integral.</p>
         </article>
         <article class="servico-card">
           <h3>Aniversários</h3>
