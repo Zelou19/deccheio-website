@@ -253,6 +253,12 @@ a { color: inherit; }
   padding: 0.6em 1.2em;
 }
 
+/* no PC: botão centrado por baixo do coração */
+@media (min-width: 601px) {
+  .hero-fundo { top: calc(50% - 28px); height: calc(100% - 100px); }
+  .hero-cta { left: 50%; right: auto; transform: translateX(-50%); bottom: 20px; }
+}
+
 .hero-lede {
   font-size: 0.95rem;
   color: var(--ink);
