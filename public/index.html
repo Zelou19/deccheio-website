@@ -673,11 +673,61 @@ textarea { resize: vertical; }
 .reviews { padding: 90px 0; background: var(--bg); }
 
 .reviews-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  display: flex;
+  align-items: flex-start;
   gap: 22px;
   margin-top: 40px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
 }
+.reviews-grid::-webkit-scrollbar { display: none; }
+
+/* 3 avaliações visíveis no PC, 1 no telemóvel */
+.review-card { flex: 0 0 calc((100% - 44px) / 3); scroll-snap-align: start; box-sizing: border-box; }
+@media (max-width: 900px) {
+  .review-card { flex-basis: 100%; }
+}
+
+.reviews-setas {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 26px;
+}
+.reviews-setas[hidden] { display: none; }
+.review-seta {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1px solid var(--gold);
+  background: transparent;
+  color: var(--gold);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+.review-seta:hover:not(:disabled) { background: var(--gold); color: var(--ink); }
+.review-seta:disabled { opacity: 0.3; cursor: default; }
+
+.review-mais {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  padding: 2px 4px;
+  margin: -4px 0 0 -4px;
+  color: var(--gold);
+  cursor: pointer;
+  display: inline-flex;
+}
+.review-mais svg { transition: transform 0.2s ease; }
+.review-mais[aria-expanded="true"] svg { transform: rotate(180deg); }
+.review-texto .rt-completo { display: none; }
+.review-card.aberta .rt-curto { display: none; }
+.review-card.aberta .rt-completo { display: inline; }
 
 .review-card {
   background: var(--bg-alt);
@@ -802,7 +852,17 @@ textarea { resize: vertical; }
     <div class="wrap">
       <p class="eyebrow">Testemunhos</p>
       <h2>O que dizem os nossos clientes</h2>
-      <div id="reviews-grid" class="reviews-grid"></div>
+      <div class="reviews-carrossel">
+        <div id="reviews-grid" class="reviews-grid"></div>
+        <div id="reviews-setas" class="reviews-setas" hidden>
+          <button type="button" class="review-seta" id="reviews-anterior" aria-label="Avaliações anteriores">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+          </button>
+          <button type="button" class="review-seta" id="reviews-seguinte" aria-label="Avaliações seguintes">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+          </button>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -1199,6 +1259,7 @@ carregarEventos();
 </script>
 <script>
 const elReviewsGrid = document.getElementById('reviews-grid');
+const LIMITE_REVIEW = 100; // nº de letras mostradas antes de "…"
 
 function escaparHtml(texto) {
   const div = document.createElement('div');
@@ -1225,20 +1286,67 @@ async function carregarReviews() {
       return;
     }
 
-    elReviewsGrid.innerHTML = reviews.map((review) => `
+    elReviewsGrid.innerHTML = reviews.map((review) => {
+      const completo = (review.texto || '').trim();
+      const longo = completo.length > LIMITE_REVIEW;
+      const curto = longo ? completo.slice(0, LIMITE_REVIEW).trimEnd() + '…' : completo;
+      const textoHtml = longo
+        ? `<span class="rt-curto">${escaparHtml(curto)}</span><span class="rt-completo">${escaparHtml(completo)}</span>`
+        : escaparHtml(completo);
+      const botaoMais = longo
+        ? `<button type="button" class="review-mais" aria-expanded="false" aria-label="Ler avaliação completa"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>`
+        : '';
+      return `
       <article class="review-card">
         <div class="review-estrelas">${renderizarEstrelas(review.classificacao)}</div>
-        <p class="review-texto">${escaparHtml(review.texto)}</p>
+        <p class="review-texto">${textoHtml}</p>
+        ${botaoMais}
         <div>
           <div class="review-autor">${escaparHtml(review.nomeCliente)}</div>
           ${review.tipoEvento ? `<div class="review-tipo-evento">${escaparHtml(review.tipoEvento)}</div>` : ''}
         </div>
       </article>
-    `).join('');
+    `;
+    }).join('');
+    atualizarSetasReviews();
   } catch (erro) {
     // secção fica simplesmente vazia se algo correr mal
   }
 }
+
+// ----- Carrossel: setas, abrir/fechar texto completo -----
+const elReviewsSetas = document.getElementById('reviews-setas');
+const btnReviewAnterior = document.getElementById('reviews-anterior');
+const btnReviewSeguinte = document.getElementById('reviews-seguinte');
+
+function atualizarSetasReviews() {
+  const sobra = elReviewsGrid.scrollWidth - elReviewsGrid.clientWidth;
+  elReviewsSetas.hidden = sobra <= 2;
+  btnReviewAnterior.disabled = elReviewsGrid.scrollLeft <= 2;
+  btnReviewSeguinte.disabled = elReviewsGrid.scrollLeft >= sobra - 2;
+}
+
+function moverReviews(direcao) {
+  const card = elReviewsGrid.querySelector('.review-card');
+  if (!card) return;
+  const passo = card.offsetWidth + 22;
+  const reduzir = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  elReviewsGrid.scrollBy({ left: direcao * passo, behavior: reduzir ? 'auto' : 'smooth' });
+}
+
+btnReviewAnterior.addEventListener('click', () => moverReviews(-1));
+btnReviewSeguinte.addEventListener('click', () => moverReviews(1));
+elReviewsGrid.addEventListener('scroll', atualizarSetasReviews, { passive: true });
+window.addEventListener('resize', atualizarSetasReviews);
+
+elReviewsGrid.addEventListener('click', (event) => {
+  const botao = event.target.closest('.review-mais');
+  if (!botao) return;
+  const card = botao.closest('.review-card');
+  const aberta = card.classList.toggle('aberta');
+  botao.setAttribute('aria-expanded', aberta ? 'true' : 'false');
+  botao.setAttribute('aria-label', aberta ? 'Fechar avaliação' : 'Ler avaliação completa');
+});
 
 carregarReviews();
 </script>
