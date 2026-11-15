@@ -240,7 +240,8 @@ a { color: inherit; }
 }
 
 .hero-inner { position: relative; max-width: 680px; }
-.hero .eyebrow { text-align: center; margin-bottom: 1.6em; }
+.hero .eyebrow { text-align: left; margin-bottom: 1.6em; position: relative; top: -34px; left: -60px; }
+@media (max-width: 900px) { .hero .eyebrow { top: -14px; left: 0; } }
 
 /* botão no canto direito do hero, uns pixels acima da mudança de cor */
 .hero-cta {
