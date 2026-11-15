@@ -208,20 +208,24 @@ a { color: inherit; }
 .hero {
   position: relative;
   overflow: hidden;
-  padding: 90px 0 110px;
+  padding: 70px 0 90px;
+  min-height: 540px;
+  display: flex;
+  align-items: center;
 }
+.hero > .hero-inner { width: 100%; }
 
 .hero-fundo {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 560px;
+  height: calc(100% - 40px); /* o coração cabe sempre inteiro no topo da página */
+  width: auto;
+  max-width: 92%;
+  object-fit: contain;
   transform: translate(-50%, -50%);
   opacity: 0.5; /* coração dourado */
   pointer-events: none;
-  /* a imagem vem cortada em cima: esbate a borda de cima para não se ver uma linha reta */
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 16%);
-  mask-image: linear-gradient(to bottom, transparent 0, #000 16%);
 }
 
 .hero .hero-inner { position: relative; z-index: 1; }
@@ -236,6 +240,7 @@ a { color: inherit; }
 }
 
 .hero-inner { position: relative; max-width: 680px; }
+.hero .eyebrow { text-align: center; margin-bottom: 1.6em; }
 
 /* botão no canto direito do hero, uns pixels acima da mudança de cor */
 .hero-cta {
@@ -243,6 +248,8 @@ a { color: inherit; }
   z-index: 2;
   bottom: 22px;
   right: max(28px, calc((100% - var(--wrap)) / 2 + 28px));
+  font-size: 0.8rem;
+  padding: 0.6em 1.2em;
 }
 
 .hero-lede {
@@ -440,7 +447,7 @@ textarea { resize: vertical; }
 }
 
 @media (max-width: 600px) {
-  .hero-fundo { top: 54%; width: 92%; opacity: 0.45; }
+  .hero-fundo { top: 50%; width: 92%; height: auto; opacity: 0.45; }
 }
 
 @media (max-width: 760px) {
@@ -491,7 +498,7 @@ textarea { resize: vertical; }
   .servicos-grid { grid-template-columns: 1fr; }
   .form-row-split { grid-template-columns: 1fr; }
   .footer-inner { flex-direction: column; gap: 10px; text-align: center; }
-  .hero { padding: 60px 0 80px; }
+  .hero { padding: 60px 0 80px; min-height: 0; }
   .hero h1 { font-size: 1.3rem; }
   .hero-lede { font-size: 0.85rem; }
   .hero-cta { font-size: 0.8rem; padding: 0.6em 1.2em; right: 20px; bottom: 16px; }
