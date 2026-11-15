@@ -232,17 +232,23 @@ a { color: inherit; }
   font-weight: 600;
   letter-spacing: 0.02em;
   line-height: 1.15;
-  font-size: clamp(1.8rem, 3.8vw, 2.8rem);
+  font-size: clamp(1.5rem, 3vw, 2.2rem);
 }
 
-.hero-inner { position: relative; max-width: 760px; margin-left: auto; margin-right: auto; text-align: center; }
+.hero-inner { position: relative; max-width: 680px; }
+
+/* botão no canto direito do hero, uns pixels acima da mudança de cor */
+.hero-cta {
+  position: absolute;
+  z-index: 2;
+  bottom: 22px;
+  right: max(28px, calc((100% - var(--wrap)) / 2 + 28px));
+}
 
 .hero-lede {
-  font-size: 1.1rem;
+  font-size: 0.95rem;
   color: var(--ink);
   max-width: 540px;
-  margin-left: auto;
-  margin-right: auto;
 }
 
 /* ---------- Serviços ---------- */
@@ -486,6 +492,9 @@ textarea { resize: vertical; }
   .form-row-split { grid-template-columns: 1fr; }
   .footer-inner { flex-direction: column; gap: 10px; text-align: center; }
   .hero { padding: 60px 0 80px; }
+  .hero h1 { font-size: 1.3rem; }
+  .hero-lede { font-size: 0.85rem; }
+  .hero-cta { font-size: 0.8rem; padding: 0.6em 1.2em; right: 20px; bottom: 16px; }
 }
 
 /* Rodapé: contactos e ligações legais */
@@ -735,8 +744,8 @@ textarea { resize: vertical; }
       <p class="eyebrow">Decoração &amp; organização de eventos</p>
       <h1>Preenchemos cada espaço com amor, dedicação e profissionalismo.</h1>
       <p class="hero-lede">Cada evento é um capítulo único e irrepetível, pensado e criado à expectativa e necessidades do cliente.</p>
-      <a href="#orcamento" class="btn btn-primary">Pedir orçamento</a>
     </div>
+    <a href="#orcamento" class="btn btn-primary hero-cta">Pedir orçamento</a>
   </section>
 
   <!-- SERVIÇOS -->
