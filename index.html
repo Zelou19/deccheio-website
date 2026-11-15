@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>De Cheio — Decoração e Organização de Eventos</title>
+<meta name="description" content="Cada evento tem uma impressão digital própria. Peça o seu orçamento e conte-nos a sua história.">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="pt_PT">
+<meta property="og:site_name" content="DecoraçãoCheio">
+<meta property="og:title" content="De Cheio — Decoração e Organização de Eventos">
+<meta property="og:description" content="Cada evento tem uma impressão digital própria. Peça o seu orçamento e conte-nos a sua história.">
+<meta name="theme-color" content="#FAF6EF">
+<style>
+/* ---------- Tipos de letra (alojados no próprio site — não se pede nada à Google) ---------- */
+@font-face {
+  font-family: 'Fraunces';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url(/fonts/fraunces-opsz.woff2) format('woff2-variations'), url(/fonts/fraunces-opsz.woff2) format('woff2');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+@font-face {
+  font-family: 'Work Sans';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url(/fonts/work-sans.woff2) format('woff2-variations'), url(/fonts/work-sans.woff2) format('woff2');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+
+@font-face {
+  font-family: 'Jost';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url(/fonts/jost.woff2) format('woff2-variations'), url(/fonts/jost.woff2) format('woff2');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+
+/* ---------- Tokens ---------- */
+:root {
+  --bg: #FAF6EF;
+  --bg-alt: #F1E9DC;
+  --ink: #322D28;
+  --taupe: #8C8175;
+  --gold: #B08B4F;
+  --wine: #6B2A34;
+
+  --font-display: 'Fraunces', serif;
+  --font-body: 'Work Sans', sans-serif;
+
+  --wrap: 1120px;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.55;
+}
+
+.wrap {
+  max-width: var(--wrap);
+  margin: 0 auto;
+  padding: 0 28px;
+}
+
+h1, h2, h3 {
+  font-family: 'Jost', var(--font-body);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--ink);
+  margin: 0 0 0.4em;
+}
+
+h1 { font-size: clamp(2.4rem, 5vw, 3.8rem); line-height: 1.08; }
+h2 { font-size: clamp(1.7rem, 3vw, 2.4rem); }
+h3 { font-size: 1.15rem; }
+
+p { margin: 0 0 1em; color: var(--ink); }
+
+a { color: inherit; }
+
+.eyebrow {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold);
+  font-weight: 600;
+  margin-bottom: 0.9em;
+}
+
+/* ---------- Buttons ---------- */
+.btn {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 0.9em 1.8em;
+  border-radius: 2px;
+  text-decoration: none;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.btn-primary {
+  background: var(--gold);
+  color: var(--ink);
+}
+.btn-primary:hover { background: #9A7740; color: #fff; }
+
+/* ---------- Header ---------- */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(250, 246, 239, 0.92);
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid rgba(50, 45, 40, 0.08);
+}
+
+.header-inner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 16px;
+  padding-bottom: 16px;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  letter-spacing: 0.02em;
+  color: var(--ink);
+}
+
+.brand-word { font-weight: 500; }
+.brand-heart { width: 20px; height: 18px; object-fit: contain; }
+.brand-small { font-size: 1.05rem; }
+
+.site-nav {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  font-size: 0.92rem;
+}
+
+.site-nav a { text-decoration: none; color: var(--ink); }
+.site-nav a:hover { color: var(--wine); }
+
+.nav-cta {
+  background: var(--ink);
+  color: var(--bg) !important;
+  padding: 0.55em 1.3em;
+  border-radius: 2px;
+  font-weight: 600;
+}
+.nav-cta:hover { background: var(--gold) !important; color: var(--ink) !important; }
+
+/* ---------- Menu hambúrguer (só aparece em mobile) ---------- */
+.nav-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.nav-toggle span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: var(--ink);
+  border-radius: 2px;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+.nav-toggle[aria-expanded="true"] span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.nav-toggle[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+.nav-toggle[aria-expanded="true"] span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+/* ---------- Hero ---------- */
+.hero {
+  position: relative;
+  overflow: hidden;
+  padding: 90px 0 110px;
+}
+
+.hero-fundo {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 560px;
+  transform: translate(-50%, -50%);
+  opacity: 0.5; /* coração dourado */
+  pointer-events: none;
+  /* a imagem vem cortada em cima: esbate a borda de cima para não se ver uma linha reta */
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 16%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 16%);
+}
+
+.hero .hero-inner { position: relative; z-index: 1; }
+
+/* título do hero no tipo de letra Jost (como em "Aniversários") */
+.hero h1 {
+  font-family: 'Jost', var(--font-body);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1.15;
+  font-size: clamp(1.8rem, 3.8vw, 2.8rem);
+}
+
+.hero-inner { position: relative; max-width: 760px; margin-left: auto; margin-right: auto; text-align: center; }
+
+.hero-lede {
+  font-size: 1.1rem;
+  color: var(--ink);
+  max-width: 540px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ---------- Serviços ---------- */
+.servicos { padding: 90px 0; background: var(--bg-alt); }
+
+.servicos-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  margin-top: 40px;
+}
+
+.servico-card {
+  background: var(--bg);
+  padding: 28px 24px;
+  border-top: 2px solid var(--gold);
+}
+
+.servico-card p { color: var(--taupe); font-size: 0.95rem; margin-bottom: 0; }
+
+/* ---------- Como funciona ---------- */
+.como-funciona { padding: 90px 0; }
+
+.passos {
+  list-style: none;
+  margin: 40px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 40px;
+}
+
+.passos li { border-left: 1px solid rgba(50,45,40,0.15); padding-left: 24px; }
+
+.passo-num {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  color: var(--gold);
+  margin-bottom: 0.3em;
+}
+
+.passos p { color: var(--taupe); font-size: 0.95rem; }
+
+/* ---------- Orçamento (form) ---------- */
+.orcamento { padding: 90px 0 120px; background: var(--bg-alt); }
+
+.orcamento-inner {
+  display: grid;
+  grid-template-columns: 0.9fr 1.3fr;
+  gap: 64px;
+  align-items: start;
+}
+
+.orcamento-intro p:not(.eyebrow) { color: var(--taupe); max-width: 380px; }
+
+.orcamento-gate {
+  background: var(--bg);
+  padding: 36px;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.orcamento-gate p {
+  color: var(--taupe);
+  max-width: 420px;
+  margin: 0 auto 20px;
+}
+
+.quote-form {
+  background: var(--bg);
+  padding: 36px;
+  border-radius: 4px;
+}
+
+.form-row { margin-bottom: 18px; }
+
+.form-row-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--ink);
+}
+
+.opcional { font-weight: 400; color: var(--taupe); }
+
+.imagens-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.imagem-preview-item {
+  position: relative;
+  width: 76px;
+  height: 76px;
+}
+
+.imagem-preview-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid rgba(50,45,40,0.15);
+}
+
+.imagem-preview-remover {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: none;
+  background: var(--wine);
+  color: var(--bg);
+  font-size: 0.8rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.imagem-preview-remover:hover { background: #4d1a21; }
+
+input[type="file"] {
+  padding: 10px 0;
+  border: none;
+  font-size: 0.85rem;
+}
+
+input, select, textarea {
+  width: 100%;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  padding: 0.7em 0.8em;
+  border: 1px solid rgba(50,45,40,0.25);
+  border-radius: 2px;
+  background: var(--bg);
+  color: var(--ink);
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: 2px solid var(--gold);
+  outline-offset: 1px;
+  border-color: var(--gold);
+}
+
+textarea { resize: vertical; }
+
+.btn-submit { width: 100%; margin-top: 8px; }
+
+.form-feedback {
+  margin: 14px 0 0;
+  font-size: 0.9rem;
+  min-height: 1.2em;
+}
+
+.form-feedback.sucesso { color: #2E6B4F; }
+.form-feedback.erro { color: var(--wine); }
+
+/* ---------- Footer ---------- */
+.site-footer {
+  padding: 40px 0;
+  border-top: 1px solid rgba(50,45,40,0.1);
+}
+
+.footer-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: var(--taupe);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 900px) {
+  .servicos-grid { grid-template-columns: repeat(2, 1fr); }
+  .passos { grid-template-columns: 1fr; gap: 28px; }
+  .orcamento-inner { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 600px) {
+  .hero-fundo { top: 54%; width: 92%; opacity: 0.45; }
+}
+
+@media (max-width: 760px) {
+  .nav-toggle { display: flex; }
+
+  .site-nav {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 2px;
+    font-size: 0.92rem;
+    background: var(--bg);
+    border-bottom: 1px solid rgba(50, 45, 40, 0.08);
+    padding: 0 20px;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transition: max-height 0.25s ease, opacity 0.2s ease, padding 0.25s ease;
+  }
+
+  .site-nav.nav-aberto {
+    max-height: 60vh;
+    opacity: 1;
+    pointer-events: auto;
+    padding: 8px 20px 18px;
+  }
+
+  .site-nav a,
+  .site-nav span,
+  .site-nav button {
+    width: 100%;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(50, 45, 40, 0.06);
+  }
+
+  .site-nav .nav-cta {
+    text-align: center;
+    margin-top: 6px;
+    border-bottom: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .servicos-grid { grid-template-columns: 1fr; }
+  .form-row-split { grid-template-columns: 1fr; }
+  .footer-inner { flex-direction: column; gap: 10px; text-align: center; }
+  .hero { padding: 60px 0 80px; }
+}
+
+/* Rodapé: contactos e ligações legais */
+.footer-inner p { margin: 0; }
+.footer-inner p a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.footer-inner p a:hover { color: var(--gold); }
+.footer-contactos, .footer-legal { line-height: 1.7; }
+.footer-inner { flex-direction: column; gap: 8px; text-align: center; }
+.footer-contactos a[href^="tel"] { white-space: nowrap; }
+</style>
+<style>
+/* ---------- Admin: gestão de categorias ---------- */
+.nova-categoria-form {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.nova-categoria-form input {
+  flex: 1;
+  max-width: 320px;
+}
+
+.categoria-bloco {
+  background: var(--bg-alt);
+  border-radius: 6px;
+  padding: 22px 24px;
+  margin-bottom: 20px;
+}
+
+.categoria-bloco-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.categoria-bloco-header h3 { margin: 0; }
+
+.categoria-apagar {
+  font-size: 0.82rem;
+  color: var(--taupe);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-body);
+}
+.categoria-apagar:hover { color: var(--wine); }
+
+.categoria-fotos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.foto-item {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.foto-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.foto-apagar {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(50,45,40,0.75);
+  color: #fff;
+  cursor: pointer;
+  font-size: 0.85rem;
+  line-height: 1;
+}
+.foto-apagar:hover { background: var(--wine); }
+
+.categoria-sem-fotos {
+  color: var(--taupe);
+  font-size: 0.88rem;
+  font-style: italic;
+  margin-bottom: 16px;
+}
+
+.upload-foto label {
+  display: inline-block;
+  font-size: 0.85rem;
+  padding: 0.6em 1.2em;
+  background: var(--bg);
+  border: 1px solid rgba(50,45,40,0.2);
+  border-radius: 2px;
+  cursor: pointer;
+  margin: 0;
+}
+.upload-foto label:hover { border-color: var(--gold); }
+.upload-foto input[type="file"] { display: none; }
+.upload-foto .upload-estado { font-size: 0.82rem; color: var(--taupe); margin-left: 10px; }
+
+/* ---------- Página principal: secção "Os nossos eventos" ---------- */
+.eventos { padding: 90px 0; background: var(--bg-alt); }
+
+.eventos-abas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 32px 0;
+}
+
+.eventos-aba {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.6em 1.3em;
+  border-radius: 999px;
+  border: 1px solid rgba(50,45,40,0.2);
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.eventos-aba.ativa {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: var(--ink);
+}
+
+.eventos-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.eventos-grid .foto-item {
+  aspect-ratio: 4/3;
+  border-radius: 6px;
+}
+
+.eventos-vazio {
+  color: var(--taupe);
+  font-style: italic;
+}
+
+@media (max-width: 900px) {
+  .eventos-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 600px) {
+  .eventos-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .categoria-fotos-grid { grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); }
+}
+</style>
+<style>
+.reviews { padding: 90px 0; background: var(--bg); }
+
+.reviews-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 22px;
+  margin-top: 40px;
+}
+
+.review-card {
+  background: var(--bg-alt);
+  border-radius: 10px;
+  padding: 28px 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.review-estrelas { color: var(--gold); font-size: 1.05rem; letter-spacing: 2px; }
+.review-estrelas .vazia { color: rgba(140,129,117,0.3); }
+
+.review-texto {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  line-height: 1.55;
+  color: var(--ink);
+  flex: 1;
+}
+.review-texto::before { content: '“'; }
+.review-texto::after { content: '”'; }
+
+.review-autor { font-weight: 600; font-size: 0.92rem; color: var(--ink); }
+.review-tipo-evento { color: var(--taupe); font-size: 0.82rem; }
+
+.reviews-vazio { color: var(--taupe); }
+
+.footer-legal { margin: 0; font-size: 0.85rem; }
+.footer-legal a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.footer-legal a:hover { color: var(--gold); }
+.aviso-legal { margin: 0 0 12px; font-size: 0.82rem; color: var(--taupe); line-height: 1.45; }
+.aviso-legal a { color: var(--wine); }
+</style>
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/img/logo512.png">
+<style>
+/* ---------- Telemóvel: texto longo (links, etc.) não pode alargar a página ---------- */
+.review-texto, .msg-texto, .pedido-resumo, .chat-hint { overflow-wrap: anywhere; }
+</style>
+<style>
+/* ---------- Telemóvel: margem lateral nas páginas centradas ---------- */
+@media (max-width: 880px) {
+  main.wrap { padding-left: 22px; padding-right: 22px; }
+  .pedido-card-actions { flex-wrap: wrap; }
+}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a href="#top" class="brand">
+      <span class="brand-word">De</span>
+      <img class="brand-heart" src="/img/fingerprint-heart.png" alt="" aria-hidden="true">
+      <span class="brand-word">Cheio</span>
+    </a>
+    <nav class="site-nav">
+      <a href="#servicos">Serviços</a>
+      <a href="#eventos">Os nossos eventos</a>
+      <a href="#reviews">Avaliações</a>
+      <a href="#como-funciona">Como funciona</a>
+      <a href="/login.html" id="nav-conta">Entrar</a>
+      <a href="#orcamento" class="nav-cta">Pedir orçamento</a>
+    </nav>
+    <button type="button" class="nav-toggle" id="nav-toggle" aria-label="Abrir menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- HERO -->
+  <section class="hero">
+    <img class="hero-fundo" src="/img/fingerprint-heart-512.png" alt="" aria-hidden="true">
+    <div class="wrap hero-inner">
+      <p class="eyebrow">Decoração &amp; organização de eventos</p>
+      <h1>Preenchemos cada espaço com amor, dedicação e profissionalismo.</h1>
+      <p class="hero-lede">Cada evento é um capítulo único e irrepetível, pensado e criado à expectativa e necessidades do cliente.</p>
+      <a href="#orcamento" class="btn btn-primary">Pedir orçamento</a>
+    </div>
+  </section>
+
+  <!-- SERVIÇOS -->
+  <section id="servicos" class="servicos">
+    <div class="wrap">
+      <p class="eyebrow">O que fazemos</p>
+      <h2>Um evento, muitas formas de o celebrar</h2>
+      <div class="servicos-grid">
+        <article class="servico-card">
+          <h3>Casamentos</h3>
+          <p>Do primeiro esboço ao último brinde — decoração de cerimónia, receção e todos os pequenos detalhes entre as duas.</p>
+        </article>
+        <article class="servico-card">
+          <h3>Aniversários</h3>
+          <p>De festas infantis a celebrações redondas, com temas pensados à medida de quem os vive.</p>
+        </article>
+        <article class="servico-card">
+          <h3>Batizados</h3>
+          <p>Ambientes suaves e acolhedores para um dia em família, com atenção a cada laço e cada flor.</p>
+        </article>
+        <article class="servico-card">
+          <h3>Eventos corporativos</h3>
+          <p>Lançamentos, jantares de equipa e conferências com uma imagem cuidada do início ao fim.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- OS NOSSOS EVENTOS -->
+  <section id="eventos" class="eventos">
+    <div class="wrap">
+      <p class="eyebrow">Portefólio</p>
+      <h2>Os nossos eventos</h2>
+      <div id="eventos-abas" class="eventos-abas"></div>
+      <div id="eventos-grid" class="eventos-grid"></div>
+    </div>
+  </section>
+
+  <!-- AVALIAÇÕES -->
+  <section id="reviews" class="reviews">
+    <div class="wrap">
+      <p class="eyebrow">Testemunhos</p>
+      <h2>O que dizem os nossos clientes</h2>
+      <div id="reviews-grid" class="reviews-grid"></div>
+    </div>
+  </section>
+
+  <!-- COMO FUNCIONA -->
+  <section id="como-funciona" class="como-funciona">
+    <div class="wrap">
+      <p class="eyebrow">Como funciona</p>
+      <h2>Três passos até ao grande dia</h2>
+      <ol class="passos">
+        <li>
+          <span class="passo-num">01</span>
+          <h3>Pedido de orçamento</h3>
+          <p>Preencha o formulário abaixo com o essencial sobre o seu evento.</p>
+        </li>
+        <li>
+          <span class="passo-num">02</span>
+          <h3>Conversa direta</h3>
+          <p>Respondemos e afinamos os detalhes consigo, por chat, até tudo estar bem desenhado.</p>
+        </li>
+        <li>
+          <span class="passo-num">03</span>
+          <h3>O evento acontece</h3>
+          <p>Tratamos da decoração para que só precise de aparecer e aproveitar.</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- FORMULÁRIO DE ORÇAMENTO -->
+  <section id="orcamento" class="orcamento">
+    <div class="wrap orcamento-inner">
+      <div class="orcamento-intro">
+        <p class="eyebrow">Vamos começar</p>
+        <h2>Peça o seu orçamento</h2>
+        <p>Conte-nos sobre o seu evento. Respondemos por email e, a partir daí, continuamos a conversa por aqui.</p>
+      </div>
+
+      <p id="orcamento-loading" class="chat-hint">A verificar sessão...</p>
+
+      <div id="orcamento-gate" class="orcamento-gate" hidden>
+        <p>Para pedir um orçamento é preciso ter sessão iniciada — assim consegue acompanhar a conversa e ver todos os seus pedidos sempre que quiser.</p>
+        <a href="/login.html?redirecionar=%2F%23orcamento" class="btn btn-primary">Iniciar sessão / Criar conta</a>
+      </div>
+
+      <form id="quote-form" class="quote-form" novalidate hidden>
+        <div class="form-row">
+          <label for="nome">Nome do cliente</label>
+          <input type="text" id="nome" name="nome" required>
+        </div>
+
+        <div class="form-row">
+          <label for="nomeFestejado">Nome do aniversariante, noivos, empresa, etc. <span class="opcional">(se aplicável)</span></label>
+          <input type="text" id="nomeFestejado" name="nomeFestejado">
+        </div>
+
+        <div class="form-row form-row-split">
+          <div>
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required>
+          </div>
+          <div>
+            <label for="telefone">Telefone <span class="opcional">(opcional)</span></label>
+            <input type="tel" id="telefone" name="telefone">
+          </div>
+        </div>
+
+        <div class="form-row form-row-split">
+          <div>
+            <label for="tipoEvento">Tipo de evento</label>
+            <select id="tipoEvento" name="tipoEvento" required>
+              <option value="" disabled selected>Escolha uma opção</option>
+              <option value="Casamento">Casamento</option>
+              <option value="Aniversário">Aniversário</option>
+              <option value="Batizado">Batizado</option>
+              <option value="Evento corporativo">Evento corporativo</option>
+              <option value="Baby shower">Baby shower</option>
+              <option value="Outro">Outro</option>
+            </select>
+          </div>
+          <div>
+            <label for="dataEvento">Data prevista <span class="opcional">(opcional)</span></label>
+            <input type="date" id="dataEvento" name="dataEvento">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <label for="numeroConvidados">Nº de convidados <span class="opcional">(opcional)</span></label>
+          <input type="number" id="numeroConvidados" name="numeroConvidados" min="1">
+        </div>
+
+        <div class="form-row">
+          <label for="localEvento">Local do evento <span class="opcional">(opcional)</span></label>
+          <input type="text" id="localEvento" name="localEvento" placeholder="ex: Quinta da Boavista, Porto">
+        </div>
+
+        <div class="form-row">
+          <label for="imagens">Imagens de inspiração <span class="opcional">(opcional, até 5)</span></label>
+          <input type="file" id="imagens" accept="image/*" multiple>
+          <div id="imagens-preview" class="imagens-preview"></div>
+        </div>
+
+        <div class="form-row">
+          <label for="mensagem">A sua ideia</label>
+          <textarea id="mensagem" name="mensagem" rows="4" placeholder="Conte-nos o que imagina para o seu evento..." required></textarea>
+        </div>
+
+        <p class="aviso-legal">Ao enviar o pedido, aceita os <a href="/legal.html#termos">Termos e Condições</a> e a <a href="/legal.html#privacidade">Política de Privacidade</a>.</p>
+        <button type="submit" class="btn btn-primary btn-submit">Enviar pedido</button>
+        <p id="form-feedback" class="form-feedback" role="status" aria-live="polite"></p>
+      </form>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-inner">
+    <a href="/" class="brand brand-small">De <svg class="brand-heart" viewBox="0 0 24 22" aria-hidden="true"><path d="M12 21 C 4 14, 1 10, 1 6.5 C 1 3.5, 3.3 1.5, 6 1.5 C 8.5 1.5, 10.5 3, 12 5.2 C 13.5 3, 15.5 1.5, 18 1.5 C 20.7 1.5, 23 3.5, 23 6.5 C 23 10, 20 14, 12 21 Z" fill="currentColor"/></svg> Cheio</a>
+    <p>&copy; <span id="year"></span> DecoraçãoCheio — Decoração &amp; Organização de Eventos</p>
+    <p class="footer-contactos"><a href="mailto:decoracao.fcheio@gmail.com">decoracao.fcheio@gmail.com</a> · <a href="tel:+351936814781">936 814 781</a> · <a href="https://www.instagram.com/de_coracaocheio" target="_blank" rel="noopener">@de_coracaocheio</a></p>
+    <p class="footer-legal"><a href="/legal.html#privacidade">Política de Privacidade</a> · <a href="/legal.html#termos">Termos e Condições</a> · <a href="/legal.html#informacoes">Informações legais</a> · <a href="https://www.livroreclamacoes.pt" target="_blank" rel="noopener">Livro de Reclamações</a></p>
+  </div>
+</footer>
+
+
+<script>
+// Menu hambúrguer, só usado em ecrãs pequenos (o CSS trata de o esconder em desktop).
+document.querySelectorAll('.nav-toggle').forEach((botao) => {
+  const nav = botao.parentElement.querySelector('.site-nav');
+  if (!nav) return;
+
+  botao.addEventListener('click', () => {
+    const aberto = nav.classList.toggle('nav-aberto');
+    botao.setAttribute('aria-expanded', aberto ? 'true' : 'false');
+  });
+
+  // Fecha o menu automaticamente quando se escolhe uma opção
+  nav.querySelectorAll('a, button').forEach((item) => {
+    item.addEventListener('click', () => {
+      nav.classList.remove('nav-aberto');
+      botao.setAttribute('aria-expanded', 'false');
+    });
+  });
+});
+</script>
+<script>
+document.getElementById('year').textContent = new Date().getFullYear();
+
+const form = document.getElementById('quote-form');
+const feedback = document.getElementById('form-feedback');
+const elLoading = document.getElementById('orcamento-loading');
+const elGate = document.getElementById('orcamento-gate');
+const inputImagens = document.getElementById('imagens');
+const previewImagens = document.getElementById('imagens-preview');
+
+const MAX_IMAGENS = 5;
+let imagensSelecionadas = []; // array de data URLs (já comprimidas)
+
+// Reduz a imagem para no máximo 1600px no lado maior e converte para JPEG a 80% de
+// qualidade — mantém as fotos de inspiração leves antes de irem em base64 no pedido.
+function comprimirImagem(ficheiro, ladoMaximo = 1600, qualidade = 0.8) {
+  return new Promise((resolve, reject) => {
+    const leitor = new FileReader();
+    leitor.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > ladoMaximo || height > ladoMaximo) {
+          if (width > height) {
+            height = Math.round(height * (ladoMaximo / width));
+            width = ladoMaximo;
+          } else {
+            width = Math.round(width * (ladoMaximo / height));
+            height = ladoMaximo;
+          }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', qualidade));
+      };
+      img.onerror = reject;
+      img.src = leitor.result;
+    };
+    leitor.onerror = reject;
+    leitor.readAsDataURL(ficheiro);
+  });
+}
+
+function renderizarPreviewImagens() {
+  previewImagens.innerHTML = imagensSelecionadas
+    .map(
+      (dataUrl, indice) => `
+      <div class="imagem-preview-item">
+        <img src="${dataUrl}" alt="Pré-visualização ${indice + 1}">
+        <button type="button" class="imagem-preview-remover" data-indice="${indice}" aria-label="Remover imagem">&times;</button>
+      </div>
+    `
+    )
+    .join('');
+}
+
+inputImagens.addEventListener('change', async () => {
+  const ficheiros = Array.from(inputImagens.files);
+  const espacoDisponivel = MAX_IMAGENS - imagensSelecionadas.length;
+
+  if (ficheiros.length > espacoDisponivel) {
+    feedback.textContent = `Só pode escolher até ${MAX_IMAGENS} imagens no total.`;
+    feedback.className = 'form-feedback erro';
+  }
+
+  const aProcessar = ficheiros.slice(0, espacoDisponivel);
+  for (const ficheiro of aProcessar) {
+    try {
+      const dataUrl = await comprimirImagem(ficheiro);
+      imagensSelecionadas.push(dataUrl);
+    } catch (erro) {
+      // se uma imagem falhar a processar, ignora-a e segue com as restantes
+    }
+  }
+
+  inputImagens.value = '';
+  renderizarPreviewImagens();
+});
+
+previewImagens.addEventListener('click', (event) => {
+  const botao = event.target.closest('.imagem-preview-remover');
+  if (!botao) return;
+  imagensSelecionadas.splice(Number(botao.dataset.indice), 1);
+  renderizarPreviewImagens();
+});
+
+// É preciso ter sessão iniciada para pedir orçamento — assim a pessoa consegue
+// acompanhar a conversa depois em "Os meus orçamentos", sem depender só do link.
+(async function verificarSessaoOrcamento() {
+  try {
+    const resposta = await fetch('/api/auth/me', { credentials: 'include' });
+    elLoading.hidden = true;
+
+    if (!resposta.ok) {
+      elGate.hidden = false;
+      return;
+    }
+
+    const { user } = await resposta.json();
+    form.hidden = false;
+    if (user?.nome) form.nome.value = user.nome;
+    if (user?.email) form.email.value = user.email;
+  } catch (erro) {
+    elLoading.hidden = true;
+    elGate.hidden = false;
+  }
+})();
+
+form.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  feedback.textContent = '';
+  feedback.className = 'form-feedback';
+
+  const dados = {
+    nome: form.nome.value.trim(),
+    nomeFestejado: form.nomeFestejado.value.trim(),
+    email: form.email.value.trim(),
+    telefone: form.telefone.value.trim(),
+    tipoEvento: form.tipoEvento.value,
+    dataEvento: form.dataEvento.value || undefined,
+    localEvento: form.localEvento.value.trim(),
+    numeroConvidados: form.numeroConvidados.value || undefined,
+    mensagem: form.mensagem.value.trim(),
+    imagens: imagensSelecionadas,
+  };
+
+  const botao = form.querySelector('.btn-submit');
+  botao.disabled = true;
+  botao.textContent = 'A enviar...';
+
+  try {
+    const resposta = await fetch('/api/quotes', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(dados),
+    });
+
+    const resultado = await resposta.json();
+
+    if (!resposta.ok) {
+      throw new Error(resultado.erro || 'Algo correu mal.');
+    }
+
+    feedback.textContent = 'Pedido enviado! A abrir a sua conversa...';
+    feedback.classList.add('sucesso');
+    form.reset();
+    imagensSelecionadas = [];
+    renderizarPreviewImagens();
+
+    const idPedido = resultado.pedido._id;
+    setTimeout(() => {
+      window.location.href = `/pedido.html?id=${idPedido}`;
+    }, 900);
+  } catch (erro) {
+    feedback.textContent = erro.message || 'Não foi possível enviar o pedido. Tente novamente.';
+    feedback.classList.add('erro');
+  } finally {
+    botao.disabled = false;
+    botao.textContent = 'Enviar pedido';
+  }
+});
+</script>
+<script>
+// Verifica se a pessoa tem sessão iniciada e ajusta o link "Entrar" do menu principal.
+// Usado em páginas públicas (não no painel de admin, que tem o seu próprio login).
+(async function atualizarEstadoConta() {
+  const link = document.getElementById('nav-conta');
+  if (!link) return;
+
+  try {
+    const resposta = await fetch('/api/auth/me', { credentials: 'include' });
+    if (!resposta.ok) return; // não tem sessão — mantém "Entrar"
+
+    const { user } = await resposta.json();
+    link.textContent = 'Conta/Orçamentos';
+    link.href = '/orcamentos.html';
+  } catch (erro) {
+    // sem sessão ou sem rede — mantém o link "Entrar" tal como está
+  }
+})();
+</script>
+<script>
+const elAbas = document.getElementById('eventos-abas');
+const elGrid = document.getElementById('eventos-grid');
+
+let categorias = [];
+let categoriaAtiva = null;
+
+function escaparHtml(texto) {
+  const div = document.createElement('div');
+  div.textContent = texto || '';
+  return div.innerHTML;
+}
+
+function renderizarAbas() {
+  elAbas.innerHTML = categorias.map((cat) => `
+    <button class="eventos-aba ${cat._id === categoriaAtiva ? 'ativa' : ''}" data-id="${cat._id}">
+      ${escaparHtml(cat.nome)}
+    </button>
+  `).join('');
+}
+
+function renderizarGrid() {
+  const categoria = categorias.find((c) => c._id === categoriaAtiva);
+
+  if (!categoria || categoria.fotos.length === 0) {
+    elGrid.innerHTML = '<p class="eventos-vazio">Ainda sem fotos nesta categoria.</p>';
+    return;
+  }
+
+  elGrid.innerHTML = categoria.fotos.map((foto) => `
+    <div class="foto-item">
+      <img src="${foto.dataUrl}" alt="${escaparHtml(foto.legenda) || escaparHtml(categoria.nome)}" loading="lazy">
+    </div>
+  `).join('');
+}
+
+elAbas.addEventListener('click', (event) => {
+  const id = event.target.dataset.id;
+  if (!id) return;
+  categoriaAtiva = id;
+  renderizarAbas();
+  renderizarGrid();
+});
+
+async function carregarEventos() {
+  try {
+    const resposta = await fetch('/api/categorias');
+    if (!resposta.ok) return;
+
+    categorias = await resposta.json();
+    if (categorias.length === 0) {
+      elGrid.innerHTML = '<p class="eventos-vazio">Em breve, fotos dos nossos eventos.</p>';
+      return;
+    }
+
+    categoriaAtiva = categorias[0]._id;
+    renderizarAbas();
+    renderizarGrid();
+  } catch (erro) {
+    // secção fica simplesmente vazia se algo correr mal
+  }
+}
+
+carregarEventos();
+</script>
+<script>
+const elReviewsGrid = document.getElementById('reviews-grid');
+
+function escaparHtml(texto) {
+  const div = document.createElement('div');
+  div.textContent = texto || '';
+  return div.innerHTML;
+}
+
+function renderizarEstrelas(nota) {
+  let html = '';
+  for (let i = 1; i <= 5; i++) {
+    html += i <= nota ? '★' : '<span class="vazia">★</span>';
+  }
+  return html;
+}
+
+async function carregarReviews() {
+  try {
+    const resposta = await fetch('/api/reviews');
+    if (!resposta.ok) return;
+
+    const reviews = await resposta.json();
+    if (reviews.length === 0) {
+      elReviewsGrid.innerHTML = '<p class="reviews-vazio">Em breve, testemunhos de quem já celebrou connosco.</p>';
+      return;
+    }
+
+    elReviewsGrid.innerHTML = reviews.map((review) => `
+      <article class="review-card">
+        <div class="review-estrelas">${renderizarEstrelas(review.classificacao)}</div>
+        <p class="review-texto">${escaparHtml(review.texto)}</p>
+        <div>
+          <div class="review-autor">${escaparHtml(review.nomeCliente)}</div>
+          ${review.tipoEvento ? `<div class="review-tipo-evento">${escaparHtml(review.tipoEvento)}</div>` : ''}
+        </div>
+      </article>
+    `).join('');
+  } catch (erro) {
+    // secção fica simplesmente vazia se algo correr mal
+  }
+}
+
+carregarReviews();
+</script>
+</body>
+</html>
