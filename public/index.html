@@ -3,14 +3,58 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>De Cheio — Decoração e Organização de Eventos</title>
-<meta name="description" content="Cada evento tem uma impressão digital própria. Peça o seu orçamento e conte-nos a sua história.">
+<title>Decoração de Casamentos e Eventos na Guarda | De Cheio</title>
+<meta name="description" content="Decoração e organização de eventos na Guarda: casamentos, batizados, aniversários e eventos corporativos. Peça o seu orçamento, gratuito e sem compromisso.">
+<meta name="keywords" content="decoração de eventos, decoração de casamentos, decoração de batizados, decoração de aniversários, decoração de festas, eventos corporativos, organização de eventos, orçamento decoração, Guarda, DecoraçãoCheio, De Cheio">
+<link rel="canonical" href="__SITE__/">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="pt_PT">
 <meta property="og:site_name" content="DecoraçãoCheio">
-<meta property="og:title" content="De Cheio — Decoração e Organização de Eventos">
-<meta property="og:description" content="Cada evento tem uma impressão digital própria. Peça o seu orçamento e conte-nos a sua história.">
+<meta property="og:url" content="__SITE__/">
+<meta property="og:title" content="Decoração de Casamentos e Eventos na Guarda | De Cheio">
+<meta property="og:description" content="Decoração e organização de eventos na Guarda: casamentos, batizados, aniversários e eventos corporativos. Peça o seu orçamento, gratuito e sem compromisso.">
+<meta property="og:image" content="__SITE__/img/partilha.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="De Cheio — Cada festa tem uma impressão digital. Decoração e organização de eventos.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Decoração de Casamentos e Eventos na Guarda | De Cheio">
+<meta name="twitter:description" content="Decoração e organização de eventos na Guarda: casamentos, batizados, aniversários e eventos corporativos. Peça o seu orçamento, gratuito e sem compromisso.">
+<meta name="twitter:image" content="__SITE__/img/partilha.jpg">
 <meta name="theme-color" content="#FAF6EF">
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@type": "LocalBusiness",
+ "name": "DecoraçãoCheio",
+ "alternateName": "De Cheio",
+ "description": "Decoração e organização de eventos na Guarda: casamentos, batizados, aniversários e eventos corporativos. Peça o seu orçamento, gratuito e sem compromisso.",
+ "slogan": "Cada festa tem uma impressão digital.",
+ "url": "__SITE__/",
+ "image": "__SITE__/img/partilha.jpg",
+ "logo": "__SITE__/img/logo512.png",
+ "telephone": "+351936814781",
+ "email": "decoracao.fcheio@gmail.com",
+ "founder": {
+  "@type": "Person",
+  "name": "Filipa Couceiro"
+ },
+ "areaServed": {
+  "@type": "AdministrativeArea",
+  "name": "Guarda"
+ },
+ "sameAs": [
+  "https://www.instagram.com/de_coracaocheio"
+ ],
+ "knowsAbout": [
+  "decoração de casamentos",
+  "decoração de batizados",
+  "decoração de aniversários",
+  "eventos corporativos",
+  "organização de eventos"
+ ]
+}
+</script>
 <style>
 /* ---------- Tipos de letra (alojados no próprio site — não se pede nada à Google) ---------- */
 @font-face {
@@ -774,6 +818,28 @@ textarea { resize: vertical; }
   main.wrap { padding-left: 22px; padding-right: 22px; }
   .pedido-card-actions { flex-wrap: wrap; }
 }
+/* ---------- Parceiros e espaços ---------- */
+.parceiros { padding: 80px 0; background: var(--bg-alt); }
+.parceiros[hidden] { display: none; }
+.parceiros-lista { list-style: none; margin: 40px 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 18px; }
+.parceiro-cartao { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; min-height: 130px; height: 100%; padding: 22px 16px; box-sizing: border-box; text-align: center; background: var(--bg); border-radius: 10px; box-shadow: 0 1px 6px rgba(50,45,40,0.06); color: var(--ink); text-decoration: none; }
+a.parceiro-cartao:hover { box-shadow: 0 4px 14px rgba(50,45,40,0.12); }
+.parceiro-cartao img { max-width: 140px; max-height: 64px; width: auto; height: auto; object-fit: contain; }
+.parceiro-nome { font-family: var(--font-display); font-size: 1.05rem; line-height: 1.25; }
+.parceiro-tipo { font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); font-weight: 600; }
+/* ---------- Perguntas frequentes ---------- */
+.faq { padding: 90px 0; background: var(--bg); border-top: 1px solid rgba(50,45,40,0.08); }
+.faq-lista { max-width: 780px; margin-top: 34px; }
+.faq-item { border-bottom: 1px solid rgba(50,45,40,0.14); }
+.faq-item summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px 2px; font-family: var(--font-display); font-size: 1.08rem; line-height: 1.35; color: var(--ink); }
+.faq-item summary::-webkit-details-marker { display: none; }
+.faq-item summary::after { content: '+'; flex-shrink: 0; font-family: var(--font-body); font-size: 1.5rem; font-weight: 300; line-height: 1; color: var(--gold); transition: transform 0.2s; }
+.faq-item[open] summary::after { transform: rotate(45deg); }
+.faq-item summary:hover { color: var(--wine); }
+.faq-item summary:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; border-radius: 4px; }
+.faq-item p { margin: 0 0 20px; padding: 0 2px; max-width: 680px; line-height: 1.65; color: var(--ink); font-size: 0.97rem; }
+.faq-final { margin: 28px 0 0; color: var(--taupe); font-size: 0.95rem; }
+.faq-final a { color: var(--wine); }
 </style>
 </head>
 <body>
@@ -867,6 +933,14 @@ textarea { resize: vertical; }
   </section>
 
   <!-- COMO FUNCIONA -->
+  <section id="parceiros" class="parceiros" hidden>
+    <div class="wrap">
+      <p class="eyebrow">Parceiros</p>
+      <h2>Espaços e profissionais com quem já trabalhámos</h2>
+      <ul id="parceiros-lista" class="parceiros-lista"></ul>
+    </div>
+  </section>
+
   <section id="como-funciona" class="como-funciona">
     <div class="wrap">
       <p class="eyebrow">Como funciona</p>
@@ -888,6 +962,56 @@ textarea { resize: vertical; }
           <p>Estruturamos todo o processo para a sua máxima tranquilidade.</p>
         </li>
       </ol>
+    </div>
+  </section>
+
+  <section id="faq" class="faq">
+    <div class="wrap">
+      <p class="eyebrow">Perguntas frequentes</p>
+      <h2>Tem dúvidas? Talvez já tenhamos a resposta</h2>
+      <div class="faq-lista">
+        <details class="faq-item">
+          <summary>Com quanto tempo de antecedência devo contactar-vos?</summary>
+          <p>Quanto mais cedo, melhor: a data só fica reservada quando aprova a proposta e paga o sinal, por ordem de chegada. Contacte-nos assim que tiver a data e o espaço definidos. Se o evento já estiver próximo, peça o orçamento na mesma — dizemos-lhe com franqueza se ainda temos disponibilidade.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Fazem eventos fora da zona da Guarda?</summary>
+          <p>Sim. As deslocações da equipa estão incluídas no valor base de cada orçamento. Indique o local do evento no pedido de orçamento.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Posso escolher as cores e o estilo?</summary>
+          <p>Sim. Cada evento é pensado à sua medida: definimos consigo o tema, as palavras-chave e a paleta de cores, a partir das suas ideias e das imagens de inspiração que nos enviar. Pode juntar imagens no pedido de orçamento ou na conversa connosco.</p>
+        </details>
+        <details class="faq-item">
+          <summary>O pedido de orçamento tem algum custo?</summary>
+          <p>Não. O pedido é gratuito e sem compromisso.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Posso escolher só alguns elementos da proposta?</summary>
+          <p>Pode. O orçamento é discriminado para que escolha os elementos que mais lhe convêm. Se escolher apenas alguns, o valor base de recursos humanos e deslocações mantém-se.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Como se reserva a data?</summary>
+          <p>Depois de aprovar a proposta, a data fica reservada com o pagamento de um sinal de 300 €. O restante é pago na semana anterior ao evento, em numerário ou por transferência bancária.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Quanto tempo tenho para responder à proposta?</summary>
+          <p>A proposta é válida durante 5 dias após o envio. Depois disso fica sem efeito e a data volta a ficar disponível na agenda.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Posso pedir alterações à proposta?</summary>
+          <p>Claro. A proposta é um documento vivo: ajustamos, acrescentamos ou alteramos o que for preciso para que se sinta 100% seguro.</p>
+        </details>
+        <details class="faq-item">
+          <summary>A equipa fica no evento até ao fim?</summary>
+          <p>A equipa permanece no local parcialmente: nas montagens, até ao final da cerimónia e na altura do corte do bolo. Se quiser acompanhamento total, peça-nos um orçamento.</p>
+        </details>
+        <details class="faq-item">
+          <summary>O material de decoração fica connosco?</summary>
+          <p>Não. Todo o material é fornecido em regime de aluguer e é recolhido pela nossa equipa no final do evento.</p>
+        </details>
+      </div>
+      <p class="faq-final">Não encontrou o que procura? <a href="#orcamento">Escreva-nos no pedido de orçamento</a> e respondemos-lhe.</p>
     </div>
   </section>
 
@@ -1349,6 +1473,134 @@ elReviewsGrid.addEventListener('click', (event) => {
 });
 
 carregarReviews();
+</script>
+<script>
+// ---------- Parceiros e espaços ----------
+// Para acrescentar um parceiro, junta uma linha a esta lista:
+//   { nome: 'Quinta Exemplo', tipo: 'Espaço', logo: '/img/parceiros/quinta-exemplo.png', link: 'https://...' }
+// "tipo" (ex: Espaço, Florista, Fotógrafo), "logo" e "link" são opcionais. Sem logótipo aparece só o nome.
+// Enquanto a lista estiver vazia, a secção fica escondida.
+(function () {
+  const PARCEIROS = [
+  ];
+
+  const secao = document.getElementById('parceiros');
+  const lista = document.getElementById('parceiros-lista');
+  if (!secao || !lista || !PARCEIROS.length) return;
+
+  PARCEIROS.forEach((p) => {
+    const li = document.createElement('li');
+    const cartao = document.createElement(p.link ? 'a' : 'div');
+    cartao.className = 'parceiro-cartao';
+    if (p.link) { cartao.href = p.link; cartao.target = '_blank'; cartao.rel = 'noopener noreferrer'; }
+
+    if (p.logo) {
+      const img = document.createElement('img');
+      img.src = p.logo; img.alt = p.nome; img.loading = 'lazy';
+      cartao.appendChild(img);
+    } else {
+      const nome = document.createElement('span');
+      nome.className = 'parceiro-nome'; nome.textContent = p.nome;
+      cartao.appendChild(nome);
+    }
+    if (p.tipo) {
+      const tipo = document.createElement('span');
+      tipo.className = 'parceiro-tipo'; tipo.textContent = p.tipo;
+      cartao.appendChild(tipo);
+    }
+    li.appendChild(cartao);
+    lista.appendChild(li);
+  });
+  secao.hidden = false;
+})();
+</script>
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@type": "FAQPage",
+ "mainEntity": [
+  {
+   "@type": "Question",
+   "name": "Com quanto tempo de antecedência devo contactar-vos?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "Quanto mais cedo, melhor: a data só fica reservada quando aprova a proposta e paga o sinal, por ordem de chegada. Contacte-nos assim que tiver a data e o espaço definidos. Se o evento já estiver próximo, peça o orçamento na mesma — dizemos-lhe com franqueza se ainda temos disponibilidade."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "Fazem eventos fora da zona da Guarda?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "Sim. As deslocações da equipa estão incluídas no valor base de cada orçamento. Indique o local do evento no pedido de orçamento."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "Posso escolher as cores e o estilo?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "Sim. Cada evento é pensado à sua medida: definimos consigo o tema, as palavras-chave e a paleta de cores, a partir das suas ideias e das imagens de inspiração que nos enviar. Pode juntar imagens no pedido de orçamento ou na conversa connosco."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "O pedido de orçamento tem algum custo?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "Não. O pedido é gratuito e sem compromisso."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "Posso escolher só alguns elementos da proposta?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "Pode. O orçamento é discriminado para que escolha os elementos que mais lhe convêm. Se escolher apenas alguns, o valor base de recursos humanos e deslocações mantém-se."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "Como se reserva a data?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "Depois de aprovar a proposta, a data fica reservada com o pagamento de um sinal de 300 €. O restante é pago na semana anterior ao evento, em numerário ou por transferência bancária."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "Quanto tempo tenho para responder à proposta?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "A proposta é válida durante 5 dias após o envio. Depois disso fica sem efeito e a data volta a ficar disponível na agenda."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "Posso pedir alterações à proposta?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "Claro. A proposta é um documento vivo: ajustamos, acrescentamos ou alteramos o que for preciso para que se sinta 100% seguro."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "A equipa fica no evento até ao fim?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "A equipa permanece no local parcialmente: nas montagens, até ao final da cerimónia e na altura do corte do bolo. Se quiser acompanhamento total, peça-nos um orçamento."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "O material de decoração fica connosco?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "Não. Todo o material é fornecido em regime de aluguer e é recolhido pela nossa equipa no final do evento."
+   }
+  }
+ ]
+}
 </script>
 </body>
 </html>
