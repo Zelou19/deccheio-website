@@ -16,7 +16,7 @@ Cada página em `public/` já traz o seu CSS e JavaScript lá dentro (não há f
 
 `public/legal.html` tem a Política de Privacidade, os Termos e Condições e as Informações legais (os campos a amarelo têm de ser preenchidos com os dados da empresa). O servidor gera sozinho `/robots.txt`, `/sitemap.xml` e a página 404.
 
-Os tipos de letra (Fraunces e Work Sans, licença SIL Open Font License 1.1) estão em `public/fonts/` e são servidos pelo próprio site, para não enviar o IP dos visitantes à Google.
+Os tipos de letra (Fraunces, Work Sans, Jost, Cormorant Garamond e Allura — todos com licença SIL Open Font License 1.1) estão em `public/fonts/` e são servidos pelo próprio site, para não enviar o IP dos visitantes à Google.
 
 ## Variáveis de ambiente (Render → Environment)
 
@@ -49,5 +49,5 @@ Build command: `npm install` — Start command: `npm start`. Define as variávei
 ## Onde mudar o quê
 
 - **Preços, textos e notas do catálogo** (e as condições padrão dos orçamentos): bloco `config/orcamentoBase` em `server.js`.
-- **Texto da mensagem de boas-vindas** do chat: constante `MENSAGEM_BOAS_VINDAS` no bloco `routes/quotes`.
+- **Texto da mensagem de boas-vindas** do chat: função `mensagemBoasVindas()` no bloco `routes/quotes` (a frase do aviso por email só aparece com `EMAIL_CLIENTES=true`).
 - **Fotos das opções do catálogo**: no editor de orçamentos, botão 📷 ao lado de cada opção.

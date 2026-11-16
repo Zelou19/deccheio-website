@@ -1349,8 +1349,18 @@ function imagemValida(dataUrl) {
   return typeof dataUrl === 'string' && dataUrl.startsWith('data:image/') && dataUrl.length <= MAX_TAMANHO_IMAGEM_BYTES;
 }
 
-const MENSAGEM_BOAS_VINDAS =
-  'Olá e bem-vindo(a)! 💛 Recebemos o seu pedido de orçamento. Aguarde, por favor, a resposta da nossa equipa aqui nesta conversa. Responderemos o mais rápido possível. Entretanto, pode acrescentar mais ideias ou imagens de inspiração.';
+// Mensagem automática que aparece na conversa assim que o pedido é criado.
+// A frase do aviso por email só entra se os emails aos clientes estiverem mesmo ativos
+// (EMAIL_CLIENTES=true e RESEND_API_KEY definida) — para nunca prometer algo que não vai acontecer.
+function mensagemBoasVindas() {
+  const avisoPorEmail = process.env.EMAIL_CLIENTES === 'true' && process.env.RESEND_API_KEY
+    ? ' Será avisado(a) por email assim que respondermos.'
+    : '';
+  return 'Olá e bem-vindo(a)! 💛 Recebemos o seu pedido de orçamento. '
+    + 'Aguarde um pouco: a nossa equipa irá responder o mais rápido possível, mas pode demorar mais do que 1 dia.'
+    + avisoPorEmail
+    + ' Entretanto, pode acrescentar mais ideias ou imagens de inspiração aqui na conversa.';
+}
 
 // POST /api/quotes — cliente envia um novo pedido de orçamento pelo site
 // (requireUser: é obrigatório ter sessão iniciada — assim o pedido fica sempre ligado
@@ -1391,7 +1401,7 @@ router.post('/', requireUser, async (req, res) => {
       mensagens: [
         {
           autor: 'admin',
-          texto: MENSAGEM_BOAS_VINDAS,
+          texto: mensagemBoasVindas(),
           enviadoPor: 'Equipa DecoraçãoCheio',
         },
       ],
@@ -1969,6 +1979,14 @@ app.use(cors({ origin: true, credentials: true }));
 // anexos no chat) vão em base64 no corpo do pedido.
 app.use(express.json({ limit: '20mb' }));
 app.use(cookieParser());
+// A página inicial leva o endereço real do site (SITE_URL ou o do Render) nas etiquetas de partilha,
+// no canonical e nos dados para o Google. Assim, quando houver domínio próprio, basta definir SITE_URL.
+let paginaInicial = null;
+app.get(['/', '/index.html'], (req, res) => {
+  if (paginaInicial === null) paginaInicial = require('fs').readFileSync(path.join(__dirname, 'public', 'index.html'), 'utf8');
+  res.type('html').send(paginaInicial.replace(/__SITE__/g, enderecoDoSite(req)));
+});
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Config pública para o frontend (nada secreto — só o ID do cliente Google, que é público por natureza)
@@ -2028,22 +2046,32 @@ const PAGINA_404 = `<!DOCTYPE html>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex">
 <title>Página não encontrada — De Cheio</title>
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
 <style>
+@font-face { font-family: 'Jost'; font-weight: 100 900; font-display: swap; src: url(/fonts/jost.woff2) format('woff2'); }
 @font-face { font-family: 'Fraunces'; font-weight: 100 900; font-display: swap; src: url(/fonts/fraunces-opsz.woff2) format('woff2'); }
 @font-face { font-family: 'Work Sans'; font-weight: 100 900; font-display: swap; src: url(/fonts/work-sans.woff2) format('woff2'); }
-body { margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #FAF6EF; color: #322D28; font-family: 'Work Sans', sans-serif; text-align: center; padding: 24px; box-sizing: border-box; }
-h1 { font-family: 'Fraunces', serif; font-weight: 500; font-size: clamp(2rem, 6vw, 3rem); margin: 0 0 10px; }
-p { margin: 0 0 24px; color: #6b625a; }
-a { display: inline-block; background: #6B2A34; color: #fff; text-decoration: none; padding: 0.8em 1.6em; border-radius: 4px; font-weight: 600; }
-img { width: 90px; height: auto; opacity: 0.6; margin-bottom: 18px; }
+* { box-sizing: border-box; }
+body { margin: 0; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; overflow: hidden; background: #FAF6EF; color: #322D28; font-family: 'Work Sans', sans-serif; text-align: center; padding: 24px; }
+.coracao { position: absolute; top: 50%; left: 50%; width: min(560px, 92vw); transform: translate(-50%, -50%); opacity: 0.34; pointer-events: none; -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 16%); mask-image: linear-gradient(to bottom, transparent 0, #000 16%); }
+.marca { position: relative; font-family: 'Fraunces', serif; font-size: 1.25rem; color: #322D28; text-decoration: none; margin-bottom: 34px; display: inline-flex; align-items: center; gap: 8px; }
+.marca svg { width: 22px; height: 20px; }
+main { position: relative; }
+.codigo { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: #B08B4F; margin: 0 0 12px; }
+h1 { font-family: 'Jost', sans-serif; font-weight: 600; letter-spacing: 0.01em; font-size: clamp(2rem, 6vw, 3.2rem); line-height: 1.1; margin: 0 0 14px; }
+p { margin: 0 0 28px; color: #6b625a; font-size: 1.05rem; }
+.botao { display: inline-block; background: #6B2A34; color: #fff; text-decoration: none; padding: 0.85em 1.7em; border-radius: 4px; font-weight: 600; }
+.botao:hover { background: #591f28; }
 </style>
 </head>
 <body>
+<img class="coracao" src="/img/fingerprint-heart-512.png" alt="">
+<a class="marca" href="/">De <svg viewBox="0 0 24 22" aria-hidden="true"><path d="M12 21 C 4 14, 1 10, 1 6.5 C 1 3.5, 3.3 1.5, 6 1.5 C 8.5 1.5, 10.5 3, 12 5.2 C 13.5 3, 15.5 1.5, 18 1.5 C 20.7 1.5, 23 3.5, 23 6.5 C 23 10, 20 14, 12 21 Z" fill="currentColor"/></svg> Cheio</a>
 <main>
-  <img src="/img/logo512.png" alt="">
+  <p class="codigo">Erro 404</p>
   <h1>Página não encontrada</h1>
   <p>O endereço que abriu não existe ou foi mudado.</p>
-  <a href="/">Voltar ao início</a>
+  <a class="botao" href="/">Voltar ao início</a>
 </main>
 </body>
 </html>`;
