@@ -1081,6 +1081,110 @@ textarea { resize: vertical; }
   .pedido-card-actions { flex-wrap: wrap; }
 }
 </style>
+<style>
+/* ---------- Checklist do evento (admin) ---------- */
+.checklist-card {
+  margin: 22px 0 8px;
+  background: var(--bg-alt);
+  border-radius: 10px;
+  padding: 0 20px;
+}
+
+.checklist-card summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 0;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+}
+.checklist-card summary::-webkit-details-marker { display: none; }
+.checklist-card summary::after {
+  content: '+';
+  font-family: var(--font-body);
+  font-size: 1.5rem;
+  font-weight: 300;
+  line-height: 1;
+  color: var(--gold);
+  transition: transform 0.2s;
+}
+.checklist-card[open] summary::after { transform: rotate(45deg); }
+.checklist-card summary:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; border-radius: 4px; }
+
+.checklist-titulo { flex: 1; }
+.checklist-contagem { font-family: var(--font-body); font-size: 0.85rem; font-weight: 600; color: var(--taupe); }
+
+.checklist-corpo { padding-bottom: 18px; }
+
+.checklist-barra {
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(50, 45, 40, 0.12);
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+.checklist-barra span { display: block; height: 100%; width: 0; background: #2E6B4F; transition: width 0.25s ease; }
+
+.checklist-lista { list-style: none; margin: 0 0 14px; padding: 0; }
+
+.checklist-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(50, 45, 40, 0.08);
+}
+.checklist-item:last-child { border-bottom: none; }
+
+.checklist-marcar {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 400;
+  cursor: pointer;
+}
+.checklist-marcar input[type="checkbox"] {
+  flex: none;
+  width: 1.15rem;
+  height: 1.15rem;
+  margin-top: 0.2rem;
+  padding: 0;
+  accent-color: var(--wine);
+  cursor: pointer;
+}
+.checklist-texto { overflow-wrap: anywhere; }
+.checklist-item.feita .checklist-texto { color: var(--taupe); text-decoration: line-through; }
+
+.checklist-meta { flex: none; font-size: 0.75rem; color: var(--taupe); }
+
+.checklist-apagar {
+  flex: none;
+  background: none;
+  border: none;
+  color: var(--taupe);
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 2px 6px;
+}
+.checklist-apagar:hover { color: var(--wine); }
+
+.checklist-form { display: flex; gap: 10px; margin-top: 4px; }
+.checklist-form input { flex: 1; }
+.checklist-form .btn { padding: 0.7em 1.3em; font-size: 0.88rem; }
+
+#btn-checklist-base { margin-bottom: 14px; }
+
+@media (max-width: 640px) {
+  .checklist-meta { display: none; }
+}
+</style>
 </head>
 <body>
 
@@ -1185,6 +1289,24 @@ textarea { resize: vertical; }
     <p id="aviso-fechada" class="aviso-fechada" hidden>
       Esta conversa está fechada. <button type="button" id="btn-reabrir-conversa" class="link-perigo">Reabrir conversa</button> para poderes responder outra vez.
     </p>
+
+    <details id="checklist-card" class="checklist-card" open>
+      <summary>
+        <span class="checklist-titulo">Checklist do evento</span>
+        <span id="checklist-contagem" class="checklist-contagem"></span>
+      </summary>
+      <div class="checklist-corpo">
+        <div id="checklist-barra" class="checklist-barra" role="progressbar" aria-label="Progresso da checklist" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" hidden><span id="checklist-barra-preenchida"></span></div>
+        <ul id="checklist-lista" class="checklist-lista"></ul>
+        <p id="checklist-vazia" class="chat-vazio" hidden>Ainda não há tarefas neste evento.</p>
+        <button type="button" id="btn-checklist-base" class="btn-toggle-fechar" hidden>Criar lista base para este tipo de evento</button>
+        <form id="checklist-form" class="checklist-form">
+          <input type="text" id="checklist-texto" maxlength="200" placeholder="Nova tarefa (ex: confirmar a hora da montagem)" aria-label="Nova tarefa">
+          <button type="submit" class="btn btn-primary">Adicionar</button>
+        </form>
+        <p id="checklist-feedback" class="form-feedback" role="status" aria-live="polite"></p>
+      </div>
+    </details>
 
     <div id="pedido-imagens" class="imagens-galeria" hidden></div>
 
@@ -1414,6 +1536,10 @@ function renderizarPedido(pedido) {
     btnAddCalendario.hidden = true;
   }
 
+  // A checklist só vem nas respostas que a trazem (o GET do pedido); as de enviar mensagem, etc., não.
+  // Enquanto houver um pedido de checklist em curso não se redesenha, para não "saltar" a meio.
+  if (Array.isArray(pedido.checklist) && !checklistAGuardar) renderizarChecklist(pedido.checklist);
+
   if (pedido.imagensInspiracao?.length) {
     elImagensPedido.hidden = false;
     elImagensPedido.innerHTML = pedido.imagensInspiracao
@@ -1637,6 +1763,104 @@ btnReabrirConversa?.addEventListener('click', async () => {
   });
   carregarPedido();
 });
+
+// ---------- Checklist do evento ----------
+const elChecklistLista = document.getElementById('checklist-lista');
+const elChecklistVazia = document.getElementById('checklist-vazia');
+const elChecklistContagem = document.getElementById('checklist-contagem');
+const elChecklistBarra = document.getElementById('checklist-barra');
+const elChecklistPreenchida = document.getElementById('checklist-barra-preenchida');
+const btnChecklistBase = document.getElementById('btn-checklist-base');
+const formChecklist = document.getElementById('checklist-form');
+const inputChecklist = document.getElementById('checklist-texto');
+const elChecklistFeedback = document.getElementById('checklist-feedback');
+
+let checklistAtual = [];
+let checklistAssinatura = null; // para só redesenhar a lista quando ela mudou mesmo
+let checklistAGuardar = 0;      // pedidos em curso
+
+function renderizarChecklist(itens) {
+  const assinatura = JSON.stringify(itens);
+  if (assinatura === checklistAssinatura) return;
+  checklistAssinatura = assinatura;
+  checklistAtual = itens;
+
+  const feitas = itens.filter((tarefa) => tarefa.feito).length;
+  const percentagem = itens.length ? Math.round((feitas / itens.length) * 100) : 0;
+  elChecklistContagem.textContent = itens.length ? `${feitas} de ${itens.length}` : '';
+  elChecklistPreenchida.style.width = `${percentagem}%`;
+  elChecklistBarra.setAttribute('aria-valuenow', String(percentagem));
+  elChecklistBarra.hidden = itens.length === 0;
+  elChecklistVazia.hidden = itens.length > 0;
+  btnChecklistBase.hidden = itens.length > 0;
+
+  elChecklistLista.innerHTML = itens.map((tarefa) => {
+    const quando = tarefa.feitoEm
+      ? ' · ' + new Date(tarefa.feitoEm).toLocaleDateString('pt-PT', { day: '2-digit', month: '2-digit' })
+      : '';
+    const meta = tarefa.feito && tarefa.feitoPor
+      ? `<span class="checklist-meta">${escaparHtml(tarefa.feitoPor)}${quando}</span>`
+      : '';
+    const nomeParaAtributo = escaparHtml(tarefa.texto).replace(/"/g, '&quot;');
+    return `<li class="checklist-item${tarefa.feito ? ' feita' : ''}">
+      <label class="checklist-marcar"><input type="checkbox" data-id="${tarefa._id}"${tarefa.feito ? ' checked' : ''}><span class="checklist-texto">${escaparHtml(tarefa.texto)}</span></label>
+      ${meta}
+      <button type="button" class="checklist-apagar" data-id="${tarefa._id}" aria-label="Apagar a tarefa: ${nomeParaAtributo}" title="Apagar">&times;</button>
+    </li>`;
+  }).join('');
+}
+
+// Faz um pedido à checklist e desenha a lista que o servidor devolve. Se falhar, mostra o erro
+// e volta a desenhar a lista como estava (para uma caixa não ficar marcada sem ter ficado guardada).
+async function pedirChecklist(caminho, opcoes) {
+  checklistAGuardar += 1;
+  elChecklistFeedback.textContent = '';
+  elChecklistFeedback.className = 'form-feedback';
+  try {
+    const resposta = await fetch(`/api/quotes/${idPedido}/checklist${caminho}`, {
+      headers: { 'Content-Type': 'application/json' },
+      ...opcoes,
+    });
+    const dados = await resposta.json().catch(() => ({}));
+    if (!resposta.ok) throw new Error(dados.erro || 'Não foi possível guardar. Tenta novamente.');
+    checklistAssinatura = null;
+    renderizarChecklist(dados.checklist);
+    return true;
+  } catch (erro) {
+    elChecklistFeedback.textContent = erro.message;
+    elChecklistFeedback.classList.add('erro');
+    checklistAssinatura = null;
+    renderizarChecklist(checklistAtual);
+    return false;
+  } finally {
+    checklistAGuardar -= 1;
+  }
+}
+
+elChecklistLista.addEventListener('change', (event) => {
+  const caixa = event.target.closest('input[type="checkbox"]');
+  if (!caixa) return;
+  caixa.closest('.checklist-item').classList.toggle('feita', caixa.checked);
+  pedirChecklist(`/${caixa.dataset.id}`, { method: 'PATCH', body: JSON.stringify({ feito: caixa.checked }) });
+});
+
+elChecklistLista.addEventListener('click', (event) => {
+  const botao = event.target.closest('.checklist-apagar');
+  if (!botao) return;
+  pedirChecklist(`/${botao.dataset.id}`, { method: 'DELETE' });
+});
+
+formChecklist.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const texto = inputChecklist.value.trim();
+  if (!texto) return;
+  if (await pedirChecklist('', { method: 'POST', body: JSON.stringify({ texto }) })) {
+    inputChecklist.value = '';
+    inputChecklist.focus();
+  }
+});
+
+btnChecklistBase.addEventListener('click', () => pedirChecklist('/base', { method: 'POST', body: '{}' }));
 
 // ---------- Apagar conversa (zona perigosa) ----------
 const btnMostrarApagar = document.getElementById('btn-mostrar-apagar');

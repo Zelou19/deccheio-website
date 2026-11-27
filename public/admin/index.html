@@ -1022,6 +1022,157 @@ textarea { resize: vertical; }
   .pedido-card-actions { flex-wrap: wrap; }
 }
 </style>
+<style>
+/* ---------- Painel renovado: cabeçalho, resumo, gráficos e lista ---------- */
+.admin-header { align-items: flex-start; gap: 20px; padding: 30px 0 22px; margin-bottom: 26px; }
+.admin-header h1 { font-size: clamp(1.7rem, 3vw, 2.2rem); margin: 0; }
+.admin-header .eyebrow { margin-bottom: 0.5em; }
+.admin-ola { margin: 6px 0 0; color: var(--taupe); font-size: 0.95rem; }
+
+.admin-nav { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; padding-top: 4px; }
+.admin-nav a, .admin-nav button {
+  font-family: var(--font-body);
+  font-size: 0.84rem;
+  color: var(--ink);
+  text-decoration: none;
+  background: transparent;
+  border: 1px solid rgba(50, 45, 40, 0.14);
+  border-radius: 999px;
+  padding: 0.45em 1.05em;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.admin-nav a:hover, .admin-nav button:hover { background: var(--bg-alt); border-color: rgba(50, 45, 40, 0.3); }
+.admin-nav a[aria-current="page"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.admin-nav .admin-nav-sair { color: var(--wine); border-color: rgba(107, 42, 52, 0.3); }
+.admin-nav .admin-nav-sair:hover { background: rgba(107, 42, 52, 0.08); }
+.admin-nav [hidden] { display: none; }
+
+/* Cartões de resumo (clicáveis: filtram a lista) */
+.stats-bar { gap: 14px; margin-bottom: 18px; }
+.stats-bar .stat-card {
+  font: inherit;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  background: #FFFDF9;
+  border-style: solid;
+  border-width: 1px;
+  border-top-width: 4px;
+  border-color: rgba(50, 45, 40, 0.08);
+  border-radius: 12px;
+  padding: 18px 20px;
+  box-shadow: 0 2px 14px rgba(50, 45, 40, 0.05);
+  color: var(--ink);
+  cursor: pointer;
+  text-align: left;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.stats-bar .stat-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(50, 45, 40, 0.09); }
+.stats-bar .stat-card:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.stats-bar .stat-card.ativo { box-shadow: 0 0 0 2px var(--gold), 0 6px 20px rgba(50, 45, 40, 0.09); }
+.stats-bar .stat-card.total { border-top-color: var(--ink); }
+.stats-bar .stat-card.nao_respondido { border-top-color: var(--wine); }
+.stats-bar .stat-card.em_andamento { border-top-color: var(--gold); }
+.stats-bar .stat-card.concluido { border-top-color: #2E6B4F; }
+.stats-bar .stat-num { font-size: 2.4rem; }
+.stats-bar .stat-label { font-size: 0.82rem; font-weight: 600; letter-spacing: 0.01em; color: var(--ink); }
+.stat-sub { font-size: 0.78rem; color: var(--taupe); }
+.stat-card.nao_respondido.urgente .stat-num { color: var(--wine); }
+
+/* Gráficos */
+.graficos { display: grid; gap: 18px; margin-bottom: 18px; }
+.graficos-1 { grid-template-columns: 1.6fr 1fr; }
+.graficos-2 { grid-template-columns: 1fr 1fr; margin-bottom: 34px; }
+.painel-grafico {
+  background: #FFFDF9;
+  border: 1px solid rgba(50, 45, 40, 0.08);
+  border-radius: 12px;
+  padding: 20px 22px 18px;
+  box-shadow: 0 2px 14px rgba(50, 45, 40, 0.05);
+  min-width: 0;
+}
+.painel-grafico h2 { font-size: 1.05rem; margin: 0 0 2px; }
+.painel-grafico .grafico-sub { margin: 0 0 14px; font-size: 0.8rem; color: var(--taupe); }
+
+.grafico-svg { display: block; width: 100%; height: auto; }
+.grafico-svg text { font-family: var(--font-body); fill: var(--taupe); font-size: 11px; }
+.grafico-svg .valor { fill: var(--ink); font-weight: 600; font-size: 12px; }
+.grafico-svg .eixo { stroke: rgba(50, 45, 40, 0.15); stroke-width: 1; }
+.grafico-svg .barra { fill: var(--gold); transform-box: fill-box; transform-origin: 50% 100%; animation: crescer 0.6s ease both; }
+.grafico-svg .barra.atual { fill: var(--wine); }
+@keyframes crescer { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+
+.donut-area { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; }
+.donut-area svg { width: 150px; height: 150px; flex: none; }
+.grafico-svg .donut-centro-num { font-family: var(--font-display); font-size: 28px; fill: var(--ink); font-weight: 500; }
+.grafico-svg .donut-centro-txt { font-size: 10px; }
+.legenda { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; font-size: 0.86rem; flex: 1; min-width: 150px; }
+.legenda li { display: flex; align-items: center; gap: 8px; }
+.legenda i { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.legenda b { margin-left: auto; font-weight: 600; }
+
+.tipos-lista { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.tipo-linha { display: grid; grid-template-columns: 130px 1fr 28px; align-items: center; gap: 10px; font-size: 0.86rem; }
+.tipo-nome { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tipo-barra { height: 10px; background: rgba(50, 45, 40, 0.08); border-radius: 999px; overflow: hidden; }
+.tipo-barra span { display: block; height: 100%; background: var(--gold); border-radius: 999px; transition: width 0.5s ease; }
+.tipo-num { text-align: right; font-weight: 600; }
+
+.proximos { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.proximo-item { display: flex; align-items: center; gap: 14px; padding: 8px 6px; border-radius: 8px; text-decoration: none; color: var(--ink); }
+.proximo-item:hover { background: var(--bg-alt); }
+.proximo-data { flex: none; width: 46px; text-align: center; background: var(--bg-alt); border-radius: 8px; padding: 5px 0; line-height: 1.1; }
+.proximo-data b { display: block; font-family: var(--font-display); font-size: 1.25rem; font-weight: 500; }
+.proximo-data span { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--taupe); }
+.proximo-info { min-width: 0; font-size: 0.9rem; }
+.proximo-info strong { display: block; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.proximo-info small { color: var(--taupe); font-size: 0.78rem; }
+.grafico-vazio { color: var(--taupe); font-size: 0.88rem; font-style: italic; margin: 0; }
+
+/* Lista de pedidos */
+.lista-titulo { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 0 0 10px; }
+.lista-titulo h2 { font-size: 1.15rem; margin: 0; }
+.lista-contagem { font-size: 0.82rem; color: var(--taupe); }
+.pedido-card {
+  background: #FFFDF9;
+  border: 1px solid rgba(50, 45, 40, 0.08);
+  border-radius: 12px;
+  box-shadow: 0 1px 8px rgba(50, 45, 40, 0.04);
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+.pedido-card:hover { box-shadow: 0 6px 20px rgba(50, 45, 40, 0.09); transform: translateY(-1px); }
+.pedido-card-link { display: flex; align-items: center; gap: 14px; flex: 1; min-width: 0; text-decoration: none; color: inherit; }
+.pedido-avatar {
+  flex: none;
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: #E4D8C4;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  color: var(--ink);
+}
+.pedido-avatar[data-status="nao_respondido"] { background: var(--wine); color: #E3C98F; }
+.pedido-avatar[data-status="em_andamento"] { background: #E9D9B4; }
+.pedido-avatar[data-status="concluido"] { background: #CFE3D8; }
+.pedido-card-corpo { min-width: 0; }
+.pedido-card-nome { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.pedido-card-nome .status-pill { font-size: 0.66rem; padding: 0.2em 0.7em; }
+.pedido-card-meta { overflow-wrap: anywhere; }
+
+@media (max-width: 860px) {
+  .graficos-1, .graficos-2 { grid-template-columns: 1fr; }
+  .admin-header { flex-direction: column; }
+  .admin-nav { justify-content: flex-start; }
+}
+@media (max-width: 700px) {
+  .stats-bar .stat-num { font-size: 2rem; }
+  .tipo-linha { grid-template-columns: 100px 1fr 24px; }
+  .pedido-card-link { width: 100%; }
+}
+</style>
 </head>
 <body>
 
@@ -1030,35 +1181,75 @@ textarea { resize: vertical; }
   <div id="admin-conteudo" style="padding-bottom: 60px;">
 
     <div class="admin-header">
-      <h1>Pedidos de orçamento</h1>
-      <div style="display:flex; align-items:center; gap:18px;">
-        <a href="/admin/orcamentos.html" class="admin-sair" style="text-decoration:none;">Orçamentos</a>
-        <a href="/admin/eventos.html" class="admin-sair" style="text-decoration:none;">Os nossos eventos</a>
-        <a href="/admin/reviews.html" class="admin-sair admin-so-owner" hidden style="text-decoration:none;">Avaliações</a>
-        <a href="/admin/parceiros.html" class="admin-sair" style="text-decoration:none;">Parceiros</a>
-        <a href="/admin/calendario.html" class="admin-sair" style="text-decoration:none;">Calendário</a>
-        <a href="/admin/conta.html" class="admin-sair" style="text-decoration:none;">A minha conta</a>
-        <button class="admin-sair" id="btn-sair">Sair</button>
+      <div>
+        <p class="eyebrow">Painel de administração</p>
+        <h1>Pedidos de orçamento</h1>
+        <p class="admin-ola" id="admin-ola"></p>
       </div>
+      <nav class="admin-nav" aria-label="Secções do painel">
+        <a href="/admin/" aria-current="page">Pedidos</a>
+        <a href="/admin/orcamentos.html">Orçamentos</a>
+        <a href="/admin/eventos.html">Os nossos eventos</a>
+        <a href="/admin/reviews.html" class="admin-so-owner" hidden>Avaliações</a>
+        <a href="/admin/parceiros.html">Parceiros</a>
+        <a href="/admin/calendario.html">Calendário</a>
+        <a href="/admin/conta.html">A minha conta</a>
+        <button type="button" class="admin-nav-sair" id="btn-sair">Sair</button>
+      </nav>
     </div>
 
     <div class="stats-bar">
-      <div class="stat-card total">
+      <button type="button" class="stat-card total ativo" data-filtro="">
         <span class="stat-num" id="stat-total">0</span>
-        <span class="stat-label">Total</span>
-      </div>
-      <div class="stat-card nao_respondido">
+        <span class="stat-label">Total de pedidos</span>
+        <span class="stat-sub" id="stat-total-sub"></span>
+      </button>
+      <button type="button" class="stat-card nao_respondido" data-filtro="nao_respondido">
         <span class="stat-num" id="stat-nao_respondido">0</span>
         <span class="stat-label">Não respondidos</span>
-      </div>
-      <div class="stat-card em_andamento">
+        <span class="stat-sub" id="stat-nao_respondido-sub"></span>
+      </button>
+      <button type="button" class="stat-card em_andamento" data-filtro="em_andamento">
         <span class="stat-num" id="stat-em_andamento">0</span>
         <span class="stat-label">Em andamento</span>
-      </div>
-      <div class="stat-card concluido">
+        <span class="stat-sub" id="stat-em_andamento-sub"></span>
+      </button>
+      <button type="button" class="stat-card concluido" data-filtro="concluido">
         <span class="stat-num" id="stat-concluido">0</span>
         <span class="stat-label">Concluídos</span>
-      </div>
+        <span class="stat-sub" id="stat-concluido-sub"></span>
+      </button>
+    </div>
+
+    <div class="graficos graficos-1">
+      <section class="painel-grafico" aria-labelledby="g-meses-t">
+        <h2 id="g-meses-t">Pedidos por mês</h2>
+        <p class="grafico-sub">Últimos 6 meses</p>
+        <div id="grafico-meses"></div>
+      </section>
+      <section class="painel-grafico" aria-labelledby="g-estado-t">
+        <h2 id="g-estado-t">Estado dos pedidos</h2>
+        <p class="grafico-sub">Todas as conversas</p>
+        <div id="grafico-estado"></div>
+      </section>
+    </div>
+
+    <div class="graficos graficos-2">
+      <section class="painel-grafico" aria-labelledby="g-tipos-t">
+        <h2 id="g-tipos-t">Tipos de evento</h2>
+        <p class="grafico-sub">O que mais nos pedem</p>
+        <div id="grafico-tipos"></div>
+      </section>
+      <section class="painel-grafico" aria-labelledby="g-prox-t">
+        <h2 id="g-prox-t">Próximos eventos</h2>
+        <p class="grafico-sub">Conversas abertas com data marcada</p>
+        <div id="grafico-proximos"></div>
+      </section>
+    </div>
+
+    <div class="lista-titulo">
+      <h2>Conversas</h2>
+      <span class="lista-contagem" id="lista-contagem"></span>
     </div>
 
     <div class="abas-bar">
@@ -1152,17 +1343,186 @@ async function carregarPedidos() {
   todosPedidos = await resposta.json();
 
   renderizarStats();
+  renderizarGraficos();
   renderizarLista();
+}
+
+function esc(texto) {
+  const div = document.createElement('div');
+  div.textContent = texto == null ? '' : String(texto);
+  return div.innerHTML;
+}
+
+function haQuanto(iso) {
+  const dias = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
+  if (dias <= 0) return 'hoje';
+  if (dias === 1) return 'ontem';
+  if (dias < 31) return `há ${dias} dias`;
+  return new Date(iso).toLocaleDateString('pt-PT');
 }
 
 function renderizarStats() {
   const contagens = { nao_respondido: 0, em_andamento: 0, concluido: 0 };
   todosPedidos.forEach((p) => { contagens[p.status] = (contagens[p.status] || 0) + 1; });
 
+  const agora = new Date();
+  const esteMes = todosPedidos.filter((p) => {
+    const d = new Date(p.createdAt);
+    return d.getFullYear() === agora.getFullYear() && d.getMonth() === agora.getMonth();
+  }).length;
+  const taxa = todosPedidos.length ? Math.round((contagens.concluido / todosPedidos.length) * 100) : 0;
+
   document.getElementById('stat-total').textContent = todosPedidos.length;
   document.getElementById('stat-nao_respondido').textContent = contagens.nao_respondido;
   document.getElementById('stat-em_andamento').textContent = contagens.em_andamento;
   document.getElementById('stat-concluido').textContent = contagens.concluido;
+
+  document.getElementById('stat-total-sub').textContent = esteMes === 1 ? '1 novo este mês' : `${esteMes} novos este mês`;
+  document.getElementById('stat-nao_respondido-sub').textContent = contagens.nao_respondido ? 'precisam de resposta' : 'tudo em dia';
+  document.getElementById('stat-em_andamento-sub').textContent = 'a decorrer';
+  document.getElementById('stat-concluido-sub').textContent = `${taxa}% do total`;
+  document.querySelector('.stat-card.nao_respondido').classList.toggle('urgente', contagens.nao_respondido > 0);
+}
+
+// ---------- Gráficos (SVG simples, sem bibliotecas) ----------
+function graficoMeses() {
+  const agora = new Date();
+  const meses = [];
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(agora.getFullYear(), agora.getMonth() - i, 1);
+    meses.push({
+      ano: d.getFullYear(),
+      mes: d.getMonth(),
+      total: 0,
+      rotulo: d.toLocaleDateString('pt-PT', { month: 'short' }).replace('.', ''),
+    });
+  }
+  todosPedidos.forEach((p) => {
+    const d = new Date(p.createdAt);
+    const m = meses.find((x) => x.ano === d.getFullYear() && x.mes === d.getMonth());
+    if (m) m.total += 1;
+  });
+
+  const max = Math.max(1, ...meses.map((m) => m.total));
+  const largura = 480, base = 176, topo = 28, larguraBarra = 44, passo = largura / meses.length;
+
+  const barras = meses.map((m, i) => {
+    const altura = Math.max(m.total ? 4 : 0, (m.total / max) * (base - topo));
+    const x = passo * i + (passo - larguraBarra) / 2;
+    const y = base - altura;
+    const atual = i === meses.length - 1 ? ' atual' : '';
+    const titulo = `${m.rotulo} ${m.ano}: ${m.total} ${m.total === 1 ? 'pedido' : 'pedidos'}`;
+    return `<g>
+      <title>${esc(titulo)}</title>
+      <rect class="barra${atual}" x="${x}" y="${y}" width="${larguraBarra}" height="${altura}" rx="6" style="animation-delay:${i * 60}ms"></rect>
+      <text class="valor" x="${x + larguraBarra / 2}" y="${y - 7}" text-anchor="middle">${m.total}</text>
+      <text x="${x + larguraBarra / 2}" y="196" text-anchor="middle">${esc(m.rotulo)}</text>
+    </g>`;
+  }).join('');
+
+  const resumo = meses.map((m) => `${m.rotulo}: ${m.total}`).join(', ');
+  document.getElementById('grafico-meses').innerHTML = `
+    <svg class="grafico-svg" viewBox="0 0 ${largura} 204" role="img" aria-label="Pedidos por mês. ${esc(resumo)}">
+      <line class="eixo" x1="0" y1="${base}" x2="${largura}" y2="${base}"></line>
+      ${barras}
+    </svg>`;
+}
+
+function graficoEstado() {
+  const dados = [
+    { chave: 'nao_respondido', cor: '#6B2A34' },
+    { chave: 'em_andamento', cor: '#B08B4F' },
+    { chave: 'concluido', cor: '#2E6B4F' },
+  ].map((d) => ({ ...d, total: todosPedidos.filter((p) => p.status === d.chave).length }));
+
+  const total = todosPedidos.length;
+  const raio = 54, circ = 2 * Math.PI * raio;
+  let acumulado = 0;
+
+  const arcos = total === 0
+    ? `<circle cx="70" cy="70" r="${raio}" fill="none" stroke="rgba(50,45,40,0.1)" stroke-width="18"></circle>`
+    : dados.filter((d) => d.total > 0).map((d) => {
+        const comp = (d.total / total) * circ;
+        const arco = `<circle cx="70" cy="70" r="${raio}" fill="none" stroke="${d.cor}" stroke-width="18"
+          stroke-dasharray="${comp} ${circ - comp}" stroke-dashoffset="${-acumulado}" transform="rotate(-90 70 70)">
+          <title>${esc(ROTULOS_STATUS[d.chave])}: ${d.total}</title></circle>`;
+        acumulado += comp;
+        return arco;
+      }).join('');
+
+  const legenda = dados.map((d) => {
+    const pct = total ? Math.round((d.total / total) * 100) : 0;
+    return `<li><i style="background:${d.cor}"></i>${esc(ROTULOS_STATUS[d.chave])}<b>${d.total} <span style="font-weight:400;color:var(--taupe)">(${pct}%)</span></b></li>`;
+  }).join('');
+
+  document.getElementById('grafico-estado').innerHTML = `
+    <div class="donut-area">
+      <svg class="grafico-svg" viewBox="0 0 140 140" role="img" aria-label="Estado dos pedidos: ${dados.map((d) => `${ROTULOS_STATUS[d.chave]} ${d.total}`).join(', ')}">
+        ${arcos}
+        <text class="donut-centro-num" x="70" y="72" text-anchor="middle">${total}</text>
+        <text class="donut-centro-txt" x="70" y="88" text-anchor="middle">pedidos</text>
+      </svg>
+      <ul class="legenda">${legenda}</ul>
+    </div>`;
+}
+
+function graficoTipos() {
+  const contagem = {};
+  todosPedidos.forEach((p) => {
+    const tipo = p.tipoEvento || 'Outro';
+    contagem[tipo] = (contagem[tipo] || 0) + 1;
+  });
+  const linhas = Object.entries(contagem).sort((a, b) => b[1] - a[1]);
+  const el = document.getElementById('grafico-tipos');
+
+  if (!linhas.length) {
+    el.innerHTML = '<p class="grafico-vazio">Ainda não há pedidos.</p>';
+    return;
+  }
+  const max = linhas[0][1];
+  el.innerHTML = '<ul class="tipos-lista">' + linhas.map(([tipo, n]) => `
+    <li class="tipo-linha">
+      <span class="tipo-nome" title="${esc(tipo)}">${esc(tipo)}</span>
+      <span class="tipo-barra"><span style="width:${(n / max) * 100}%"></span></span>
+      <span class="tipo-num">${n}</span>
+    </li>`).join('') + '</ul>';
+}
+
+function graficoProximos() {
+  const hoje = new Date();
+  hoje.setHours(0, 0, 0, 0);
+  const proximos = todosPedidos
+    .filter((p) => p.dataEvento && !p.fechado && new Date(p.dataEvento) >= hoje)
+    .sort((a, b) => new Date(a.dataEvento) - new Date(b.dataEvento))
+    .slice(0, 5);
+  const el = document.getElementById('grafico-proximos');
+
+  if (!proximos.length) {
+    el.innerHTML = '<p class="grafico-vazio">Ainda não há eventos futuros com data marcada.</p>';
+    return;
+  }
+  el.innerHTML = '<ul class="proximos">' + proximos.map((p) => {
+    const d = new Date(p.dataEvento);
+    const dia = String(d.getUTCDate());
+    const mes = d.toLocaleDateString('pt-PT', { month: 'short', timeZone: 'UTC' }).replace('.', '');
+    return `<li><a class="proximo-item" href="/admin/chat.html?id=${esc(p._id)}">
+      <span class="proximo-data"><b>${dia}</b><span>${esc(mes)}</span></span>
+      <span class="proximo-info"><strong>${esc(p.nome)}</strong><small>${esc(p.tipoEvento || '')}${p.localEvento ? ' · ' + esc(p.localEvento) : ''}</small></span>
+    </a></li>`;
+  }).join('') + '</ul>';
+}
+
+function renderizarGraficos() {
+  graficoMeses();
+  graficoEstado();
+  graficoTipos();
+  graficoProximos();
+}
+
+function marcarCardAtivo() {
+  document.querySelectorAll('.stats-bar .stat-card').forEach((c) => {
+    c.classList.toggle('ativo', c.dataset.filtro === filtroStatus.value);
+  });
 }
 
 function renderizarLista() {
@@ -1178,6 +1538,9 @@ function renderizarLista() {
     return true;
   });
 
+  document.getElementById('lista-contagem').textContent =
+    `${filtrados.length} ${filtrados.length === 1 ? 'conversa' : 'conversas'}`;
+
   if (filtrados.length === 0) {
     lista.innerHTML = `<p class="sem-resultados">${abaAtual === 'fechadas' ? 'Ainda não há conversas fechadas.' : 'Nenhum pedido corresponde a este filtro.'}</p>`;
     return;
@@ -1186,27 +1549,30 @@ function renderizarLista() {
   lista.innerHTML = filtrados
     .map((p) => `
       <div class="pedido-card" style="margin-bottom: 10px;">
-        <a href="/admin/chat.html?id=${p._id}" class="pedido-card-info" style="text-decoration:none; color: inherit;">
-          <div class="pedido-card-nome">
-            <span class="status-dot" data-status="${p.status}" title="${ROTULOS_STATUS[p.status] || p.status}"></span>
-            ${p.nome}
-          </div>
-          <div class="pedido-card-meta">
-            <span class="pedido-card-tag">${p.tipoEvento}</span>
-            ${p.email} · pedido a ${new Date(p.createdAt).toLocaleDateString('pt-PT')}
-            ${p.fechado ? ' · <span class="pedido-card-fechada">fechada</span>' : ''}
-          </div>
+        <a href="/admin/chat.html?id=${esc(p._id)}" class="pedido-card-link">
+          <span class="pedido-avatar" data-status="${esc(p.status)}" aria-hidden="true">${esc((p.nome || '?').trim().charAt(0).toUpperCase())}</span>
+          <span class="pedido-card-corpo">
+            <span class="pedido-card-nome">
+              ${esc(p.nome)}
+              <span class="status-pill" data-status="${esc(p.status)}">${esc(ROTULOS_STATUS[p.status] || p.status)}</span>
+            </span>
+            <span class="pedido-card-meta" style="display:block;">
+              <span class="pedido-card-tag">${esc(p.tipoEvento)}</span>
+              ${esc(p.email)} · pedido ${esc(haQuanto(p.createdAt))}
+              ${p.fechado ? ' · <span class="pedido-card-fechada">fechada</span>' : ''}
+            </span>
+          </span>
         </a>
         <div class="pedido-card-actions">
-          <select class="status-select" data-id="${p._id}">
+          <select class="status-select" data-id="${esc(p._id)}" aria-label="Estado do pedido de ${esc(p.nome)}">
             <option value="nao_respondido" ${p.status === 'nao_respondido' ? 'selected' : ''}>Não respondido</option>
             <option value="em_andamento" ${p.status === 'em_andamento' ? 'selected' : ''}>Em andamento</option>
             <option value="concluido" ${p.status === 'concluido' ? 'selected' : ''}>Concluído</option>
           </select>
-          <button type="button" class="btn-toggle-fechar" data-id="${p._id}" data-fechado="${p.fechado}">
+          <button type="button" class="btn-toggle-fechar" data-id="${esc(p._id)}" data-fechado="${p.fechado}">
             ${p.fechado ? 'Reabrir' : 'Fechar'}
           </button>
-          <a href="/admin/chat.html?id=${p._id}" class="btn btn-primary" style="padding: 0.5em 1em; font-size: 0.82rem;">Abrir</a>
+          <a href="/admin/chat.html?id=${esc(p._id)}" class="btn btn-primary" style="padding: 0.5em 1em; font-size: 0.82rem;">Abrir</a>
         </div>
       </div>
     `)
@@ -1235,7 +1601,19 @@ function renderizarLista() {
   });
 }
 
-[filtroStatus, filtroTipo, filtroBusca].forEach((el) => el.addEventListener('input', renderizarLista));
+[filtroStatus, filtroTipo, filtroBusca].forEach((el) => el.addEventListener('input', () => {
+  marcarCardAtivo();
+  renderizarLista();
+}));
+
+document.querySelectorAll('.stats-bar .stat-card').forEach((card) => {
+  card.addEventListener('click', () => {
+    filtroStatus.value = card.dataset.filtro;
+    marcarCardAtivo();
+    renderizarLista();
+    document.querySelector('.lista-titulo').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
 
 botoesAba.forEach((botao) => {
   botao.addEventListener('click', () => {
@@ -1246,7 +1624,9 @@ botoesAba.forEach((botao) => {
 });
 
 protegerPaginaAdmin().then((admin) => {
-  if (admin) carregarPedidos();
+  if (!admin) return;
+  if (admin.username) document.getElementById('admin-ola').textContent = `Olá, ${admin.username} — aqui está o resumo dos teus pedidos.`;
+  carregarPedidos();
 });
 </script>
 </body>
