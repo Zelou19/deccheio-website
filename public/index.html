@@ -838,23 +838,36 @@ textarea { resize: vertical; }
 .parceiro-item {
   flex: none;
   width: 200px;
-  height: 100px;
+  height: 120px;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 0 24px;
+  gap: 10px;
+  padding: 0 20px;
   box-sizing: border-box;
   color: var(--ink);
   text-decoration: none;
 }
 .parceiro-item img {
   max-width: 100%;
-  max-height: 70px;
+  max-height: 56px;
   width: auto;
   height: auto;
   object-fit: contain;
   opacity: 0.85;
   transition: opacity 0.2s;
+}
+.parceiro-nome {
+  max-width: 100%;
+  font-size: 0.82rem;
+  line-height: 1.25;
+  text-align: center;
+  color: var(--taupe);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 a.parceiro-item:hover img, a.parceiro-item:focus-visible img { opacity: 1; }
 @keyframes parceiros-passar {
@@ -1007,55 +1020,6 @@ a.parceiro-item:hover img, a.parceiro-item:focus-visible img { opacity: 1; }
     </div>
   </section>
 
-  <section id="faq" class="faq">
-    <div class="wrap">
-      <p class="eyebrow">Perguntas frequentes</p>
-      <h2>Tem dúvidas? Talvez já tenhamos a resposta</h2>
-      <div class="faq-lista">
-        <details class="faq-item">
-          <summary>Com quanto tempo de antecedência devo contactar-vos?</summary>
-          <p>Quanto mais cedo, melhor: a data só fica reservada quando aprova a proposta e paga o sinal, por ordem de chegada. Contacte-nos assim que tiver a data e o espaço definidos. Se o evento já estiver próximo, peça o orçamento na mesma — dizemos-lhe com franqueza se ainda temos disponibilidade.</p>
-        </details>
-        <details class="faq-item">
-          <summary>Fazem eventos fora da zona da Guarda?</summary>
-          <p>Sim. As deslocações da equipa estão incluídas no valor base de cada orçamento. Indique o local do evento no pedido de orçamento.</p>
-        </details>
-        <details class="faq-item">
-          <summary>Posso escolher as cores e o estilo?</summary>
-          <p>Sim. Cada evento é pensado à sua medida: definimos consigo o tema, as palavras-chave e a paleta de cores, a partir das suas ideias e das imagens de inspiração que nos enviar. Pode juntar imagens no pedido de orçamento ou na conversa connosco.</p>
-        </details>
-        <details class="faq-item">
-          <summary>O pedido de orçamento tem algum custo?</summary>
-          <p>Não. O pedido é gratuito e sem compromisso.</p>
-        </details>
-        <details class="faq-item">
-          <summary>Posso escolher só alguns elementos da proposta?</summary>
-          <p>Pode. O orçamento é discriminado para que escolha os elementos que mais lhe convêm. Se escolher apenas alguns, o valor base de recursos humanos e deslocações mantém-se.</p>
-        </details>
-        <details class="faq-item">
-          <summary>Como se reserva a data?</summary>
-          <p>Depois de aprovar a proposta, a data fica reservada com o pagamento de um sinal de 300 €. O restante é pago na semana anterior ao evento, em numerário ou por transferência bancária.</p>
-        </details>
-        <details class="faq-item">
-          <summary>Quanto tempo tenho para responder à proposta?</summary>
-          <p>A proposta é válida durante 5 dias após o envio. Depois disso fica sem efeito e a data volta a ficar disponível na agenda.</p>
-        </details>
-        <details class="faq-item">
-          <summary>Posso pedir alterações à proposta?</summary>
-          <p>Claro. A proposta é um documento vivo: ajustamos, acrescentamos ou alteramos o que for preciso para que se sinta 100% seguro.</p>
-        </details>
-        <details class="faq-item">
-          <summary>A equipa fica no evento até ao fim?</summary>
-          <p>A equipa permanece no local parcialmente: nas montagens, até ao final da cerimónia e na altura do corte do bolo. Se quiser acompanhamento total, peça-nos um orçamento.</p>
-        </details>
-        <details class="faq-item">
-          <summary>O material de decoração fica connosco?</summary>
-          <p>Não. Todo o material é fornecido em regime de aluguer e é recolhido pela nossa equipa no final do evento.</p>
-        </details>
-      </div>
-      <p class="faq-final">Não encontrou o que procura? <a href="#orcamento">Escreva-nos no pedido de orçamento</a> e respondemos-lhe.</p>
-    </div>
-  </section>
 
   <!-- FORMULÁRIO DE ORÇAMENTO -->
   <section id="orcamento" class="orcamento">
@@ -1139,6 +1103,56 @@ a.parceiro-item:hover img, a.parceiro-item:focus-visible img { opacity: 1; }
         <button type="submit" class="btn btn-primary btn-submit">Enviar pedido</button>
         <p id="form-feedback" class="form-feedback" role="status" aria-live="polite"></p>
       </form>
+    </div>
+  </section>
+
+  <section id="faq" class="faq">
+    <div class="wrap">
+      <p class="eyebrow">Perguntas frequentes</p>
+      <h2>Tem dúvidas? Talvez já tenhamos a resposta</h2>
+      <div class="faq-lista">
+        <details class="faq-item">
+          <summary>Com quanto tempo de antecedência devo contactar-vos?</summary>
+          <p>Quanto mais cedo, melhor: a data só fica reservada quando aprova a proposta e paga o sinal, por ordem de chegada. Contacte-nos assim que tiver a data e o espaço definidos. Se o evento já estiver próximo, peça o orçamento na mesma — dizemos-lhe com franqueza se ainda temos disponibilidade.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Fazem eventos fora da zona da Guarda?</summary>
+          <p>Sim. As deslocações da equipa estão incluídas no valor base de cada orçamento. Indique o local do evento no pedido de orçamento.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Posso escolher as cores e o estilo?</summary>
+          <p>Sim. Cada evento é pensado à sua medida: definimos consigo o tema, as palavras-chave e a paleta de cores, a partir das suas ideias e das imagens de inspiração que nos enviar. Pode juntar imagens no pedido de orçamento ou na conversa connosco.</p>
+        </details>
+        <details class="faq-item">
+          <summary>O pedido de orçamento tem algum custo?</summary>
+          <p>Não. O pedido é gratuito e sem compromisso.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Posso escolher só alguns elementos da proposta?</summary>
+          <p>Pode. O orçamento é discriminado para que escolha os elementos que mais lhe convêm. Se escolher apenas alguns, o valor base de recursos humanos e deslocações mantém-se.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Como se reserva a data?</summary>
+          <p>Depois de aprovar a proposta, a data fica reservada com o pagamento de um sinal de 300 €. O restante é pago na semana anterior ao evento, em numerário ou por transferência bancária.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Quanto tempo tenho para responder à proposta?</summary>
+          <p>A proposta é válida durante 5 dias após o envio. Depois disso fica sem efeito e a data volta a ficar disponível na agenda.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Posso pedir alterações à proposta?</summary>
+          <p>Claro. A proposta é um documento vivo: ajustamos, acrescentamos ou alteramos o que for preciso para que se sinta 100% seguro.</p>
+        </details>
+        <details class="faq-item">
+          <summary>A equipa fica no evento até ao fim?</summary>
+          <p>A equipa permanece no local parcialmente: nas montagens, até ao final da cerimónia e na altura do corte do bolo. Se quiser acompanhamento total, peça-nos um orçamento.</p>
+        </details>
+        <details class="faq-item">
+          <summary>O material de decoração fica connosco?</summary>
+          <p>Não. Todo o material é fornecido em regime de aluguer e é recolhido pela nossa equipa no final do evento.</p>
+        </details>
+      </div>
+      <p class="faq-final">Não encontrou o que procura? <a href="#orcamento">Escreva-nos no pedido de orçamento</a> e respondemos-lhe.</p>
     </div>
   </section>
 
@@ -1538,8 +1552,11 @@ carregarReviews();
       if (copia) el.tabIndex = -1;
     }
     const img = document.createElement('img');
-    img.src = p.logo; img.alt = copia ? '' : p.nome; img.loading = 'lazy'; img.draggable = false;
+    img.src = p.logo; img.alt = ''; img.loading = 'lazy'; img.draggable = false;
     el.appendChild(img);
+    const nome = document.createElement('span');
+    nome.className = 'parceiro-nome'; nome.textContent = p.nome;
+    el.appendChild(nome);
     return el;
   }
 
