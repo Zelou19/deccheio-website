@@ -786,6 +786,17 @@ textarea { resize: vertical; }
 .review-admin-estrelas { color: var(--gold); font-size: 0.9rem; }
 .review-admin-texto { margin: 4px 0; }
 .review-admin-autor { font-weight: 600; font-size: 0.88rem; }
+.review-admin-item.pendente { border: 1px solid var(--gold); background: #fbf3e2; }
+.review-admin-badge {
+  display: inline-block; margin-bottom: 6px;
+  font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600;
+  color: var(--gold);
+}
+.review-admin-acoes { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+.review-admin-aprovar {
+  background: var(--wine); color: #fff; border: none; border-radius: 6px;
+  padding: 7px 14px; cursor: pointer; font-size: 0.82rem; white-space: nowrap;
+}
 .review-admin-apagar {
   background: none;
   border: none;
@@ -813,6 +824,7 @@ textarea { resize: vertical; }
   .status-select { max-width: 100%; }
   .btn-toggle-fechar { white-space: normal; text-align: center; }
   .review-admin-item { flex-wrap: wrap; gap: 10px; }
+  .review-admin-acoes { flex-direction: row; align-items: center; }
 }
 </style>
 <style>
@@ -847,6 +859,8 @@ textarea { resize: vertical; }
     <div id="area-owner" hidden>
       <p style="color: var(--taupe); font-size: 0.9rem; max-width: 60ch;">
         As avaliações que adicionares aqui aparecem, por ordem, na secção "O que dizem os nossos clientes" da página inicial.
+        Quando fechas uma conversa, o cliente pode deixar a sua avaliação: ela aparece aqui como <strong>pendente</strong>
+        e só vai para o site depois de a aprovares.
       </p>
 
       <form id="form-nova-review" class="nova-review-form">
@@ -930,7 +944,7 @@ function renderizarEstrelas(nota) {
 }
 
 async function carregarReviews() {
-  const resposta = await fetch('/api/reviews');
+  const resposta = await fetch('/api/reviews/todas');
   if (!resposta.ok) return;
 
   const reviews = await resposta.json();
@@ -940,14 +954,21 @@ async function carregarReviews() {
     return;
   }
 
+  // As pendentes (deixadas pelos clientes) vêm primeiro, para não passarem despercebidas
+  reviews.sort((a, b) => (b.estado === 'pendente') - (a.estado === 'pendente'));
+
   listaReviews.innerHTML = reviews.map((review) => `
-    <div class="review-admin-item" data-id="${review._id}">
+    <div class="review-admin-item${review.estado === 'pendente' ? ' pendente' : ''}" data-id="${review._id}">
       <div>
+        ${review.estado === 'pendente' ? '<div class="review-admin-badge">Pendente — ainda não está no site</div>' : ''}
         <div class="review-admin-estrelas">${renderizarEstrelas(review.classificacao)}</div>
         <p class="review-admin-texto">${escaparHtml(review.texto)}</p>
         <div class="review-admin-autor">${escaparHtml(review.nomeCliente)}${review.tipoEvento ? ` · ${escaparHtml(review.tipoEvento)}` : ''}</div>
       </div>
-      <button class="review-admin-apagar" data-id="${review._id}">Apagar</button>
+      <div class="review-admin-acoes">
+        ${review.estado === 'pendente' ? `<button class="review-admin-aprovar" data-id="${review._id}">Aprovar</button>` : ''}
+        <button class="review-admin-apagar" data-id="${review._id}">Apagar</button>
+      </div>
     </div>
   `).join('');
 }
@@ -981,6 +1002,11 @@ formNovaReview.addEventListener('submit', async (event) => {
 });
 
 listaReviews.addEventListener('click', async (event) => {
+  if (event.target.matches('.review-admin-aprovar')) {
+    await fetch(`/api/reviews/${event.target.dataset.id}/aprovar`, { method: 'PATCH' });
+    carregarReviews();
+    return;
+  }
   if (!event.target.matches('.review-admin-apagar')) return;
   if (!confirm('Apagar esta avaliação do site?')) return;
 

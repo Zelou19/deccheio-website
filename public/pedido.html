@@ -584,6 +584,7 @@ textarea { resize: vertical; }
   gap: 10px;
   align-items: flex-end;
 }
+.chat-form[hidden] { display: none; }
 
 .chat-form textarea {
   flex: 1;
@@ -808,6 +809,26 @@ textarea { resize: vertical; }
   font-style: italic;
 }
 
+/* ---------- Avaliação (aparece quando a conversa está fechada) ---------- */
+.cartao-avaliar {
+  background: var(--bg-alt);
+  border-radius: 8px;
+  padding: 22px 24px;
+  margin-bottom: 22px;
+  scroll-margin-top: 90px;
+}
+.cartao-avaliar h2 { font-size: 1.25rem; margin: 0 0 6px; }
+.cartao-avaliar p { margin: 0 0 14px; color: var(--taupe); font-size: 0.92rem; }
+.avaliar-estrelas { display: flex; gap: 4px; margin-bottom: 12px; }
+.avaliar-estrelas button {
+  background: none; border: none; cursor: pointer; padding: 2px;
+  font-size: 2rem; line-height: 1; color: rgba(50,45,40,0.25);
+}
+.avaliar-estrelas button.ativa { color: var(--gold); }
+.avaliar-estrelas button:focus-visible { outline: 2px solid var(--gold); border-radius: 4px; }
+.cartao-avaliar textarea { width: 100%; box-sizing: border-box; margin-bottom: 12px; font-family: var(--font-body); }
+.avaliar-obrigado { color: var(--ink); margin: 0; }
+
 /* ---------- Editar dados do pedido (admin) ---------- */
 .pedido-cabecalho {
   display: flex;
@@ -971,6 +992,26 @@ textarea { resize: vertical; }
       Fechou esta conversa. <button type="button" id="btn-reabrir-conversa" class="link-perigo">Reabrir conversa</button> se precisar de mais alguma coisa.
     </p>
 
+    <section id="avaliar" class="cartao-avaliar" hidden>
+      <div id="avaliar-formulario">
+        <h2>Como correu?</h2>
+        <p>Se tiver um minuto, conte-nos como foi a sua experiência. Depois de a vermos, a sua opinião pode aparecer no nosso site.</p>
+        <form id="form-avaliar">
+          <div class="avaliar-estrelas" role="radiogroup" aria-label="Classificação">
+            <button type="button" data-nota="1" role="radio" aria-checked="false" aria-label="1 estrela">★</button>
+            <button type="button" data-nota="2" role="radio" aria-checked="false" aria-label="2 estrelas">★</button>
+            <button type="button" data-nota="3" role="radio" aria-checked="false" aria-label="3 estrelas">★</button>
+            <button type="button" data-nota="4" role="radio" aria-checked="false" aria-label="4 estrelas">★</button>
+            <button type="button" data-nota="5" role="radio" aria-checked="false" aria-label="5 estrelas">★</button>
+          </div>
+          <textarea id="avaliar-texto" rows="4" maxlength="1500" placeholder="Escreva aqui a sua opinião..." required></textarea>
+          <button type="submit" class="btn btn-primary">Enviar avaliação</button>
+          <p id="avaliar-feedback" class="form-feedback" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+      <p id="avaliar-obrigado" class="avaliar-obrigado" hidden>Obrigada pela sua avaliação! Vamos lê-la com muito carinho. 💛</p>
+    </section>
+
     <p class="chat-hint">Guarde este link — é através dele que continua a conversa connosco sobre o seu evento.</p>
     <p class="chat-hint" id="link-orcamentos" hidden><a href="/orcamentos.html">&larr; Ver todos os meus orçamentos</a></p>
 
@@ -1117,6 +1158,7 @@ function renderizarPedido(pedido) {
     avisoFechada.hidden = true;
     form.hidden = false;
   }
+  atualizarCartaoAvaliar(pedido.fechado);
 
   // Só volta a desenhar as mensagens se o número mudou, para não interromper quem está a escrever
   if (pedido.mensagens.length === ultimaContagemMensagens) return;
@@ -1144,6 +1186,83 @@ function escaparHtml(texto) {
   div.textContent = texto;
   return div.innerHTML;
 }
+
+// ---------- Avaliação ----------
+// O cartão só existe com a conversa fechada. Pergunta-se ao servidor uma única vez se o cliente
+// já avaliou (a página volta a desenhar-se a cada 5s e não queremos repetir o pedido).
+const elAvaliar = document.getElementById('avaliar');
+const elAvaliarForm = document.getElementById('form-avaliar');
+const elAvaliarFormulario = document.getElementById('avaliar-formulario');
+const elAvaliarObrigado = document.getElementById('avaliar-obrigado');
+const elAvaliarFeedback = document.getElementById('avaliar-feedback');
+const botoesEstrela = [...document.querySelectorAll('.avaliar-estrelas button')];
+let notaAvaliacao = 0;
+let jaAvaliou = null; // null = ainda não sabemos
+let aVerificarAvaliacao = false;
+let jaRolouParaAvaliar = false;
+
+function pintarEstrelas() {
+  botoesEstrela.forEach((b) => {
+    const n = Number(b.dataset.nota);
+    b.classList.toggle('ativa', n <= notaAvaliacao);
+    b.setAttribute('aria-checked', String(n === notaAvaliacao));
+  });
+}
+botoesEstrela.forEach((b) => b.addEventListener('click', () => { notaAvaliacao = Number(b.dataset.nota); pintarEstrelas(); }));
+
+function mostrarCartaoAvaliar() {
+  elAvaliar.hidden = false;
+  elAvaliarFormulario.hidden = jaAvaliou === true;
+  elAvaliarObrigado.hidden = jaAvaliou !== true;
+  // Quem chega pelo link do email (#avaliar) vai direto ao cartão
+  if (!jaRolouParaAvaliar && location.hash === '#avaliar') {
+    jaRolouParaAvaliar = true;
+    elAvaliar.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+}
+
+async function atualizarCartaoAvaliar(fechado) {
+  if (!fechado) { elAvaliar.hidden = true; return; }
+  if (jaAvaliou !== null) { mostrarCartaoAvaliar(); return; }
+  if (aVerificarAvaliacao) return;
+  aVerificarAvaliacao = true;
+  try {
+    const resposta = await fetch(`/api/reviews/pedido/${idPedido}`);
+    const dados = await resposta.json();
+    jaAvaliou = Boolean(dados.avaliada);
+    mostrarCartaoAvaliar();
+  } catch (erro) {
+    // sem resposta: o cartão não aparece e tenta-se outra vez no próximo ciclo
+  } finally {
+    aVerificarAvaliacao = false;
+  }
+}
+
+elAvaliarForm?.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  elAvaliarFeedback.textContent = '';
+  elAvaliarFeedback.className = 'form-feedback';
+  if (!notaAvaliacao) {
+    elAvaliarFeedback.textContent = 'Escolha de 1 a 5 estrelas.';
+    elAvaliarFeedback.classList.add('erro');
+    return;
+  }
+  try {
+    const resposta = await fetch(`/api/reviews/pedido/${idPedido}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ classificacao: notaAvaliacao, texto: document.getElementById('avaliar-texto').value.trim() }),
+    });
+    const dados = await resposta.json().catch(() => ({}));
+    if (resposta.status === 409 && /Já recebemos/.test(dados.erro || '')) jaAvaliou = true;
+    else if (!resposta.ok) throw new Error(dados.erro || 'Não foi possível enviar a avaliação.');
+    else jaAvaliou = true;
+    mostrarCartaoAvaliar();
+  } catch (erro) {
+    elAvaliarFeedback.textContent = erro.message;
+    elAvaliarFeedback.classList.add('erro');
+  }
+});
 
 async function carregarPedido() {
   try {

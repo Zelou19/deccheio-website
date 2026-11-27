@@ -30,7 +30,7 @@ Os tipos de letra (Fraunces, Work Sans, Jost, Cormorant Garamond e Allura — to
 | `EMAIL_EQUIPA` | Quem recebe os avisos (pedido novo / mensagem de cliente). Vários separados por vírgula |
 | `EMAIL_FROM` | Remetente. Sem domínio verificado no Resend, deixa o valor por omissão `DecoraçãoCheio <onboarding@resend.dev>` |
 | `SITE_URL` | Endereço do site, para os links dos emails e o sitemap (no Render usa `RENDER_EXTERNAL_URL` se faltar) |
-| `EMAIL_CLIENTES` | `true` para avisar também os clientes quando a equipa responde (só depois de verificar um domínio no Resend) |
+| `EMAIL_CLIENTES` | `true` para avisar também os clientes quando a equipa responde e para lhes pedir uma avaliação quando a conversa é fechada (só depois de verificar um domínio no Resend) |
 
 ## Correr localmente
 

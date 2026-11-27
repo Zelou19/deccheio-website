@@ -431,6 +431,8 @@ const quoteRequestSchema = new mongoose.Schema(
     // Tanto o cliente como o admin podem fechar e reabrir sempre que precisarem.
     fechado: { type: Boolean, default: false },
     fechadoEm: { type: Date },
+    // Quando foi enviado ao cliente o email a pedir avaliação (só se pede uma vez por pedido).
+    avaliacaoPedidaEm: { type: Date },
 
     // Preparado para a fase 2 (chat): cada pedido vai poder ter mensagens associadas
     mensagens: [
@@ -464,6 +466,11 @@ const reviewSchema = new mongoose.Schema(
     tipoEvento: { type: String, trim: true }, // ex: "Casamento", opcional — dá contexto ao testemunho
     texto: { type: String, required: true, trim: true },
     classificacao: { type: Number, min: 1, max: 5, default: 5 },
+    // Avaliações escritas pelo dono ficam logo 'aprovada'. As que o cliente deixa depois de
+    // a conversa ser fechada entram como 'pendente' e só aparecem no site depois de aprovadas.
+    estado: { type: String, enum: ['pendente', 'aprovada'], default: 'aprovada' },
+    // Pedido de orçamento a que a avaliação pertence (só nas deixadas pelo cliente). Único: 1 por pedido.
+    pedidoId: { type: mongoose.Schema.Types.ObjectId, ref: 'QuoteRequest', unique: true, sparse: true },
   },
   { timestamps: true }
 );
@@ -1638,6 +1645,7 @@ router.patch('/:id/fechar', async (req, res) => {
     pedido.fechadoEm = new Date();
     await pedido.save();
 
+    notificacoes.pedirAvaliacaoCliente(pedido); // não espera: se o email falhar, fechar continua a funcionar
     res.json(pedido);
   } catch (erro) {
     res.status(400).json({ erro: 'Não foi possível fechar a conversa.' });
@@ -1728,16 +1736,92 @@ __define('routes/reviews', function (module, exports, require, __dirname, __file
 const express = require('express');
 const router = express.Router();
 const Review = require('../models/Review');
+const QuoteRequest = require('../models/QuoteRequest');
+const notificacoes = require('../services/notificacoes');
 const { requireOwner } = require('./adminAuth');
 
 // GET /api/reviews — lista as avaliações para a página inicial. Pública.
 router.get('/', async (req, res) => {
   try {
-    const reviews = await Review.find().sort({ createdAt: -1 });
+    const reviews = await Review.find({ estado: { $ne: 'pendente' } }).sort({ createdAt: -1 });
     res.json(reviews);
   } catch (erro) {
     console.error('Erro ao listar avaliações:', erro);
     res.status(500).json({ erro: 'Não foi possível carregar as avaliações.' });
+  }
+});
+
+// GET /api/reviews/todas — todas as avaliações, incluindo as pendentes. Só o dono da conta.
+router.get('/todas', requireOwner, async (req, res) => {
+  try {
+    res.json(await Review.find().sort({ createdAt: -1 }));
+  } catch (erro) {
+    console.error('Erro ao listar avaliações:', erro);
+    res.status(500).json({ erro: 'Não foi possível carregar as avaliações.' });
+  }
+});
+
+// GET /api/reviews/pedido/:pedidoId — o cliente já deixou avaliação neste pedido? Pública
+// (quem tem o link do pedido já pode ver tudo sobre ele). Não devolve o texto, só o estado.
+router.get('/pedido/:pedidoId', async (req, res) => {
+  try {
+    const review = await Review.findOne({ pedidoId: req.params.pedidoId });
+    res.json({ avaliada: Boolean(review), estado: review ? review.estado : null });
+  } catch (erro) {
+    res.status(400).json({ erro: 'Pedido inválido.' });
+  }
+});
+
+// POST /api/reviews/pedido/:pedidoId — o cliente deixa a sua avaliação, depois de a conversa estar
+// fechada. Fica 'pendente' até o dono aprovar; só se pode avaliar uma vez por pedido.
+router.post('/pedido/:pedidoId', async (req, res) => {
+  try {
+    const pedido = await QuoteRequest.findById(req.params.pedidoId);
+    if (!pedido) return res.status(404).json({ erro: 'Pedido não encontrado.' });
+    if (!pedido.fechado) {
+      return res.status(409).json({ erro: 'Só pode deixar a avaliação depois de fechar a conversa.' });
+    }
+
+    const texto = String(req.body.texto || '').trim();
+    if (!texto) return res.status(400).json({ erro: 'Escreva umas palavras sobre a sua experiência.' });
+    if (texto.length > 1500) return res.status(400).json({ erro: 'O texto é demasiado longo (máximo 1500 letras).' });
+
+    const nota = Number(req.body.classificacao);
+    if (!Number.isInteger(nota) || nota < 1 || nota > 5) {
+      return res.status(400).json({ erro: 'Escolha uma classificação de 1 a 5 estrelas.' });
+    }
+
+    if (await Review.exists({ pedidoId: pedido._id })) {
+      return res.status(409).json({ erro: 'Já recebemos a sua avaliação. Obrigado!' });
+    }
+
+    const review = await Review.create({
+      nomeCliente: pedido.nome,
+      tipoEvento: pedido.tipoEvento,
+      texto,
+      classificacao: nota,
+      estado: 'pendente',
+      pedidoId: pedido._id,
+    });
+
+    notificacoes.avisarEquipaNovaAvaliacao(review);
+    res.status(201).json({ sucesso: true });
+  } catch (erro) {
+    if (erro && erro.code === 11000) return res.status(409).json({ erro: 'Já recebemos a sua avaliação. Obrigado!' });
+    console.error('Erro ao guardar avaliação do cliente:', erro);
+    res.status(500).json({ erro: 'Não foi possível guardar a avaliação.' });
+  }
+});
+
+// PATCH /api/reviews/:id/aprovar — passa uma avaliação pendente a visível no site. Só o dono da conta.
+router.patch('/:id/aprovar', requireOwner, async (req, res) => {
+  try {
+    const review = await Review.findByIdAndUpdate(req.params.id, { estado: 'aprovada' }, { new: true });
+    if (!review) return res.status(404).json({ erro: 'Avaliação não encontrada.' });
+    res.json(review);
+  } catch (erro) {
+    console.error('Erro ao aprovar avaliação:', erro);
+    res.status(400).json({ erro: 'Não foi possível aprovar a avaliação.' });
   }
 });
 
@@ -1974,11 +2058,72 @@ async function avisarClienteResposta(pedido, texto) {
   }
 }
 
+// Quando a conversa é fechada, pede ao cliente que deixe uma avaliação.
+// Mesma regra do aviso de resposta: só com EMAIL_CLIENTES=true. Envia no máximo uma vez por
+// pedido (fechar e reabrir várias vezes não repete) e nunca se o cliente já avaliou.
+async function pedirAvaliacaoCliente(pedido) {
+  try {
+    if (process.env.EMAIL_CLIENTES !== 'true') return;
+    if (!pedido.email || pedido.avaliacaoPedidaEm) return;
+    if (estaPresente(pedido._id, 'cliente')) return; // está na página: já vê o cartão de avaliação
+    const Review = require('../models/Review');
+    if (await Review.exists({ pedidoId: pedido._id })) return;
+
+    const base = urlSite();
+    const ligacao = base ? { url: `${base}/pedido.html?id=${pedido._id}#avaliar`, texto: 'Deixar a minha avaliação' } : null;
+    const enviado = await enviarEmail({
+      para: pedido.email,
+      assunto: 'Como correu? Deixe-nos a sua avaliação',
+      html: modeloEmail({
+        titulo: 'Obrigada pela confiança!',
+        paragrafos: [
+          `Olá ${escaparHtml(pedido.nome)}, a conversa sobre o seu pedido (${escaparHtml(pedido.tipoEvento)}) foi fechada.`,
+          'Se tiver um minuto, conte-nos como foi a experiência — a sua opinião ajuda-nos a melhorar e a outros noivos e famílias a escolherem-nos.',
+        ],
+        botao: ligacao,
+      }),
+    });
+    if (enviado) {
+      pedido.avaliacaoPedidaEm = new Date();
+      await pedido.save();
+    }
+  } catch (erro) {
+    console.error('✉️  Falha no pedido de avaliação:', erro.message);
+  }
+}
+
+// Avisa a equipa de que há uma avaliação nova à espera de aprovação.
+async function avisarEquipaNovaAvaliacao(review) {
+  try {
+    const para = destinatariosEquipa();
+    if (!para.length) return;
+    const base = urlSite();
+    const ligacao = base ? { url: `${base}/admin/reviews.html`, texto: 'Ver e aprovar' } : null;
+    await enviarEmail({
+      para,
+      assunto: `Nova avaliação de ${review.nomeCliente} (${review.classificacao}★)`,
+      html: modeloEmail({
+        titulo: 'Nova avaliação para aprovar',
+        paragrafos: [
+          `<strong>${escaparHtml(review.nomeCliente)}</strong> deixou uma avaliação de ${review.classificacao} em 5:`,
+          `“${escaparHtml(resumir(review.texto))}”`,
+          'Só aparece no site depois de a aprovar.',
+        ],
+        botao: ligacao,
+      }),
+    });
+  } catch (erro) {
+    console.error('✉️  Falha no aviso de nova avaliação:', erro.message);
+  }
+}
+
 module.exports = {
   registarPresenca,
   avisarEquipaNovoPedido,
   avisarEquipaMensagemCliente,
   avisarClienteResposta,
+  pedirAvaliacaoCliente,
+  avisarEquipaNovaAvaliacao,
 };
 });
 
