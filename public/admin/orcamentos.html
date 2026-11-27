@@ -1022,6 +1022,28 @@ textarea { resize: vertical; }
   .pedido-card-actions { flex-wrap: wrap; }
 }
 </style>
+<style>
+/* ---------- Lista de orçamentos: estados, pesquisa e totais ---------- */
+.orc-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.orc-chip {
+  font-family: var(--font-body); font-size: 0.84rem; color: var(--ink); background: transparent;
+  border: 1px solid rgba(50, 45, 40, 0.18); border-radius: 999px; padding: 0.4em 1em; cursor: pointer;
+}
+.orc-chip:hover { background: var(--bg-alt); }
+.orc-chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.orc-chip b { font-weight: 600; margin-left: 4px; opacity: 0.75; }
+.orc-barra { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
+.orc-barra input[type="search"] { flex: 1; min-width: 200px; width: auto; }
+.orc-resumo { color: var(--taupe); font-size: 0.85rem; margin: 0 0 12px; }
+.estado-etiqueta { display: inline-block; font-size: 0.68rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; padding: 0.2em 0.75em; border-radius: 999px; color: var(--bg); margin-left: 8px; vertical-align: middle; }
+.estado-etiqueta[data-orc="novo"] { background: var(--taupe); }
+.estado-etiqueta[data-orc="em_analise"] { background: var(--gold); }
+.estado-etiqueta[data-orc="enviado"] { background: #3B5B7A; }
+.estado-etiqueta[data-orc="aceite"] { background: #2E6B4F; }
+.estado-etiqueta[data-orc="recusado"] { background: var(--wine); }
+.estado-etiqueta[data-orc="concluido"] { background: var(--ink); }
+.orc-valor { font-family: var(--font-display); font-size: 1.15rem; white-space: nowrap; }
+</style>
 </head>
 <body>
 
@@ -1038,14 +1060,14 @@ textarea { resize: vertical; }
       </div>
     </div>
 
-    <div class="filtros-bar">
-      <select id="filtro-status">
-        <option value="">Todos os estados</option>
-        <option value="rascunho">Rascunho</option>
-        <option value="enviado">Enviado</option>
-      </select>
+    <div class="orc-chips" id="orc-chips" role="group" aria-label="Filtrar por estado"></div>
+
+    <div class="orc-barra">
+      <input type="search" id="orc-busca" placeholder="Procurar por cliente, tipo de evento ou email..." aria-label="Procurar orçamentos">
       <button type="button" class="btn btn-primary" id="btn-novo-orcamento" style="width:auto;">+ Orçamento do zero</button>
     </div>
+
+    <p class="orc-resumo" id="orc-resumo"></p>
 
     <div id="lista-orcamentos"></div>
   </div>
@@ -1090,52 +1112,94 @@ document.getElementById('btn-sair')?.addEventListener('click', async () => {
 </script>
 <script>
 const elLista = document.getElementById('lista-orcamentos');
-const filtroStatus = document.getElementById('filtro-status');
+const elChips = document.getElementById('orc-chips');
+const elResumo = document.getElementById('orc-resumo');
+const campoBusca = document.getElementById('orc-busca');
 const btnNovoOrcamento = document.getElementById('btn-novo-orcamento');
 
-const ROTULOS_STATUS = {
-  rascunho: 'Rascunho',
-  enviado: 'Enviado',
+const ROTULOS_ORC = {
+  novo: 'Novo', em_analise: 'Em análise', enviado: 'Enviado',
+  aceite: 'Aceite', recusado: 'Recusado', concluido: 'Concluído',
 };
+const ESTADOS = Object.keys(ROTULOS_ORC);
+
+let todos = [];
+let estadoAtivo = '';
+
+function esc(texto) {
+  const div = document.createElement('div');
+  div.textContent = texto == null ? '' : String(texto);
+  return div.innerHTML;
+}
 
 function formatarMoeda(valor) {
   return new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' }).format(valor || 0);
 }
 
-async function carregarOrcamentos() {
-  elLista.innerHTML = '<p>A carregar...</p>';
+function renderizarChips() {
+  const contagem = Object.fromEntries(ESTADOS.map((e) => [e, 0]));
+  todos.forEach((o) => { contagem[o.status] = (contagem[o.status] || 0) + 1; });
+  const botoes = [{ chave: '', rotulo: 'Todos', n: todos.length }, ...ESTADOS.map((e) => ({ chave: e, rotulo: ROTULOS_ORC[e], n: contagem[e] }))];
+  elChips.innerHTML = botoes.map((b) => `<button type="button" class="orc-chip" data-estado="${b.chave}" aria-pressed="${b.chave === estadoAtivo}">${esc(b.rotulo)}<b>${b.n}</b></button>`).join('');
+}
 
-  const parametros = new URLSearchParams();
-  if (filtroStatus.value) parametros.set('status', filtroStatus.value);
+function renderizarLista() {
+  const termo = campoBusca.value.trim().toLowerCase();
+  const visiveis = todos.filter((o) => {
+    if (estadoAtivo && o.status !== estadoAtivo) return false;
+    if (!termo) return true;
+    return [o.nome, o.nomeFestejado, o.email, o.tipoEvento].some((campo) => String(campo || '').toLowerCase().includes(termo));
+  });
 
-  const resposta = await fetch(`/api/orcamentos?${parametros.toString()}`);
-  if (!resposta.ok) {
-    elLista.innerHTML = '<p class="sem-resultados">Não foi possível carregar os orçamentos.</p>';
-    return;
-  }
-
-  const orcamentos = await resposta.json();
-
-  if (!orcamentos.length) {
+  if (!todos.length) {
+    elResumo.textContent = '';
     elLista.innerHTML = '<p class="sem-resultados">Ainda não há orçamentos criados.</p>';
     return;
   }
 
-  elLista.innerHTML = orcamentos.map((orc) => `
-    <a href="/admin/orcamento.html?id=${orc._id}" class="pedido-card">
+  const soma = visiveis.reduce((t, o) => t + (o.total || 0), 0);
+  elResumo.textContent = `${visiveis.length} ${visiveis.length === 1 ? 'orçamento' : 'orçamentos'} · ${formatarMoeda(soma)} no total`;
+
+  if (!visiveis.length) {
+    elLista.innerHTML = '<p class="sem-resultados">Nenhum orçamento corresponde ao filtro.</p>';
+    return;
+  }
+
+  elLista.innerHTML = visiveis.map((orc) => `
+    <a href="/admin/orcamento.html?id=${esc(orc._id)}" class="pedido-card" style="margin-bottom: 10px;">
       <div class="pedido-card-info">
-        <span class="status-dot" data-status="${orc.status === 'enviado' ? 'concluido' : 'nao_respondido'}"></span>
-        <span class="pedido-card-nome">${orc.nome}</span>
+        <span class="pedido-card-nome">${esc(orc.nome)}<span class="estado-etiqueta" data-orc="${esc(orc.status)}">${esc(ROTULOS_ORC[orc.status] || orc.status)}</span></span>
         <div class="pedido-card-meta">
-          ${orc.tipoEvento ? `<span class="pedido-card-tag">${orc.tipoEvento}</span>` : ''}
-          ${formatarMoeda(orc.total)} · ${ROTULOS_STATUS[orc.status]} · ${new Date(orc.createdAt).toLocaleDateString('pt-PT')}
+          ${orc.tipoEvento ? `<span class="pedido-card-tag">${esc(orc.tipoEvento)}</span>` : ''}
+          ${orc.dataEvento ? `evento a ${new Date(orc.dataEvento).toLocaleDateString('pt-PT')} · ` : ''}criado a ${new Date(orc.createdAt).toLocaleDateString('pt-PT')}
         </div>
       </div>
+      <span class="orc-valor">${formatarMoeda(orc.total)}</span>
     </a>
   `).join('');
 }
 
-filtroStatus.addEventListener('change', carregarOrcamentos);
+async function carregarOrcamentos() {
+  elLista.innerHTML = '<p>A carregar...</p>';
+  const resposta = await fetch('/api/orcamentos');
+  if (!resposta.ok) {
+    elLista.innerHTML = '<p class="sem-resultados">Não foi possível carregar os orçamentos.</p>';
+    return;
+  }
+  todos = await resposta.json();
+  renderizarChips();
+  renderizarLista();
+}
+
+elChips.addEventListener('click', (evento) => {
+  const botao = evento.target.closest('.orc-chip');
+  if (!botao) return;
+  estadoAtivo = botao.dataset.estado;
+  renderizarChips();
+  renderizarLista();
+});
+
+campoBusca.addEventListener('input', renderizarLista);
 
 btnNovoOrcamento.addEventListener('click', () => {
   window.location.href = '/admin/orcamento.html';
