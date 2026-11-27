@@ -376,11 +376,35 @@ const orcamentoSchema = new mongoose.Schema(
     flores: { type: String, trim: true },
     imagensFlores: [{ type: String }],
 
+    // Estado do orçamento. "rascunho" (estado antigo) passa a "novo" no arranque do servidor.
     status: {
       type: String,
-      enum: ['rascunho', 'enviado'],
-      default: 'rascunho',
+      enum: ['novo', 'em_analise', 'enviado', 'aceite', 'recusado', 'concluido'],
+      default: 'novo',
     },
+
+    // Só para a equipa — nunca aparecem no documento nem no email ao cliente
+    notasInternas: { type: String, trim: true, maxlength: 4000 },
+    fotosInternas: [{ type: String }], // ex: fotos do local, medidas, referências privadas
+
+    // Último envio por email ao cliente
+    enviadoEm: { type: Date },
+    enviadoPara: { type: String, trim: true },
+
+    // Registo das mudanças de estado (quem mudou, quando)
+    historico: {
+      type: [
+        {
+          estado: { type: String },
+          por: { type: String },
+          em: { type: Date, default: Date.now },
+        },
+      ],
+      default: [],
+    },
+
+    // Evento criado a partir deste orçamento (quando aceite)
+    eventoId: { type: mongoose.Schema.Types.ObjectId, ref: 'Evento' },
 
     // Nome de utilizador do admin que criou o orçamento
     criadoPor: { type: String, trim: true },
@@ -406,6 +430,398 @@ orcamentoSchema.set('toJSON', {
 });
 
 module.exports = mongoose.model('Orcamento', orcamentoSchema);
+});
+
+// ===== models/Pagamento ================================================================
+__define('models/Pagamento', function (module, exports, require, __dirname, __filename) {
+const mongoose = require('mongoose');
+
+// Dinheiro recebido de um cliente, sempre ligado a um orçamento (sinal ou pagamento do restante).
+// Quando um orçamento tem pelo menos um pagamento, passa a contar como "contratado" no dashboard.
+const pagamentoSchema = new mongoose.Schema(
+  {
+    orcamentoId: { type: mongoose.Schema.Types.ObjectId, ref: 'Orcamento', required: true, index: true },
+    valor: { type: Number, required: true, min: 0.01 },
+    tipo: { type: String, enum: ['sinal', 'pagamento'], default: 'pagamento' },
+    data: { type: Date, default: Date.now, index: true },
+    metodo: { type: String, trim: true, maxlength: 30 },
+    nota: { type: String, trim: true, maxlength: 300 },
+    criadoPor: { type: String, trim: true },
+  },
+  { timestamps: true }
+);
+
+module.exports = mongoose.model('Pagamento', pagamentoSchema);
+});
+
+// ===== models/Despesa ==================================================================
+__define('models/Despesa', function (module, exports, require, __dirname, __filename) {
+const mongoose = require('mongoose');
+
+// Dinheiro gasto (flores, material, transporte, pessoal...). Pode estar ligado a um orçamento/evento.
+const CATEGORIAS_DESPESA = ['Flores', 'Material', 'Transporte', 'Pessoal', 'Aluguer', 'Outro'];
+
+const despesaSchema = new mongoose.Schema(
+  {
+    descricao: { type: String, required: true, trim: true, maxlength: 120 },
+    valor: { type: Number, required: true, min: 0.01 },
+    categoria: { type: String, enum: CATEGORIAS_DESPESA, default: 'Outro' },
+    data: { type: Date, default: Date.now, index: true },
+    orcamentoId: { type: mongoose.Schema.Types.ObjectId, ref: 'Orcamento' },
+    nota: { type: String, trim: true, maxlength: 300 },
+    criadoPor: { type: String, trim: true },
+  },
+  { timestamps: true }
+);
+
+module.exports = mongoose.model('Despesa', despesaSchema);
+module.exports.CATEGORIAS_DESPESA = CATEGORIAS_DESPESA;
+});
+
+// ===== routes/financas =================================================================
+__define('routes/financas', function (module, exports, require, __dirname, __filename) {
+const express = require('express');
+const mongoose = require('mongoose');
+const router = express.Router();
+const Orcamento = require('../models/Orcamento');
+const QuoteRequest = require('../models/QuoteRequest');
+const Pagamento = require('../models/Pagamento');
+const Despesa = require('../models/Despesa');
+const { requireAdmin } = require('./adminAuth');
+
+router.use(requireAdmin);
+
+const DIA = 24 * 60 * 60 * 1000;
+// Orçamentos nestes estados contam como "contratados" (e também os que já têm algum pagamento).
+const ESTADOS_CONTRATADOS = ['aceite', 'concluido'];
+
+const arredondar = (n) => Math.round(n * 100) / 100;
+const fmt = (n) => n.toFixed(2).replace('.', ',');
+const soma = (lista, fn) => arredondar(lista.reduce((t, x) => t + fn(x), 0));
+const dias = (de, ate) => Math.floor((ate - de) / DIA);
+
+function totalOrcamento(o) {
+  const subtotal = (o.itens || []).reduce((t, i) => t + (i.quantidade || 0) * (i.precoUnitario || 0), 0);
+  return Math.max(0, arredondar(subtotal - (o.desconto || 0)));
+}
+
+function valorValido(v) {
+  const n = Number(String(v).replace(',', '.'));
+  return Number.isFinite(n) && n > 0 && n <= 10000000 ? arredondar(n) : null;
+}
+
+function dataValida(v) {
+  if (!v) return new Date();
+  const d = new Date(v);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
+function inicioDoPeriodo(periodo, agora) {
+  if (periodo === 'mes') return new Date(agora.getFullYear(), agora.getMonth(), 1);
+  if (periodo === 'ano') return new Date(agora.getFullYear(), 0, 1);
+  return null; // "tudo"
+}
+
+// GET /api/financas/resumo?periodo=mes|ano|tudo — tudo o que o dashboard precisa, numa só resposta.
+router.get('/resumo', async (req, res) => {
+  try {
+    const agora = new Date();
+    const hoje = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate());
+    const periodo = ['mes', 'ano', 'tudo'].includes(req.query.periodo) ? req.query.periodo : 'mes';
+    const inicio = inicioDoPeriodo(periodo, agora);
+
+    const [orcamentos, pagamentos, despesas, porResponder] = await Promise.all([
+      Orcamento.find().select('-imagens -imagensFlores').lean(),
+      Pagamento.find().sort({ data: -1 }).lean(),
+      Despesa.find().sort({ data: -1 }).lean(),
+      QuoteRequest.find({ status: 'nao_respondido', fechado: false }).select('nome tipoEvento createdAt').lean(),
+    ]);
+
+    const pagoPorOrcamento = {};
+    pagamentos.forEach((p) => {
+      const chave = String(p.orcamentoId);
+      pagoPorOrcamento[chave] = (pagoPorOrcamento[chave] || 0) + p.valor;
+    });
+
+    const lista = orcamentos.map((o) => {
+      const total = totalOrcamento(o);
+      const pago = arredondar(pagoPorOrcamento[String(o._id)] || 0);
+      const contratado = ESTADOS_CONTRATADOS.includes(o.status) || pago > 0;
+      const data = o.dataEvento ? new Date(o.dataEvento) : null;
+      const falta = contratado ? Math.max(0, arredondar(total - pago)) : 0;
+      return {
+        _id: o._id,
+        nome: o.nome,
+        tipoEvento: o.tipoEvento,
+        status: o.status,
+        dataEvento: o.dataEvento || null,
+        total,
+        pago,
+        falta,
+        contratado,
+        // Atrasado: o evento já passou e ainda falta receber. Devido: faltam 7 dias ou menos para o
+        // evento (o restante paga-se na semana antes — ver notas padrão dos orçamentos).
+        atrasado: falta > 0 && !!data && data < hoje,
+        devido: falta > 0 && !!data && data.getTime() - 7 * DIA <= agora.getTime(),
+        createdAt: o.createdAt,
+        updatedAt: o.updatedAt,
+      };
+    });
+    const porId = Object.fromEntries(lista.map((o) => [String(o._id), o]));
+
+    // ----- Totais do período -----
+    const dentro = (d) => !inicio || new Date(d) >= inicio;
+    const recebido = soma(pagamentos.filter((p) => dentro(p.data)), (p) => p.valor);
+    const gastos = soma(despesas.filter((d) => dentro(d.data)), (d) => d.valor);
+    const emFalta = soma(lista, (o) => o.falta);
+    const emAtraso = soma(lista.filter((o) => o.devido), (o) => o.falta);
+
+    // ----- Últimos 6 meses: receitas vs despesas -----
+    const meses = [];
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(agora.getFullYear(), agora.getMonth() - i, 1);
+      meses.push({ ano: d.getFullYear(), mes: d.getMonth(), receitas: 0, despesas: 0 });
+    }
+    const noMes = (data) => {
+      const d = new Date(data);
+      return meses.find((m) => m.ano === d.getFullYear() && m.mes === d.getMonth());
+    };
+    pagamentos.forEach((p) => { const m = noMes(p.data); if (m) m.receitas = arredondar(m.receitas + p.valor); });
+    despesas.forEach((x) => { const m = noMes(x.data); if (m) m.despesas = arredondar(m.despesas + x.valor); });
+
+    // ----- Orçamentos por estado (número e valor) -----
+    const orcamentosPorEstado = {};
+    lista.forEach((o) => {
+      const e = orcamentosPorEstado[o.status] || (orcamentosPorEstado[o.status] = { n: 0, total: 0 });
+      e.n += 1;
+      e.total = arredondar(e.total + o.total);
+    });
+
+    // ----- Valores em falta (os mais urgentes primeiro) -----
+    const emFaltaLista = lista
+      .filter((o) => o.falta > 0)
+      .sort((a, b) => {
+        if (a.atrasado !== b.atrasado) return a.atrasado ? -1 : 1;
+        const da = a.dataEvento ? new Date(a.dataEvento).getTime() : Infinity;
+        const db = b.dataEvento ? new Date(b.dataEvento).getTime() : Infinity;
+        return da - db;
+      })
+      .slice(0, 6);
+
+    // ----- Alertas -----
+    const alertas = [];
+    porResponder
+      .filter((p) => agora - new Date(p.createdAt) > 2 * DIA)
+      .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
+      .slice(0, 4)
+      .forEach((p) => alertas.push({
+        nivel: 'urgente',
+        titulo: `${p.nome} espera resposta há ${dias(new Date(p.createdAt), agora)} dias`,
+        detalhe: `Pedido de ${p.tipoEvento}`,
+        href: `/admin/chat.html?id=${p._id}`,
+      }));
+
+    lista.filter((o) => o.atrasado).forEach((o) => alertas.push({
+      nivel: 'urgente',
+      titulo: `Pagamento em atraso: ${o.nome}`,
+      detalhe: `Falta receber ${fmt(o.falta)} € e o evento já passou`,
+      href: `/admin/orcamento.html?id=${o._id}`,
+    }));
+
+    lista.filter((o) => o.devido && !o.atrasado).forEach((o) => alertas.push({
+      nivel: 'aviso',
+      titulo: `Falta receber o restante de ${o.nome}`,
+      detalhe: `${fmt(o.falta)} € por receber · evento em ${Math.max(0, dias(hoje, new Date(o.dataEvento)))} dias`,
+      href: `/admin/orcamento.html?id=${o._id}`,
+    }));
+
+    lista
+      .filter((o) => o.status === 'enviado' && o.pago === 0 && agora - new Date(o.updatedAt) > 7 * DIA)
+      .slice(0, 4)
+      .forEach((o) => alertas.push({
+        nivel: 'aviso',
+        titulo: `Orçamento de ${o.nome} sem resposta`,
+        detalhe: `Enviado há ${dias(new Date(o.updatedAt), agora)} dias`,
+        href: `/admin/orcamento.html?id=${o._id}`,
+      }));
+
+    lista
+      .filter((o) => o.contratado && o.dataEvento && new Date(o.dataEvento) >= hoje && new Date(o.dataEvento) - hoje <= 7 * DIA)
+      .forEach((o) => alertas.push({
+        nivel: 'info',
+        titulo: `Evento próximo: ${o.nome}`,
+        detalhe: `Dentro de ${Math.max(0, dias(hoje, new Date(o.dataEvento)))} dias`,
+        href: `/admin/orcamento.html?id=${o._id}`,
+      }));
+
+    const ordemNivel = { urgente: 0, aviso: 1, info: 2 };
+    alertas.sort((a, b) => ordemNivel[a.nivel] - ordemNivel[b.nivel]);
+
+    // ----- Últimos movimentos (pagamentos + despesas juntos) -----
+    const movimentos = [
+      ...pagamentos.slice(0, 12).map((p) => ({
+        _id: p._id,
+        kind: 'pagamento',
+        data: p.data,
+        valor: p.valor,
+        titulo: porId[String(p.orcamentoId)] ? porId[String(p.orcamentoId)].nome : 'Orçamento apagado',
+        detalhe: [p.tipo === 'sinal' ? 'Sinal' : 'Pagamento', p.metodo, p.nota].filter(Boolean).join(' · '),
+      })),
+      ...despesas.slice(0, 12).map((x) => ({
+        _id: x._id,
+        kind: 'despesa',
+        data: x.data,
+        valor: x.valor,
+        titulo: x.descricao,
+        detalhe: [x.categoria, x.orcamentoId && porId[String(x.orcamentoId)] ? porId[String(x.orcamentoId)].nome : null, x.nota].filter(Boolean).join(' · '),
+      })),
+    ].sort((a, b) => new Date(b.data) - new Date(a.data)).slice(0, 12);
+
+    res.json({
+      periodo,
+      kpis: {
+        recebido,
+        emFalta,
+        emAtraso,
+        despesas: gastos,
+        lucro: arredondar(recebido - gastos),
+        lucroPrevisto: arredondar(recebido + emFalta - gastos),
+      },
+      meses,
+      orcamentosPorEstado,
+      emFaltaLista,
+      alertas: alertas.slice(0, 12),
+      movimentos,
+      orcamentos: lista
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        .slice(0, 200)
+        .map(({ _id, nome, tipoEvento, total, pago, falta, status }) => ({ _id, nome, tipoEvento, total, pago, falta, status })),
+      categoriasDespesa: Despesa.CATEGORIAS_DESPESA,
+    });
+  } catch (erro) {
+    console.error('Erro ao calcular o resumo financeiro:', erro);
+    res.status(500).json({ erro: 'Não foi possível carregar os dados financeiros.' });
+  }
+});
+
+// POST /api/financas/pagamentos — regista dinheiro recebido de um orçamento
+router.post('/pagamentos', async (req, res) => {
+  try {
+    const valor = valorValido(req.body.valor);
+    const data = dataValida(req.body.data);
+    if (!valor) return res.status(400).json({ erro: 'Indica um valor válido (maior que 0).' });
+    if (!data) return res.status(400).json({ erro: 'A data não é válida.' });
+    if (!mongoose.isValidObjectId(req.body.orcamentoId) || !(await Orcamento.exists({ _id: req.body.orcamentoId }))) {
+      return res.status(400).json({ erro: 'Escolhe o orçamento a que este pagamento pertence.' });
+    }
+    const pagamento = await Pagamento.create({
+      orcamentoId: req.body.orcamentoId,
+      valor,
+      data,
+      tipo: req.body.tipo === 'sinal' ? 'sinal' : 'pagamento',
+      metodo: String(req.body.metodo || '').trim().slice(0, 30) || undefined,
+      nota: String(req.body.nota || '').trim().slice(0, 300) || undefined,
+      criadoPor: req.admin.username,
+    });
+    res.status(201).json(pagamento);
+  } catch (erro) {
+    console.error('Erro ao registar pagamento:', erro);
+    res.status(500).json({ erro: 'Não foi possível registar o pagamento.' });
+  }
+});
+
+router.delete('/pagamentos/:id', async (req, res) => {
+  try {
+    if (!mongoose.isValidObjectId(req.params.id)) return res.status(404).json({ erro: 'Pagamento não encontrado.' });
+    const apagado = await Pagamento.findByIdAndDelete(req.params.id);
+    if (!apagado) return res.status(404).json({ erro: 'Pagamento não encontrado.' });
+    res.json({ ok: true });
+  } catch (erro) {
+    console.error('Erro ao apagar pagamento:', erro);
+    res.status(500).json({ erro: 'Não foi possível apagar o pagamento.' });
+  }
+});
+
+// POST /api/financas/despesas — regista uma despesa (opcionalmente ligada a um orçamento/evento)
+router.post('/despesas', async (req, res) => {
+  try {
+    const valor = valorValido(req.body.valor);
+    const data = dataValida(req.body.data);
+    const descricao = String(req.body.descricao || '').trim().slice(0, 120);
+    if (!descricao) return res.status(400).json({ erro: 'Escreve uma descrição para a despesa.' });
+    if (!valor) return res.status(400).json({ erro: 'Indica um valor válido (maior que 0).' });
+    if (!data) return res.status(400).json({ erro: 'A data não é válida.' });
+
+    let orcamentoId;
+    if (req.body.orcamentoId) {
+      if (!mongoose.isValidObjectId(req.body.orcamentoId) || !(await Orcamento.exists({ _id: req.body.orcamentoId }))) {
+        return res.status(400).json({ erro: 'O orçamento escolhido não existe.' });
+      }
+      orcamentoId = req.body.orcamentoId;
+    }
+
+    const despesa = await Despesa.create({
+      descricao,
+      valor,
+      data,
+      orcamentoId,
+      categoria: Despesa.CATEGORIAS_DESPESA.includes(req.body.categoria) ? req.body.categoria : 'Outro',
+      nota: String(req.body.nota || '').trim().slice(0, 300) || undefined,
+      criadoPor: req.admin.username,
+    });
+    res.status(201).json(despesa);
+  } catch (erro) {
+    console.error('Erro ao registar despesa:', erro);
+    res.status(500).json({ erro: 'Não foi possível registar a despesa.' });
+  }
+});
+
+router.delete('/despesas/:id', async (req, res) => {
+  try {
+    if (!mongoose.isValidObjectId(req.params.id)) return res.status(404).json({ erro: 'Despesa não encontrada.' });
+    const apagada = await Despesa.findByIdAndDelete(req.params.id);
+    if (!apagada) return res.status(404).json({ erro: 'Despesa não encontrada.' });
+    res.json({ ok: true });
+  } catch (erro) {
+    console.error('Erro ao apagar despesa:', erro);
+    res.status(500).json({ erro: 'Não foi possível apagar a despesa.' });
+  }
+});
+
+module.exports = router;
+});
+
+// ===== models/Evento ==================================================================
+__define('models/Evento', function (module, exports, require, __dirname, __filename) {
+const mongoose = require('mongoose');
+
+// Um evento marcado: nasce quando um orçamento é aceite e convertido (ver routes/orcamentos).
+// Guarda uma cópia dos dados do cliente e do evento, para continuar a fazer sentido mesmo que o
+// orçamento seja editado ou apagado mais tarde.
+const eventoSchema = new mongoose.Schema(
+  {
+    orcamentoId: { type: mongoose.Schema.Types.ObjectId, ref: 'Orcamento', index: true },
+    quoteRequestId: { type: mongoose.Schema.Types.ObjectId, ref: 'QuoteRequest' },
+
+    nome: { type: String, required: true, trim: true }, // cliente
+    nomeFestejado: { type: String, trim: true },
+    email: { type: String, trim: true, lowercase: true },
+    telefone: { type: String, trim: true },
+
+    tipoEvento: { type: String, trim: true },
+    dataEvento: { type: Date, index: true },
+    localEvento: { type: String, trim: true },
+    numeroConvidados: { type: Number, min: 0 },
+    valorTotal: { type: Number, min: 0, default: 0 },
+
+    estado: { type: String, enum: ['agendado', 'realizado', 'cancelado'], default: 'agendado' },
+    notas: { type: String, trim: true, maxlength: 4000 },
+    criadoPor: { type: String, trim: true },
+  },
+  { timestamps: true }
+);
+
+module.exports = mongoose.model('Evento', eventoSchema);
 });
 
 // ===== models/Parceiro =================================================================
@@ -1137,7 +1553,10 @@ const QuoteRequest = require('../models/QuoteRequest');
 const { requireAdmin } = require('./adminAuth');
 const orcamentoBase = require('../config/orcamentoBase');
 const CatalogoFoto = require('../models/CatalogoFoto');
+const Evento = require('../models/Evento');
+const { enviarEmail, escaparHtml } = require('../services/notificacoes');
 
+const ESTADOS_ORCAMENTO = ['novo', 'em_analise', 'enviado', 'aceite', 'recusado', 'concluido'];
 const MAX_IMAGENS_POR_ORCAMENTO = 8;
 const MAX_TAMANHO_IMAGEM_BYTES = 4 * 1024 * 1024; // 4MB por imagem, já em base64
 
@@ -1229,6 +1648,12 @@ router.post('/', async (req, res) => {
       dados.imagens = limparImagens(req.body.imagens) || [];
     }
 
+    // Notas e fotografias internas (só para a equipa)
+    if (req.body.notasInternas) dados.notasInternas = textoCurto(req.body.notasInternas, 4000);
+    const fotosInternas = limparImagens(req.body.fotosInternas);
+    if (fotosInternas) dados.fotosInternas = fotosInternas;
+    dados.historico = [{ estado: 'novo', por: req.admin.username }];
+
     // Página do evento / flores (valem para os dois modos de criação)
     if (req.body.tema) dados.tema = textoCurto(req.body.tema, 120);
     if (req.body.palavrasChave) dados.palavrasChave = textoCurto(req.body.palavrasChave, 200);
@@ -1253,7 +1678,8 @@ router.get('/', async (req, res) => {
     if (req.query.status) filtro.status = req.query.status;
     if (req.query.quoteRequestId) filtro.quoteRequestId = req.query.quoteRequestId;
 
-    const orcamentos = await Orcamento.find(filtro).sort({ createdAt: -1 });
+    // Sem as imagens (em base64 pesam muito) — a lista não as usa; o editor pede o orçamento completo.
+    const orcamentos = await Orcamento.find(filtro).select('-imagens -imagensFlores -fotosInternas').sort({ createdAt: -1 });
     res.json(orcamentos);
   } catch (erro) {
     console.error('Erro ao listar orçamentos:', erro);
@@ -1365,6 +1791,7 @@ router.patch('/:id', async (req, res) => {
       'validoAte',
       'desconto',
       'status',
+      'notasInternas',
     ];
 
     const alteracoes = {};
@@ -1383,6 +1810,12 @@ router.patch('/:id', async (req, res) => {
       }
       alteracoes.imagens = imagens;
     }
+    if (Object.prototype.hasOwnProperty.call(req.body, 'fotosInternas')) {
+      const fotosInternas = limparImagens(req.body.fotosInternas);
+      if (fotosInternas === undefined) return res.status(400).json({ erro: 'Lista de fotografias inválida.' });
+      alteracoes.fotosInternas = fotosInternas;
+    }
+    if (alteracoes.notasInternas !== undefined) alteracoes.notasInternas = textoCurto(alteracoes.notasInternas, 4000);
     if (Object.prototype.hasOwnProperty.call(req.body, 'tema')) alteracoes.tema = textoCurto(req.body.tema, 120);
     if (Object.prototype.hasOwnProperty.call(req.body, 'palavrasChave')) alteracoes.palavrasChave = textoCurto(req.body.palavrasChave, 200);
     if (Object.prototype.hasOwnProperty.call(req.body, 'flores')) alteracoes.flores = textoCurto(req.body.flores, 400);
@@ -1400,14 +1833,23 @@ router.patch('/:id', async (req, res) => {
     if (alteracoes.validoAte === '') alteracoes.validoAte = null;
     if (alteracoes.numeroConvidados === '' || alteracoes.numeroConvidados === 0) alteracoes.numeroConvidados = null;
     if (alteracoes.versao !== undefined && !String(alteracoes.versao).trim()) alteracoes.versao = 'V00';
-    if (alteracoes.status && !['rascunho', 'enviado'].includes(alteracoes.status)) {
+    if (alteracoes.status && !ESTADOS_ORCAMENTO.includes(alteracoes.status)) {
       return res.status(400).json({ erro: 'Estado inválido.' });
     }
     if (alteracoes.nome !== undefined && !String(alteracoes.nome).trim()) {
       return res.status(400).json({ erro: 'O nome não pode ficar vazio.' });
     }
 
-    const orcamento = await Orcamento.findByIdAndUpdate(req.params.id, alteracoes, {
+    const atualizacao = { $set: alteracoes };
+    if (alteracoes.status) {
+      // Só entra no histórico quando o estado mudou mesmo
+      const antes = await Orcamento.findById(req.params.id).select('status');
+      if (antes && antes.status !== alteracoes.status) {
+        atualizacao.$push = { historico: { estado: alteracoes.status, por: req.admin.username, em: new Date() } };
+      }
+    }
+
+    const orcamento = await Orcamento.findByIdAndUpdate(req.params.id, atualizacao, {
       new: true,
       runValidators: true,
     });
@@ -1417,6 +1859,110 @@ router.patch('/:id', async (req, res) => {
   } catch (erro) {
     console.error('Erro ao editar orçamento:', erro);
     res.status(400).json({ erro: 'Não foi possível guardar as alterações.' });
+  }
+});
+
+// POST /api/orcamentos/:id/enviar-email — envia o orçamento ao cliente por email (resumo com os
+// itens, o total e as condições) e passa-o a "enviado". Corpo opcional: { mensagem }.
+router.post('/:id/enviar-email', async (req, res) => {
+  try {
+    const orcamento = await Orcamento.findById(req.params.id).select('-imagens -imagensFlores -fotosInternas');
+    if (!orcamento) return res.status(404).json({ erro: 'Orçamento não encontrado.' });
+    if (!orcamento.email) return res.status(400).json({ erro: 'Este orçamento não tem email do cliente. Preenche o email e guarda primeiro.' });
+    if (!orcamento.itens.length) return res.status(400).json({ erro: 'O orçamento não tem itens. Adiciona pelo menos um antes de enviar.' });
+    if (!process.env.RESEND_API_KEY) {
+      return res.status(503).json({ erro: 'O envio de emails ainda não está configurado (falta a RESEND_API_KEY no Render).' });
+    }
+
+    const euros = (n) => `${(Number(n) || 0).toFixed(2).replace('.', ',')} €`;
+    const quebras = (texto) => escaparHtml(texto).replace(/\n/g, '<br>');
+    const linhas = orcamento.itens.map((item) => `<tr>
+      <td style="padding:6px 8px;border-bottom:1px solid #eee;">${escaparHtml(item.descricao)}</td>
+      <td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:center;">${item.quantidade}</td>
+      <td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;">${euros(item.quantidade * item.precoUnitario)}</td>
+    </tr>`).join('');
+    const desconto = orcamento.desconto > 0
+      ? `<tr><td colspan="2" style="padding:6px 8px;text-align:right;">Desconto</td><td style="padding:6px 8px;text-align:right;">−${euros(orcamento.desconto)}</td></tr>`
+      : '';
+    const mensagem = String(req.body.mensagem || '').trim().slice(0, 1500)
+      || 'Obrigada pelo seu pedido! Segue abaixo a nossa proposta de orçamento.';
+    const validade = orcamento.validoAte ? `<p style="margin:14px 0 0;">Proposta válida até ${new Date(orcamento.validoAte).toLocaleDateString('pt-PT')}.</p>` : '';
+    const condicoes = orcamento.notas ? `<p style="margin:18px 0 0;font-size:13px;color:#555;">${quebras(orcamento.notas)}</p>` : '';
+    const sobre = [orcamento.tipoEvento, orcamento.dataEvento ? new Date(orcamento.dataEvento).toLocaleDateString('pt-PT') : null, orcamento.localEvento].filter(Boolean).join(' · ');
+
+    const html = `<div style="font-family:Georgia,serif;color:#2b2b2b;max-width:560px;margin:0 auto;padding:24px;">
+      <h2 style="margin:0 0 6px;color:#8a2e3b;">A sua proposta de orçamento</h2>
+      ${sobre ? `<p style="margin:0 0 18px;color:#888;font-size:13px;">${escaparHtml(sobre)}</p>` : ''}
+      <p style="margin:0 0 14px;line-height:1.5;">Olá ${escaparHtml(orcamento.nome)},</p>
+      <p style="margin:0 0 18px;line-height:1.5;">${quebras(mensagem)}</p>
+      <table style="width:100%;border-collapse:collapse;font-size:14px;">
+        <thead><tr style="text-align:left;color:#888;font-size:12px;"><th style="padding:6px 8px;">Item</th><th style="padding:6px 8px;text-align:center;">Qtd.</th><th style="padding:6px 8px;text-align:right;">Valor</th></tr></thead>
+        <tbody>${linhas}${desconto}
+          <tr><td colspan="2" style="padding:10px 8px;text-align:right;font-weight:bold;">Total</td><td style="padding:10px 8px;text-align:right;font-weight:bold;color:#8a2e3b;">${euros(orcamento.calcularTotal())}</td></tr>
+        </tbody>
+      </table>
+      ${validade}${condicoes}
+      <p style="margin:28px 0 0;font-size:12px;color:#888;">DecoraçãoCheio</p>
+    </div>`;
+
+    const enviado = await enviarEmail({
+      para: orcamento.email,
+      assunto: `Proposta de orçamento — ${orcamento.tipoEvento || 'o seu evento'}`,
+      html,
+    });
+    if (!enviado) {
+      return res.status(502).json({ erro: 'O email não foi enviado. Confirma a configuração do envio de emails (Resend) e tenta novamente.' });
+    }
+
+    const atualizacao = { $set: { enviadoEm: new Date(), enviadoPara: orcamento.email } };
+    // Só avança o estado se ainda estava a ser preparado; não mexe em aceite/recusado/concluido.
+    if (['novo', 'em_analise'].includes(orcamento.status)) {
+      atualizacao.$set.status = 'enviado';
+      atualizacao.$push = { historico: { estado: 'enviado', por: req.admin.username, em: new Date() } };
+    }
+    const atualizado = await Orcamento.findByIdAndUpdate(req.params.id, atualizacao, { new: true });
+    res.json(atualizado);
+  } catch (erro) {
+    console.error('Erro ao enviar orçamento por email:', erro);
+    res.status(500).json({ erro: 'Não foi possível enviar o orçamento.' });
+  }
+});
+
+// POST /api/orcamentos/:id/converter-evento — cria o evento a partir de um orçamento aceite.
+router.post('/:id/converter-evento', async (req, res) => {
+  try {
+    const orcamento = await Orcamento.findById(req.params.id).select('-imagens -imagensFlores -fotosInternas');
+    if (!orcamento) return res.status(404).json({ erro: 'Orçamento não encontrado.' });
+    if (!['aceite', 'concluido'].includes(orcamento.status)) {
+      return res.status(400).json({ erro: 'Só se pode converter em evento um orçamento aceite. Muda primeiro o estado para "Aceite".' });
+    }
+    if (orcamento.eventoId) {
+      return res.status(409).json({ erro: 'Este orçamento já foi convertido em evento.', eventoId: orcamento.eventoId });
+    }
+
+    const evento = await Evento.create({
+      orcamentoId: orcamento._id,
+      quoteRequestId: orcamento.quoteRequestId,
+      nome: orcamento.nome,
+      nomeFestejado: orcamento.nomeFestejado,
+      email: orcamento.email,
+      telefone: orcamento.telefone,
+      tipoEvento: orcamento.tipoEvento,
+      dataEvento: orcamento.dataEvento,
+      localEvento: orcamento.localEvento,
+      numeroConvidados: orcamento.numeroConvidados,
+      valorTotal: orcamento.calcularTotal(),
+      criadoPor: req.admin.username,
+    });
+    const atualizado = await Orcamento.findByIdAndUpdate(
+      req.params.id,
+      { $set: { eventoId: evento._id } },
+      { new: true }
+    );
+    res.status(201).json({ orcamento: atualizado, evento });
+  } catch (erro) {
+    console.error('Erro ao converter orçamento em evento:', erro);
+    res.status(500).json({ erro: 'Não foi possível converter em evento.' });
   }
 });
 
@@ -2305,6 +2851,8 @@ async function avisarEquipaNovaAvaliacao(review) {
 }
 
 module.exports = {
+  enviarEmail,
+  escaparHtml,
   registarPresenca,
   avisarEquipaNovoPedido,
   avisarEquipaMensagemCliente,
@@ -2377,9 +2925,11 @@ const categoriasRouter = require('./routes/categorias');
 const calendariosRouter = require('./routes/calendarios');
 const reviewsRouter = require('./routes/reviews');
 const parceirosRouter = require('./routes/parceiros');
+const financasRouter = require('./routes/financas');
 const { router: authRouter } = require('./routes/auth');
 const { router: adminAuthRouter } = require('./routes/adminAuth');
 const AdminUser = require('./models/AdminUser');
+const Orcamento = require('./models/Orcamento');
 const { semearFotosDoCatalogo } = require('./services/seedFotosCatalogo');
 
 // Rede de segurança: um erro inesperado numa rota não deve deitar o servidor inteiro abaixo
@@ -2418,6 +2968,7 @@ app.use('/api/categorias', categoriasRouter);
 app.use('/api/calendarios', calendariosRouter);
 app.use('/api/reviews', reviewsRouter);
 app.use('/api/parceiros', parceirosRouter);
+app.use('/api/financas', financasRouter);
 
 // ---------- robots.txt, sitemap.xml e página 404 ----------
 
@@ -2523,7 +3074,10 @@ mongoose
   .connect(MONGODB_URI)
   .then(() => {
     console.log('✅ Ligado ao MongoDB');
-    return garantirOwner().then(semearFotosDoCatalogo);
+    // O estado antigo "rascunho" passou a "novo" (bypass dos validadores: já não faz parte do enum)
+    return Orcamento.collection.updateMany({ status: 'rascunho' }, { $set: { status: 'novo' } })
+      .then(() => garantirOwner())
+      .then(semearFotosDoCatalogo);
   })
   .catch((erro) => console.error('❌ Erro ao ligar ao MongoDB:', erro.message));
 
