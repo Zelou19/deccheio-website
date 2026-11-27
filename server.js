@@ -176,6 +176,56 @@ secoes.forEach((secao) => {
 module.exports = { valorBase, notasPadrao, secoes };
 });
 
+// ===== config/checklistBase ============================================================
+__define('config/checklistBase', function (module, exports, require, __dirname, __filename) {
+// Listas de tarefas de arranque, por tipo de evento. É o que o botão "Criar lista base" põe na
+// checklist de um pedido (painel de admin). É só um ponto de partida: depois cada pedido fica com
+// a sua própria lista, que se edita à vontade. Para mudar uma tarefa, é só editar aqui.
+// (Os prazos — sinal de 300 €, 15 dias, 3 semanas — vêm das condições em config/orcamentoBase.)
+
+const contacto = [
+  'Responder ao pedido de orçamento',
+  'Reunião com o cliente (ideias e inspiração)',
+  'Visita ao espaço do evento',
+  'Enviar a proposta de orçamento',
+];
+
+const reserva = [
+  'Proposta aprovada pelo cliente',
+  'Sinal de 300 € recebido (data reservada)',
+  'Dados de faturação recebidos',
+  'Tema, paleta de cores e flores definidos',
+  'Extras confirmados (animação, insuflável, fotografia...), se houver',
+  'Flores e materiais encomendados',
+];
+
+const fim = [
+  'Restante pagamento recebido (semana antes do evento)',
+  'Pré-montagem feita',
+  'Montagem no local',
+  'Desmontagem e recolha do material',
+  'Conversa fechada e avaliação pedida',
+];
+
+// Tarefas que só fazem sentido em certos tipos de evento (entram antes das do fim)
+const extrasPorTipo = {
+  Casamento: [
+    'Bouquet da noiva, lapelas e ramos confirmados',
+    'Distribuição das mesas recebida (3 semanas antes)',
+    'Ementa e seating plan recebidos (15 dias antes)',
+  ],
+  'Evento corporativo': [
+    'Horários de acesso e montagem combinados com a empresa',
+  ],
+};
+
+function listaPara(tipoEvento) {
+  return [...contacto, ...reserva, ...(extrasPorTipo[tipoEvento] || []), ...fim];
+}
+
+module.exports = { listaPara };
+});
+
 // ===== models/AdminUser ================================================================
 __define('models/AdminUser', function (module, exports, require, __dirname, __filename) {
 const mongoose = require('mongoose');
@@ -434,6 +484,22 @@ const quoteRequestSchema = new mongoose.Schema(
     // Quando foi enviado ao cliente o email a pedir avaliação (só se pede uma vez por pedido).
     avaliacaoPedidaEm: { type: Date },
 
+    // Lista de tarefas interna do evento — só a equipa a vê (ver routes/quotes). Fica com
+    // `select: false` para NÃO sair em nenhuma resposta da API por defeito: as respostas do chat
+    // devolvem o pedido inteiro ao cliente, e assim a checklist nunca lhe chega por engano.
+    // As rotas de admin pedem-na de propósito (.select('+checklist')).
+    checklist: {
+      type: [
+        {
+          texto: { type: String, required: true, trim: true },
+          feito: { type: Boolean, default: false },
+          feitoPor: { type: String }, // nome de utilizador do admin que a marcou como feita
+          feitoEm: { type: Date },
+        },
+      ],
+      select: false,
+    },
+
     // Preparado para a fase 2 (chat): cada pedido vai poder ter mensagens associadas
     mensagens: [
       {
@@ -541,6 +607,18 @@ function requireAdmin(req, res, next) {
     next();
   } catch (erro) {
     return res.status(401).json({ erro: 'Sessão inválida ou expirada.' });
+  }
+}
+
+// Para rotas públicas que mostram mais coisas a um admin com sessão, sem bloquear ninguém:
+// devolve os dados do admin se houver sessão válida, ou null.
+function adminOpcional(req) {
+  const token = req.cookies?.[NOME_COOKIE];
+  if (!token) return null;
+  try {
+    return jwt.verify(token, JWT_SECRET);
+  } catch (erro) {
+    return null;
   }
 }
 
@@ -741,7 +819,7 @@ router.delete('/utilizadores/:id', requireOwner, async (req, res) => {
   }
 });
 
-module.exports = { router, requireAdmin, requireOwner };
+module.exports = { router, requireAdmin, requireOwner, adminOpcional };
 });
 
 // ===== routes/auth =====================================================================
@@ -1427,8 +1505,9 @@ const express = require('express');
 const router = express.Router();
 const QuoteRequest = require('../models/QuoteRequest');
 const { requireUser } = require('./auth');
-const { requireAdmin } = require('./adminAuth');
+const { requireAdmin, adminOpcional } = require('./adminAuth');
 const notificacoes = require('../services/notificacoes');
+const checklistBase = require('../config/checklistBase');
 
 // Limites simples para as imagens enviadas em base64 (o frontend já as comprime antes de
 // enviar, isto é só uma rede de segurança do lado do servidor).
@@ -1545,7 +1624,10 @@ router.get('/minhas', requireUser, async (req, res) => {
 // através do link único que recebe depois de submeter o pedido (ex: /pedido.html?id=...).
 router.get('/:id', async (req, res) => {
   try {
-    const pedido = await QuoteRequest.findById(req.params.id);
+    // A checklist é interna da equipa: só vai na resposta quando quem pede tem sessão de admin
+    const consulta = QuoteRequest.findById(req.params.id);
+    if (adminOpcional(req)) consulta.select('+checklist');
+    const pedido = await consulta;
     if (!pedido) return res.status(404).json({ erro: 'Pedido não encontrado.' });
 
     // A página da conversa pede isto a cada 5s com ?viewer=cliente ou ?viewer=admin —
@@ -1711,6 +1793,111 @@ router.patch('/:id', requireAdmin, async (req, res) => {
   } catch (erro) {
     console.error('Erro ao editar pedido:', erro);
     res.status(400).json({ erro: 'Não foi possível guardar as alterações.' });
+  }
+});
+
+// ---------- Checklist do evento (só admin) ----------
+// Lista de tarefas interna de cada pedido/evento. Todas as rotas respondem só com { checklist }.
+// Usam-se atualizações atómicas ($push / $set / $pull) para duas pessoas da equipa poderem marcar
+// tarefas ao mesmo tempo sem se pisarem, e `timestamps: false` para marcar uma tarefa não mexer na
+// data de "última atividade" do pedido (é ela que ordena a lista "Os meus orçamentos" do cliente).
+const MAX_TAREFAS_CHECKLIST = 60;
+const MAX_TEXTO_TAREFA = 200;
+
+// POST /api/quotes/:id/checklist — acrescenta uma tarefa
+router.post('/:id/checklist', requireAdmin, async (req, res) => {
+  try {
+    const texto = String(req.body.texto || '').trim().slice(0, MAX_TEXTO_TAREFA);
+    if (!texto) return res.status(400).json({ erro: 'Escreve a tarefa.' });
+
+    const atual = await QuoteRequest.findById(req.params.id).select('+checklist');
+    if (!atual) return res.status(404).json({ erro: 'Pedido não encontrado.' });
+    if ((atual.checklist || []).length >= MAX_TAREFAS_CHECKLIST) {
+      return res.status(400).json({ erro: `A lista já tem o máximo de ${MAX_TAREFAS_CHECKLIST} tarefas.` });
+    }
+
+    const pedido = await QuoteRequest.findByIdAndUpdate(
+      req.params.id,
+      { $push: { checklist: { texto } } },
+      { new: true, timestamps: false }
+    ).select('+checklist');
+    res.status(201).json({ checklist: pedido.checklist });
+  } catch (erro) {
+    console.error('Erro ao acrescentar tarefa:', erro);
+    res.status(400).json({ erro: 'Não foi possível acrescentar a tarefa.' });
+  }
+});
+
+// POST /api/quotes/:id/checklist/base — põe a lista base do tipo de evento (config/checklistBase).
+// Não repete tarefas que já lá estejam, por isso é seguro carregar duas vezes.
+router.post('/:id/checklist/base', requireAdmin, async (req, res) => {
+  try {
+    const atual = await QuoteRequest.findById(req.params.id).select('+checklist');
+    if (!atual) return res.status(404).json({ erro: 'Pedido não encontrado.' });
+
+    const existentes = atual.checklist || [];
+    const jaTem = new Set(existentes.map((tarefa) => tarefa.texto.toLowerCase()));
+    const novas = checklistBase
+      .listaPara(atual.tipoEvento)
+      .filter((texto) => !jaTem.has(texto.toLowerCase()))
+      .slice(0, MAX_TAREFAS_CHECKLIST - existentes.length);
+    if (!novas.length) return res.json({ checklist: existentes });
+
+    const pedido = await QuoteRequest.findByIdAndUpdate(
+      req.params.id,
+      { $push: { checklist: { $each: novas.map((texto) => ({ texto })) } } },
+      { new: true, timestamps: false }
+    ).select('+checklist');
+    res.status(201).json({ checklist: pedido.checklist });
+  } catch (erro) {
+    console.error('Erro ao criar a lista base:', erro);
+    res.status(400).json({ erro: 'Não foi possível criar a lista base.' });
+  }
+});
+
+// PATCH /api/quotes/:id/checklist/:itemId — marca (ou desmarca) uma tarefa como feita,
+// guardando quem a marcou e quando.
+router.patch('/:id/checklist/:itemId', requireAdmin, async (req, res) => {
+  try {
+    if (typeof req.body.feito !== 'boolean') {
+      return res.status(400).json({ erro: 'Indica se a tarefa está feita ou não.' });
+    }
+    const feito = req.body.feito;
+
+    const pedido = await QuoteRequest.findOneAndUpdate(
+      { _id: req.params.id, 'checklist._id': req.params.itemId },
+      {
+        $set: {
+          'checklist.$.feito': feito,
+          'checklist.$.feitoPor': feito ? req.admin.username : null,
+          'checklist.$.feitoEm': feito ? new Date() : null,
+        },
+      },
+      { new: true, timestamps: false }
+    ).select('+checklist');
+    if (!pedido) return res.status(404).json({ erro: 'Tarefa não encontrada.' });
+
+    res.json({ checklist: pedido.checklist });
+  } catch (erro) {
+    console.error('Erro ao atualizar tarefa:', erro);
+    res.status(400).json({ erro: 'Não foi possível atualizar a tarefa.' });
+  }
+});
+
+// DELETE /api/quotes/:id/checklist/:itemId — apaga uma tarefa
+router.delete('/:id/checklist/:itemId', requireAdmin, async (req, res) => {
+  try {
+    const pedido = await QuoteRequest.findByIdAndUpdate(
+      req.params.id,
+      { $pull: { checklist: { _id: req.params.itemId } } },
+      { new: true, timestamps: false }
+    ).select('+checklist');
+    if (!pedido) return res.status(404).json({ erro: 'Pedido não encontrado.' });
+
+    res.json({ checklist: pedido.checklist });
+  } catch (erro) {
+    console.error('Erro ao apagar tarefa:', erro);
+    res.status(400).json({ erro: 'Não foi possível apagar a tarefa.' });
   }
 });
 
