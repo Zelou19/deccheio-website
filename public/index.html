@@ -476,6 +476,73 @@ textarea { resize: vertical; }
 .form-feedback.sucesso { color: #2E6B4F; }
 .form-feedback.erro { color: var(--wine); }
 
+/* ---------- Formulário em 3 passos ---------- */
+.quote-form { scroll-margin-top: 80px; }
+
+.form-passos {
+  list-style: none;
+  display: flex;
+  gap: 8px;
+  margin: 0 0 26px;
+  padding: 0;
+}
+
+.form-passos li {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 10px;
+  border-top: 2px solid rgba(50,45,40,0.15);
+  font-size: 0.78rem;
+  color: var(--taupe);
+}
+
+.fp-num {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: rgba(50,45,40,0.1);
+  color: var(--ink);
+}
+
+.form-passos li.ativo { color: var(--ink); font-weight: 600; border-top-color: var(--gold); }
+.form-passos li.ativo .fp-num { background: var(--gold); }
+.form-passos li.feito { border-top-color: var(--gold); }
+.form-passos li.feito .fp-num { background: var(--wine); color: var(--bg); }
+
+.form-passo[hidden] { display: none; }
+.form-passo:focus { outline: none; }
+
+.form-nav { display: flex; gap: 12px; margin-top: 8px; }
+.form-nav .btn { flex: 1; }
+.form-nav .btn-submit { margin-top: 0; }
+.form-nav [hidden] { display: none !important; }
+
+.btn-voltar {
+  background: none;
+  border: 1px solid rgba(50,45,40,0.25);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 0.9em 1.4em;
+  border-radius: 2px;
+  cursor: pointer;
+}
+.btn-voltar:hover { background: var(--bg-alt); }
+
+@media (max-width: 600px) {
+  .form-passos li:not(.ativo) .fp-rotulo { display: none; }
+  .form-passos li:not(.ativo) { flex: 0 0 auto; min-width: 46px; }
+}
+
 /* ---------- Footer ---------- */
 .site-footer {
   padding: 40px 0;
@@ -1073,69 +1140,90 @@ a.parceiro-item:hover img, a.parceiro-item:focus-visible img { opacity: 1; }
       </div>
 
       <form id="quote-form" class="quote-form" novalidate hidden>
-        <div class="form-row">
-          <label for="nome">Nome do cliente</label>
-          <input type="text" id="nome" name="nome" required>
-        </div>
+        <ol class="form-passos" id="form-passos" aria-label="Passos do pedido">
+          <li class="ativo" aria-current="step"><span class="fp-num">1</span><span class="fp-rotulo">Os seus dados</span></li>
+          <li><span class="fp-num">2</span><span class="fp-rotulo">O evento</span></li>
+          <li><span class="fp-num">3</span><span class="fp-rotulo">A sua ideia</span></li>
+        </ol>
 
-        <div class="form-row">
-          <label for="nomeFestejado">Nome do aniversariante, noivos, empresa, etc. <span class="opcional">(se aplicável)</span></label>
-          <input type="text" id="nomeFestejado" name="nomeFestejado">
-        </div>
+        <!-- Passo 1: quem pede -->
+        <div class="form-passo" data-passo="1" tabindex="-1">
+          <div class="form-row">
+            <label for="nome">Nome do cliente</label>
+            <input type="text" id="nome" name="nome" required>
+          </div>
 
-        <div class="form-row form-row-split">
-          <div>
-            <label for="email">Email</label>
-            <input type="email" id="email" name="email" required>
-          </div>
-          <div>
-            <label for="telefone">Telefone <span class="opcional">(opcional)</span></label>
-            <input type="tel" id="telefone" name="telefone">
-          </div>
-        </div>
-
-        <div class="form-row form-row-split">
-          <div>
-            <label for="tipoEvento">Tipo de evento</label>
-            <select id="tipoEvento" name="tipoEvento" required>
-              <option value="" disabled selected>Escolha uma opção</option>
-              <option value="Casamento">Casamento</option>
-              <option value="Aniversário">Aniversário</option>
-              <option value="Batizado">Batizado</option>
-              <option value="Evento corporativo">Evento corporativo</option>
-              <option value="Baby shower">Baby shower</option>
-              <option value="Outro">Outro</option>
-            </select>
-          </div>
-          <div>
-            <label for="dataEvento">Data prevista <span class="opcional">(opcional)</span></label>
-            <input type="date" id="dataEvento" name="dataEvento">
+          <div class="form-row form-row-split">
+            <div>
+              <label for="email">Email</label>
+              <input type="email" id="email" name="email" required>
+            </div>
+            <div>
+              <label for="telefone">Telefone <span class="opcional">(opcional)</span></label>
+              <input type="tel" id="telefone" name="telefone">
+            </div>
           </div>
         </div>
 
-        <div class="form-row">
-          <label for="numeroConvidados">Nº de convidados <span class="opcional">(opcional)</span></label>
-          <input type="number" id="numeroConvidados" name="numeroConvidados" min="1">
+        <!-- Passo 2: o evento -->
+        <div class="form-passo" data-passo="2" tabindex="-1" hidden>
+          <div class="form-row form-row-split">
+            <div>
+              <label for="tipoEvento">Tipo de evento</label>
+              <select id="tipoEvento" name="tipoEvento" required>
+                <option value="" disabled selected>Escolha uma opção</option>
+                <option value="Casamento">Casamento</option>
+                <option value="Aniversário">Aniversário</option>
+                <option value="Batizado">Batizado</option>
+                <option value="Evento corporativo">Evento corporativo</option>
+                <option value="Baby shower">Baby shower</option>
+                <option value="Outro">Outro</option>
+              </select>
+            </div>
+            <div>
+              <label for="dataEvento">Data prevista <span class="opcional">(opcional)</span></label>
+              <input type="date" id="dataEvento" name="dataEvento">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <label for="nomeFestejado">Nome do aniversariante, noivos, empresa, etc. <span class="opcional">(se aplicável)</span></label>
+            <input type="text" id="nomeFestejado" name="nomeFestejado">
+          </div>
+
+          <div class="form-row form-row-split">
+            <div>
+              <label for="numeroConvidados">Nº de convidados <span class="opcional">(opcional)</span></label>
+              <input type="number" id="numeroConvidados" name="numeroConvidados" min="1">
+            </div>
+            <div>
+              <label for="localEvento">Local do evento <span class="opcional">(opcional)</span></label>
+              <input type="text" id="localEvento" name="localEvento" placeholder="ex: Quinta da Boavista, Porto">
+            </div>
+          </div>
         </div>
 
-        <div class="form-row">
-          <label for="localEvento">Local do evento <span class="opcional">(opcional)</span></label>
-          <input type="text" id="localEvento" name="localEvento" placeholder="ex: Quinta da Boavista, Porto">
+        <!-- Passo 3: a ideia -->
+        <div class="form-passo" data-passo="3" tabindex="-1" hidden>
+          <div class="form-row">
+            <label for="imagens">Imagens de inspiração <span class="opcional">(opcional, até 5)</span></label>
+            <input type="file" id="imagens" accept="image/*" multiple>
+            <div id="imagens-preview" class="imagens-preview"></div>
+          </div>
+
+          <div class="form-row">
+            <label for="mensagem">A sua ideia</label>
+            <textarea id="mensagem" name="mensagem" rows="4" placeholder="Conte-nos o que imagina para o seu evento..." required></textarea>
+          </div>
+
+          <p class="aviso-legal">Ao enviar o pedido, aceita os <a href="/legal.html#termos">Termos e Condições</a> e a <a href="/legal.html#privacidade">Política de Privacidade</a>.</p>
         </div>
 
-        <div class="form-row">
-          <label for="imagens">Imagens de inspiração <span class="opcional">(opcional, até 5)</span></label>
-          <input type="file" id="imagens" accept="image/*" multiple>
-          <div id="imagens-preview" class="imagens-preview"></div>
+        <div class="form-nav">
+          <button type="button" class="btn-voltar" id="btn-passo-voltar" hidden>Voltar</button>
+          <button type="button" class="btn btn-primary" id="btn-passo-seguinte">Seguinte</button>
+          <button type="submit" class="btn btn-primary btn-submit" hidden>Enviar pedido</button>
         </div>
-
-        <div class="form-row">
-          <label for="mensagem">A sua ideia</label>
-          <textarea id="mensagem" name="mensagem" rows="4" placeholder="Conte-nos o que imagina para o seu evento..." required></textarea>
-        </div>
-
-        <p class="aviso-legal">Ao enviar o pedido, aceita os <a href="/legal.html#termos">Termos e Condições</a> e a <a href="/legal.html#privacidade">Política de Privacidade</a>.</p>
-        <button type="submit" class="btn btn-primary btn-submit">Enviar pedido</button>
         <p id="form-feedback" class="form-feedback" role="status" aria-live="polite"></p>
       </form>
     </div>
@@ -1333,8 +1421,70 @@ previewImagens.addEventListener('click', (event) => {
   }
 })();
 
+// ---------- Formulário em 3 passos ----------
+// Os campos são os mesmos de sempre, só estão repartidos por 3 ecrãs (dados -> evento -> ideia).
+// "Seguinte" só avança se os campos do passo atual estiverem válidos; "Enviar pedido" só aparece no último.
+const passosEls = Array.from(form.querySelectorAll('.form-passo'));
+const indicadoresPassos = Array.from(form.querySelectorAll('#form-passos li'));
+const btnPassoVoltar = document.getElementById('btn-passo-voltar');
+const btnPassoSeguinte = document.getElementById('btn-passo-seguinte');
+const btnEnviarPedido = form.querySelector('.btn-submit');
+const TOTAL_PASSOS = passosEls.length;
+const TIPOS_DE_TEXTO = ['text', 'email', 'tel', 'textarea'];
+let passoAtual = 1;
+
+function irParaPasso(n) {
+  passoAtual = n;
+  passosEls.forEach((el, i) => { el.hidden = i + 1 !== n; });
+  indicadoresPassos.forEach((li, i) => {
+    li.classList.toggle('ativo', i + 1 === n);
+    li.classList.toggle('feito', i + 1 < n);
+    if (i + 1 === n) li.setAttribute('aria-current', 'step');
+    else li.removeAttribute('aria-current');
+  });
+  btnPassoVoltar.hidden = n === 1;
+  btnPassoSeguinte.hidden = n === TOTAL_PASSOS;
+  btnEnviarPedido.hidden = n !== TOTAL_PASSOS;
+  feedback.textContent = '';
+  feedback.className = 'form-feedback';
+  // Se o topo do formulário já saiu do ecrã (telemóvel), volta a mostrá-lo
+  if (form.getBoundingClientRect().top < 0) form.scrollIntoView({ block: 'start' });
+  passosEls[n - 1].focus({ preventScroll: true });
+}
+
+// Valida só os campos do passo visível; mostra a mensagem do navegador no primeiro que falhar
+function validarPasso(n) {
+  const campos = passosEls[n - 1].querySelectorAll('input:not([type="file"]), select, textarea');
+  for (const campo of campos) {
+    if (TIPOS_DE_TEXTO.includes(campo.type)) campo.value = campo.value.trim();
+    if (!campo.checkValidity()) {
+      campo.reportValidity();
+      campo.focus();
+      return false;
+    }
+  }
+  return true;
+}
+
+btnPassoSeguinte.addEventListener('click', () => {
+  if (validarPasso(passoAtual)) irParaPasso(passoAtual + 1);
+});
+btnPassoVoltar.addEventListener('click', () => irParaPasso(passoAtual - 1));
+
+// Enter num campo dos primeiros passos avança em vez de tentar enviar o pedido
+form.addEventListener('keydown', (event) => {
+  if (event.key !== 'Enter' || event.target.tagName !== 'INPUT' || passoAtual >= TOTAL_PASSOS) return;
+  event.preventDefault();
+  if (validarPasso(passoAtual)) irParaPasso(passoAtual + 1);
+});
+
 form.addEventListener('submit', async (event) => {
   event.preventDefault();
+  if (passoAtual < TOTAL_PASSOS) {
+    if (validarPasso(passoAtual)) irParaPasso(passoAtual + 1);
+    return;
+  }
+  if (!validarPasso(passoAtual)) return;
   feedback.textContent = '';
   feedback.className = 'form-feedback';
 
