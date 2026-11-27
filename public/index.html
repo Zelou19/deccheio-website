@@ -818,15 +818,56 @@ textarea { resize: vertical; }
   main.wrap { padding-left: 22px; padding-right: 22px; }
   .pedido-card-actions { flex-wrap: wrap; }
 }
-/* ---------- Parceiros e espaços ---------- */
-.parceiros { padding: 80px 0; background: var(--bg-alt); }
+/* ---------- Parceiros (carrossel contínuo de logótipos) ---------- */
+.parceiros { padding: 80px 0; background: var(--bg-alt); overflow: hidden; }
 .parceiros[hidden] { display: none; }
-.parceiros-lista { list-style: none; margin: 40px 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 18px; }
-.parceiro-cartao { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; min-height: 130px; height: 100%; padding: 22px 16px; box-sizing: border-box; text-align: center; background: var(--bg); border-radius: 10px; box-shadow: 0 1px 6px rgba(50,45,40,0.06); color: var(--ink); text-decoration: none; }
-a.parceiro-cartao:hover { box-shadow: 0 4px 14px rgba(50,45,40,0.12); }
-.parceiro-cartao img { max-width: 140px; max-height: 64px; width: auto; height: auto; object-fit: contain; }
-.parceiro-nome { font-family: var(--font-display); font-size: 1.05rem; line-height: 1.25; }
-.parceiro-tipo { font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); font-weight: 600; }
+.parceiros-faixa {
+  margin-top: 40px;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+  mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+}
+.parceiros-pista {
+  display: flex;
+  width: max-content;
+  animation: parceiros-passar var(--parceiros-duracao, 40s) linear infinite;
+}
+.parceiros-faixa:hover .parceiros-pista,
+.parceiros-faixa:focus-within .parceiros-pista { animation-play-state: paused; }
+.parceiros-grupo { display: flex; flex: none; }
+.parceiro-item {
+  flex: none;
+  width: 200px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 24px;
+  box-sizing: border-box;
+  color: var(--ink);
+  text-decoration: none;
+}
+.parceiro-item img {
+  max-width: 100%;
+  max-height: 70px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  opacity: 0.85;
+  transition: opacity 0.2s;
+}
+a.parceiro-item:hover img, a.parceiro-item:focus-visible img { opacity: 1; }
+@keyframes parceiros-passar {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+/* Sem animações (preferência do sistema): mostra os logótipos parados, em grelha */
+@media (prefers-reduced-motion: reduce) {
+  .parceiros-faixa { -webkit-mask-image: none; mask-image: none; }
+  .parceiros-pista { animation: none; width: auto; justify-content: center; }
+  .parceiros-grupo { flex-wrap: wrap; justify-content: center; }
+  .parceiros-grupo[aria-hidden="true"] { display: none; }
+}
 /* ---------- Perguntas frequentes ---------- */
 .faq { padding: 90px 0; background: var(--bg); border-top: 1px solid rgba(50,45,40,0.08); }
 .faq-lista { max-width: 780px; margin-top: 34px; }
@@ -932,15 +973,16 @@ a.parceiro-cartao:hover { box-shadow: 0 4px 14px rgba(50,45,40,0.12); }
     </div>
   </section>
 
-  <!-- COMO FUNCIONA -->
+  <!-- PARCEIROS -->
   <section id="parceiros" class="parceiros" hidden>
     <div class="wrap">
       <p class="eyebrow">Parceiros</p>
       <h2>Espaços e profissionais com quem já trabalhámos</h2>
-      <ul id="parceiros-lista" class="parceiros-lista"></ul>
+      <div class="parceiros-faixa"><div id="parceiros-pista" class="parceiros-pista"></div></div>
     </div>
   </section>
 
+  <!-- COMO FUNCIONA -->
   <section id="como-funciona" class="como-funciona">
     <div class="wrap">
       <p class="eyebrow">Como funciona</p>
@@ -1475,43 +1517,56 @@ elReviewsGrid.addEventListener('click', (event) => {
 carregarReviews();
 </script>
 <script>
-// ---------- Parceiros e espaços ----------
-// Para acrescentar um parceiro, junta uma linha a esta lista:
-//   { nome: 'Quinta Exemplo', tipo: 'Espaço', logo: '/img/parceiros/quinta-exemplo.png', link: 'https://...' }
-// "tipo" (ex: Espaço, Florista, Fotógrafo), "logo" e "link" são opcionais. Sem logótipo aparece só o nome.
-// Enquanto a lista estiver vazia, a secção fica escondida.
+// ---------- Parceiros ----------
+// Os logótipos vêm do painel de admin (Parceiros). Passam da direita para a esquerda, sem parar;
+// o rato por cima pausa. Sem parceiros, a secção fica escondida.
 (function () {
-  const PARCEIROS = [
-  ];
-
   const secao = document.getElementById('parceiros');
-  const lista = document.getElementById('parceiros-lista');
-  if (!secao || !lista || !PARCEIROS.length) return;
+  const pista = document.getElementById('parceiros-pista');
+  if (!secao || !pista) return;
 
-  PARCEIROS.forEach((p) => {
-    const li = document.createElement('li');
-    const cartao = document.createElement(p.link ? 'a' : 'div');
-    cartao.className = 'parceiro-cartao';
-    if (p.link) { cartao.href = p.link; cartao.target = '_blank'; cartao.rel = 'noopener noreferrer'; }
+  const LARGURA_ITEM = 200;   // px — igual a .parceiro-item
+  const MIN_POR_GRUPO = 12;   // o grupo tem de ser mais largo que qualquer ecrã, para não haver buracos
+  const VELOCIDADE = 45;      // px por segundo
 
-    if (p.logo) {
-      const img = document.createElement('img');
-      img.src = p.logo; img.alt = p.nome; img.loading = 'lazy';
-      cartao.appendChild(img);
-    } else {
-      const nome = document.createElement('span');
-      nome.className = 'parceiro-nome'; nome.textContent = p.nome;
-      cartao.appendChild(nome);
+  function criarItem(p, copia) {
+    const el = document.createElement(p.link ? 'a' : 'div');
+    el.className = 'parceiro-item';
+    if (p.link) {
+      el.href = p.link; el.target = '_blank'; el.rel = 'noopener noreferrer';
+      el.setAttribute('aria-label', p.nome);
+      if (copia) el.tabIndex = -1;
     }
-    if (p.tipo) {
-      const tipo = document.createElement('span');
-      tipo.className = 'parceiro-tipo'; tipo.textContent = p.tipo;
-      cartao.appendChild(tipo);
-    }
-    li.appendChild(cartao);
-    lista.appendChild(li);
-  });
-  secao.hidden = false;
+    const img = document.createElement('img');
+    img.src = p.logo; img.alt = copia ? '' : p.nome; img.loading = 'lazy'; img.draggable = false;
+    el.appendChild(img);
+    return el;
+  }
+
+  fetch('/api/parceiros')
+    .then((r) => (r.ok ? r.json() : []))
+    .then((parceiros) => {
+      parceiros = (parceiros || []).filter((p) => p && p.logo && /^data:image\//.test(p.logo));
+      if (!parceiros.length) return;
+
+      const voltas = Math.max(1, Math.ceil(MIN_POR_GRUPO / parceiros.length));
+      const total = voltas * parceiros.length;
+
+      // Dois grupos iguais: quando o primeiro sai todo do ecrã, a animação recomeça sem se notar o salto.
+      [false, true].forEach((copia) => {
+        const grupo = document.createElement('div');
+        grupo.className = 'parceiros-grupo';
+        if (copia) grupo.setAttribute('aria-hidden', 'true');
+        for (let v = 0; v < voltas; v++) {
+          parceiros.forEach((p) => grupo.appendChild(criarItem(p, copia || v > 0)));
+        }
+        pista.appendChild(grupo);
+      });
+
+      pista.style.setProperty('--parceiros-duracao', Math.round((total * LARGURA_ITEM) / VELOCIDADE) + 's');
+      secao.hidden = false;
+    })
+    .catch(() => {});
 })();
 </script>
 <script type="application/ld+json">

@@ -358,6 +358,25 @@ orcamentoSchema.set('toJSON', {
 module.exports = mongoose.model('Orcamento', orcamentoSchema);
 });
 
+// ===== models/Parceiro =================================================================
+__define('models/Parceiro', function (module, exports, require, __dirname, __filename) {
+const mongoose = require('mongoose');
+
+// Parceiros (espaços, fotógrafos, floristas...) mostrados em carrossel na página inicial.
+// O logótipo fica na base de dados em data URL (como as fotos das categorias), porque o disco
+// do Render grátis é apagado a cada deploy.
+const parceiroSchema = new mongoose.Schema(
+  {
+    nome: { type: String, required: true, trim: true },
+    logo: { type: String, required: true }, // data:image/...;base64,...
+    link: { type: String, trim: true },     // opcional — só http(s)
+  },
+  { timestamps: true }
+);
+
+module.exports = mongoose.model('Parceiro', parceiroSchema);
+});
+
 // ===== models/QuoteRequest =============================================================
 __define('models/QuoteRequest', function (module, exports, require, __dirname, __filename) {
 const mongoose = require('mongoose');
@@ -1331,6 +1350,70 @@ router.delete('/:id', async (req, res) => {
 module.exports = router;
 });
 
+// ===== routes/parceiros ================================================================
+__define('routes/parceiros', function (module, exports, require, __dirname, __filename) {
+const express = require('express');
+const router = express.Router();
+const Parceiro = require('../models/Parceiro');
+const { requireAdmin } = require('./adminAuth');
+
+// Só imagens em base64 (nada de data:text/html). SVG fica de fora: ao ser mostrado numa <img>
+// não executa scripts, mas é mais seguro aceitar apenas formatos de imagem normais.
+const LOGO_VALIDO = /^data:image\/(png|jpeg|webp|gif);base64,[A-Za-z0-9+/=]+$/;
+const LOGO_MAX_CHARS = 2_000_000; // ~1,5 MB de imagem — o painel já reduz o logótipo antes de enviar
+
+// GET /api/parceiros — lista os parceiros para a página inicial. Pública.
+router.get('/', async (req, res) => {
+  try {
+    const parceiros = await Parceiro.find().sort({ createdAt: 1 });
+    res.json(parceiros);
+  } catch (erro) {
+    console.error('Erro ao listar parceiros:', erro);
+    res.status(500).json({ erro: 'Não foi possível carregar os parceiros.' });
+  }
+});
+
+// POST /api/parceiros — adiciona um parceiro (nome + logótipo + link opcional).
+router.post('/', requireAdmin, async (req, res) => {
+  try {
+    const { nome, logo, link } = req.body;
+
+    if (!nome || !nome.trim()) {
+      return res.status(400).json({ erro: 'Indica o nome do parceiro.' });
+    }
+    if (!logo || typeof logo !== 'string' || logo.length > LOGO_MAX_CHARS || !LOGO_VALIDO.test(logo)) {
+      return res.status(400).json({ erro: 'Escolhe um logótipo válido (PNG, JPG, WebP ou GIF).' });
+    }
+
+    let ligacao = (link || '').trim();
+    if (ligacao) {
+      if (!/^https?:\/\//i.test(ligacao)) ligacao = 'https://' + ligacao;
+      try { new URL(ligacao); } catch { return res.status(400).json({ erro: 'O link não é válido.' }); }
+    }
+
+    const parceiro = await Parceiro.create({ nome: nome.trim(), logo, link: ligacao || undefined });
+    res.status(201).json(parceiro);
+  } catch (erro) {
+    console.error('Erro ao criar parceiro:', erro);
+    res.status(500).json({ erro: 'Não foi possível guardar o parceiro.' });
+  }
+});
+
+// DELETE /api/parceiros/:id — remove um parceiro.
+router.delete('/:id', requireAdmin, async (req, res) => {
+  try {
+    const parceiro = await Parceiro.findByIdAndDelete(req.params.id);
+    if (!parceiro) return res.status(404).json({ erro: 'Parceiro não encontrado.' });
+    res.json({ sucesso: true });
+  } catch (erro) {
+    console.error('Erro ao apagar parceiro:', erro);
+    res.status(400).json({ erro: 'Não foi possível apagar o parceiro.' });
+  }
+});
+
+module.exports = router;
+});
+
 // ===== routes/quotes ===================================================================
 __define('routes/quotes', function (module, exports, require, __dirname, __filename) {
 const express = require('express');
@@ -1961,6 +2044,7 @@ const orcamentosRouter = require('./routes/orcamentos');
 const categoriasRouter = require('./routes/categorias');
 const calendariosRouter = require('./routes/calendarios');
 const reviewsRouter = require('./routes/reviews');
+const parceirosRouter = require('./routes/parceiros');
 const { router: authRouter } = require('./routes/auth');
 const { router: adminAuthRouter } = require('./routes/adminAuth');
 const AdminUser = require('./models/AdminUser');
@@ -2001,6 +2085,7 @@ app.use('/api/orcamentos', orcamentosRouter);
 app.use('/api/categorias', categoriasRouter);
 app.use('/api/calendarios', calendariosRouter);
 app.use('/api/reviews', reviewsRouter);
+app.use('/api/parceiros', parceirosRouter);
 
 // ---------- robots.txt, sitemap.xml e página 404 ----------
 
